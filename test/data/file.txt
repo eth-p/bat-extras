@@ -1,0 +1,10 @@
+cat
+dog
+car
+frog
+fox
+clocks
+bash
+$300
+^$!@
+
