@@ -1,0 +1,8 @@
+# System
+.DS_Store
+._*
+
+# Project
+.download
+bin
+
