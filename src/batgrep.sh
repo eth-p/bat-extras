@@ -102,6 +102,7 @@ do_print() {
 		"${LAST_LR[@]}" \
 		"${LAST_LH[@]}" \
 		--style="header,numbers" \
+		--paging=never \
 		"$LAST_FILE"
 
 	# Print the separator.
