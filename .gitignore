@@ -3,6 +3,7 @@
 ._*
 
 # Project
+/.circleci/.config.yml
 .download
 bin
 

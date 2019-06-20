@@ -4,6 +4,8 @@ executors:
     linux_alpine:
         docker:
             - image: alpine:latest
+        environment:
+            TERM: xterm
 
 commands:
     setup:
@@ -20,7 +22,7 @@ commands:
                 command: apk add bash python2
             - run:
                 name:    "Setup: Install runtime packages."
-                command: apk add bat ripgrep
+                command: apk add bat ripgrep ncurses
 
     build:
         description: "Build the self-contained scripts."
@@ -35,7 +37,6 @@ commands:
 
 
 jobs:
-
     build:
         executor: linux_alpine
         steps:

@@ -4,6 +4,11 @@ SCRIPT="$1"
 DIR_SRC="${HERE}/../../src"
 DIR_BIN="${HERE}/../../bin"
 
+export BAT_PAGER=""
+export PAGER="cat"
+export TERM="xterm"
+export LANG="en_US.UTF-8"
+
 shift
 case "$TEST_RUNNER_USE" in
 	src)

@@ -30,7 +30,7 @@ fail() {
 			;;
 
 		DIFF)
-			printf "\x1B[31m%s\x1B[0m\n" "$1"
+			printf "\x1B[33m%s\x1B[0m\n" "$2"
 			printf "\x1B[33mDifference:\x1B[0m\n"
 			bat --style=plain -l diff -
 			;;
@@ -61,7 +61,7 @@ case "$1" in
 		if [ -z "$SNAPSHOT_DIFF" ]; then
 			pass
 		else
-			fail DIFF "The current revision does not match the snapshot."
+			fail DIFF "The current revision does not match the snapshot." <<< "$SNAPSHOT_DIFF"
 		fi
 	};;
 
@@ -72,7 +72,7 @@ case "$1" in
 		if [ -z "$SNAPSHOT_DIFF" ]; then
 			pass
 		else
-			fail DIFF "The current built and executed scripts act differently."
+			fail DIFF "The current built and executed scripts act differently." <<< "$SNAPSHOT_DIFF"
 		fi
 	};;
 
