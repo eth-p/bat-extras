@@ -10,12 +10,13 @@ source "${LIB}/opt.sh"
 source "${LIB}/str.sh"
 source "${LIB}/print.sh"
 # -----------------------------------------------------------------------------
+PROGRAM="$0"
 
 # -----------------------------------------------------------------------------
 # Formatters:
 # -----------------------------------------------------------------------------
 
-FORMATTERS=("prettier")
+FORMATTERS=("prettier" "rustfmt")
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 
@@ -38,6 +39,19 @@ formatter_prettier_process() {
 	prettier --stdin --stdin-filepath "$1" 2>/dev/null
 	return $?
 }
+
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+
+formatter_rustfmt_supports() {
+	[[ "$1" = ".rs" ]]
+	return $?
+}
+
+formatter_rustfmt_process() {
+	rustfmt
+	return $?
+}
+
 
 # -----------------------------------------------------------------------------
 # Functions:
@@ -62,6 +76,7 @@ map_language_to_extension() {
 		json)                  ext=".json" ;;
 		md|mdown|markdown)     ext=".md"   ;;
 		yaml|yml)              ext=".yml"  ;;
+		rust|rs)               ext=".rs"   ;;
 	esac
 	
 	echo "$ext"
@@ -120,14 +135,14 @@ process_file() {
 		data_raw="$(cat -)"
 		data_formatted="$("formatter_${formatter}_process" "$file" 2>/dev/null <<< "$data_raw")"
 		if [[ $? -ne 0 ]]; then
-			printc "{YELLOW}[%s warning]{CLEAR}: 'STDIN': Unable to format with '%s'" "$0" "$formatter" 1>&2
+			printc "%{YELLOW}[%s warning]%{CLEAR}: 'STDIN': Unable to format with '%s'\n" "$PROGRAM" "$formatter" 1>&2
 			print_file --language="$lang" - <<< "$data_raw"
 			return 1
 		fi
 	else
 		data_formatted="$("formatter_${formatter}_process" "$file" < "$file")"
 		if [[ $? -ne 0 ]]; then
-			printc "{YELLOW}[%s warning]{CLEAR}: '%s': Unable to format with '%s'" "$0" "$file" "$formatter" 1>&2
+			printc "%{YELLOW}[%s warning]%{CLEAR}: '%s': Unable to format with '%s'\n" "$PROGRAM" "$file" "$formatter" 1>&2
 			print_file --language="$lang" "$file"
 			return 1
 		fi
