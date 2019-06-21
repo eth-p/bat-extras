@@ -19,7 +19,7 @@ commands:
                 command: apk update
             - run:
                 name:    "Setup: Install build packages."
-                command: apk add bash python2
+                command: apk add bash python2 diffutils
             - run:
                 name:    "Setup: Install runtime packages."
                 command: apk add bat ripgrep ncurses
@@ -44,6 +44,8 @@ jobs:
             - checkout
             - build:
                 minify: "all"
+            - store_artifacts:
+                path: bin
 
     test-snapshots:
         executor: linux_alpine
