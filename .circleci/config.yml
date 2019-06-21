@@ -19,7 +19,7 @@ commands:
                 command: apk update
             - run:
                 name:    "Setup: Install build packages."
-                command: apk add bash python2 diffutils
+                command: apk add bash python2 diffutils ca-certificates
             - run:
                 name:    "Setup: Install runtime packages."
                 command: apk add bat ripgrep ncurses
