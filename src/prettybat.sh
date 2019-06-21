@@ -16,7 +16,7 @@ PROGRAM="$0"
 # Formatters:
 # -----------------------------------------------------------------------------
 
-FORMATTERS=("prettier" "rustfmt")
+FORMATTERS=("prettier" "rustfmt" "shfmt")
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 
@@ -51,6 +51,19 @@ formatter_rustfmt_process() {
 	rustfmt
 	return $?
 }
+
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+
+formatter_shfmt_supports() {
+	[[ "$1" = ".sh" ]]
+	return $?
+}
+
+formatter_shfmt_process() {
+	shfmt
+	return $?
+}
+
 
 
 # -----------------------------------------------------------------------------
@@ -115,15 +128,21 @@ print_file() {
 process_file() {
 	local file="$1"
 	local ext="$2"
+	local fext="$ext"
 	local lang="${ext:1}"
 	
 	if [[ -n "$OPT_LANGUAGE" ]]; then
 		lang="$OPT_LANGUAGE"
+		fext="$(map_language_to_extension "$lang")"
 	fi
 
-	local formatter="$(map_extension_to_formatter "$ext")"
+	local formatter="$(map_extension_to_formatter "$fext")"
 	if [[ "$formatter" = "none" ]]; then
-		print_file "$file"
+		if [[ -z "$OPT_LANGUAGE" ]]; then
+			print_file "$file"
+		else
+			print_file --language="$OPT_LANGUAGE" "$file"
+		fi
 		return $?
 	fi
 
@@ -164,9 +183,9 @@ while shiftopt; do
 	case "$OPT" in
 
 		# Language Options
-		-l)         OPT_LANGUAGE="${OPT_VAL}" ;;
-		-l*)        OPT_LANGUAGE="${OPT:2}"   ;;
-		--language) OPT_LANGUAGE="$OPT_VAL"   ;;
+		-l)         shiftval; OPT_LANGUAGE="${OPT_VAL}" ;;
+		-l*)                  OPT_LANGUAGE="${OPT:2}"   ;;
+		--language) shiftval; OPT_LANGUAGE="$OPT_VAL"   ;;
 
 		# Bat Options
 		-*) {
