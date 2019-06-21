@@ -224,7 +224,7 @@ printc "%{YELLOW}Building scripts...%{CLEAR}\n" 1>&2
 file_i=0
 file_n="${#SOURCES[@]}"
 for file in "${SOURCES[@]}"; do
-	((file_i++))
+	((file_i++)) || true;
 
 	filename="$(basename "$file" .sh)"
 
