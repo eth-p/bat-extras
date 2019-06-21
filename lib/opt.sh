@@ -53,7 +53,7 @@ shiftopt() {
 #     EXIT 1  -- No option value was available.
 shiftval() {
 	# Skip if a value was already provided.
-	if [[ -z "${ARG_VAL+x}" ]]; then
+	if [[ -n "${OPT_VAL+x}" ]]; then
 		return 0
 	fi
 
