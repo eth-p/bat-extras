@@ -13,6 +13,7 @@ LIB="$HERE/lib"
 source "${LIB}/print.sh"
 source "${LIB}/opt.sh"
 # -----------------------------------------------------------------------------
+set -eo pipefail
 
 # Runs the next build step.
 #
