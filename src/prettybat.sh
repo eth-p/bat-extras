@@ -89,9 +89,9 @@ prettify() {
 
 batify() {
 	if [[ "${#BAT_ARGS[@]}" -eq 0 ]]; then
-		bat "$1"
+		bat "$@"
 	else
-		bat "${BAT_ARGS[@]}" "$1"
+		bat "${BAT_ARGS[@]}" "$@"
 	fi
 }
 
@@ -99,13 +99,13 @@ EXIT=0
 for file in "${FILES[@]}"; do
 	file_pretty="$(prettify "$file")"
 	if [[ $? -eq 0 ]]; then
-		batify "-" <<< "$file_pretty"
+		batify --language="${file##*.}" - <<< "$file_pretty"
 		exitcode=$?
 	else 
 		batify "$file"
 		exitcode=$?
 	fi
-	
+
 	if [[ $exitcode -ne 0 ]]; then
 		EXIT=$exitcode
 	fi
