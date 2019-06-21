@@ -1,6 +1,6 @@
 # bat-extras: prettybat
 
-A script that uses [prettier](https://github.com/burntsushi/ripgrep) for reformatting and bat for syntax highlighting.
+A script that uses various pretty-printing tools and bat to display code in your terminal.
 
 
 
@@ -18,10 +18,27 @@ See `man bat` for more information.
 
 
 
+## Languages
+
+| Language             | Formatter                                       |
+| -------------------- | ----------------------------------------------- |
+| JavaScript (JS, JSX) | [prettier](https://prettier.io/)                |
+| TypeScript (TS, TSX) | [prettier](https://prettier.io/)                |
+| CSS, SCSS, SASS      | [prettier](https://prettier.io/)                |
+| Markdown             | [prettier](https://prettier.io/)                |
+| JSON                 | [prettier](https://prettier.io/)                |
+| YAML                 | [prettier](https://prettier.io/)                |
+| HTML                 | [prettier](https://prettier.io/)                |
+| Rust                 | [rustfmt](https://github.com/rust-lang/rustfmt) |
+
+
+
+
+
 ## Caveats
 
-The header displayed by bat will show `STDIN` instead of the filename.
-There's nothing that can be done about this with the current version of bat.
+- The header displayed by bat will show `STDIN` instead of the filename.
+- The git changes sidebar will not work with files that have been formatted.
 
 
 
