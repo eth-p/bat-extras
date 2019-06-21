@@ -7,6 +7,7 @@ Bash scripts that integrate [bat](https://github.com/sharkdp/bat) with various c
 ## Scripts
 
 - [`batgrep`](doc/batgrep.md) (ripgrep + bat)
+- [`prettybat`](doc/prettybat.md) (prettier + bat)
 
 &nbsp;
 
