@@ -6,7 +6,6 @@
 # Issues:     https://github.com/eth-p/bat-extras/issues
 # -----------------------------------------------------------------------------
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-DL="$HERE/.download"
 BIN="$HERE/bin"
 SRC="$HERE/src"
 LIB="$HERE/lib"
@@ -162,13 +161,7 @@ pp_strip_comments() {
 # Minify a Bash source file.
 # https://github.com/precious/bash_minifier
 pp_minify() {
-	local python="python"
-	if command -v python2 &>/dev/null; then
-		python="python2"
-	fi
-
-	"$python" "$DL/minifier.py"
-	printf "\n"
+	shfmt -mn
 }
 
 # -----------------------------------------------------------------------------
@@ -196,14 +189,13 @@ else
 fi
 
 # -----------------------------------------------------------------------------
-# Download resources.
+# Check for resources.
 
-[[ -d "$DL" ]] || mkdir "$DL"
 [[ -d "$BIN" ]] || mkdir "$BIN"
 
-if [[ "$OPT_MINIFY" != "none" ]] && ! [[ -f "$DL/minifier.py" ]]; then
-	printc "%{YELLOW}Downloading %{BLUE}https://github.com/precious/bash_minifier%{YELLOW}...%{CLEAR}\n" 1>&2
-	curl -sL "https://gitcdn.xyz/repo/precious/bash_minifier/master/minifier.py" > "$DL/minifier.py"
+if [[ "$OPT_MINIFY" != "none" ]] && ! command -v shfmt &>/dev/null; then
+	printc "%{RED}Warning: cannot find shfmt. Unable to minify scripts.%{CLEAR}\n"
+	OPT_MINIFY=none
 fi
 
 # -----------------------------------------------------------------------------

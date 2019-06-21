@@ -40,7 +40,8 @@ There are three different options for minification:
 | `--minify=lib`  | Embedded library scripts will be minified. [default] |
 | `--minify=all`  | Everything will be minified.                         |
 
-This uses [bash_minifier](https://github.com/precious/bash_minifier) to perform minification, and requires Python 2 to be installed as either `python2` or `python`.
+This uses [shfmt](https://github.com/mvdan/sh) to perform minification.
+
 
 &nbsp;
 

@@ -30,6 +30,7 @@ See `man bat` for more information.
 | YAML                 | [prettier](https://prettier.io/)                |
 | HTML                 | [prettier](https://prettier.io/)                |
 | Rust                 | [rustfmt](https://github.com/rust-lang/rustfmt) |
+| Bash                 | [shfmt](https://github.com/mvdan/sh)            |
 
 
 
