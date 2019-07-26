@@ -96,8 +96,6 @@ do_print() {
 	FIRST_PRINT=false
 
 	# Print the file.
-	unset LAST_LR[0]
-	unset LAST_LH[0]
 	bat "${BAT_ARGS[@]}" \
 		"${LAST_LR[@]}" \
 		"${LAST_LH[@]}" \
@@ -115,8 +113,8 @@ while IFS=':' read -r file line column; do
 	if [[ "$LAST_FILE" != "$file" ]]; then
 		do_print
 		LAST_FILE="$file"
-		LAST_LR=''
-		LAST_LH=''
+		LAST_LR=()
+		LAST_LH=()
 	fi
 	
 	# Calculate the context line numbers.
