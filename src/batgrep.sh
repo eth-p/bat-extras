@@ -9,7 +9,7 @@ LIB="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/../lib"
 source "${LIB}/print.sh"
 source "${LIB}/opt.sh"
 # -----------------------------------------------------------------------------
-SEP="$(printc "%{DIM}%$(tput cols)s%{CLEAR}" | tr ' ' '─')"
+SEP="$(printc "%{DIM}%$(tput cols)s%{CLEAR}" | sed "s/ /─/g")"
 RG_ARGS=()
 BAT_ARGS=()
 PATTERN=
