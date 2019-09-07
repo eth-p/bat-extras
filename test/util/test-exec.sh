@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-RUNNER="${HERE}/runner.sh"
+RUNNER="${HERE}/test-runner.sh"
 TEST_DATA="${HERE}/../data"
 
 # Test data.
