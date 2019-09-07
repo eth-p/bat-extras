@@ -8,6 +8,7 @@
 LIB="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/../lib"
 source "${LIB}/print.sh"
 source "${LIB}/opt.sh"
+source "${LIB}/version.sh"
 # -----------------------------------------------------------------------------
 SEP="$(printc "%{DIM}%$(tput cols)s%{CLEAR}" | sed "s/ /─/g")"
 RG_ARGS=()
@@ -17,6 +18,12 @@ FILES=()
 OPT_CONTEXT_BEFORE=2
 OPT_CONTEXT_AFTER=2
 OPT_FOLLOW=true
+BAT_STYLE="header,numbers"
+
+# Set options based on the bat version.
+if version_compare "$(bat_version)" -gt "0.12"; then
+	BAT_STYLE="${BAT_STYLE},snip"
+fi
 
 # Parse arguments.
 while shiftopt; do
@@ -99,7 +106,7 @@ do_print() {
 	bat "${BAT_ARGS[@]}" \
 		"${LAST_LR[@]}" \
 		"${LAST_LH[@]}" \
-		--style="header,numbers" \
+		--style="${BAT_STYLE}" \
 		--paging=never \
 		"$LAST_FILE"
 
