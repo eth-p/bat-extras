@@ -1,4 +1,22 @@
 #!/usr/bin/env bash
+# -----------------------------------------------------------------------------
+# bat-extras | Copyright (C) 2019 eth-p | MIT License
+#
+# Repository: https://github.com/eth-p/bat-extras
+# Issues:     https://github.com/eth-p/bat-extras/issues
+# -----------------------------------------------------------------------------
+# This is the test runner.
+#
+# It creates and sets up an environment that acts consistently and in a way
+# that is optimal for testing the output of bat.
+#
+# It can be executed in a test script through the "$TEST_RUNNER" variable.
+#
+# Arguments:
+#     1   -- The script to execute.
+#     ... -- The arguments to pass to the script.
+#
+# -----------------------------------------------------------------------------
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 SCRIPT="$1"
 DIR_SRC="${HERE}/../../src"
