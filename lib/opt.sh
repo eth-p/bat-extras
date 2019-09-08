@@ -7,6 +7,13 @@
 # -----------------------------------------------------------------------------
 PROGRAM="$(basename "${BASH_SOURCE[0]}")"
 
+# Sets the internal _ARGV and _ARGV_INDEX variables used when
+# parsing options with the shiftopt and shiftval functions.
+setargs() {
+	_ARGV=("$@") 
+	_ARGV_INDEX="$((${#_ARGV[@]} - 1))"
+}
+
 # Gets the next option passed to the script.
 # 
 # Variables:
@@ -22,12 +29,6 @@ PROGRAM="$(basename "${BASH_SOURCE[0]}")"
 #         echo "$OPT = $OPT_VAL"
 #     done
 shiftopt() {
-	# Ensure _ARGV exists and has the program arguments.
-	if [[ -z ${_ARGV+x} ]]; then
-		_ARGV=("${BASH_ARGV[@]}") 
-		_ARGV_INDEX="$((${#_ARGV[@]} - 1))"
-	fi
-
 	# Read the top of _ARGV.
 	[[ "$_ARGV_INDEX" -lt 0 ]] && return 1
 	OPT="${_ARGV[$_ARGV_INDEX]}"
@@ -66,4 +67,8 @@ shiftval() {
 		exit 1
 	fi
 }
+
+
+# -----------------------------------------------------------------------------
+setargs "$@"
 
