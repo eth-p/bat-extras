@@ -35,7 +35,7 @@ shiftopt() {
 	OPT="${_ARGV[$_ARGV_INDEX]}"
 	unset OPT_VAL
 	
-	if [[ "$OPT" =~ ^--[a-zA-Z-]+=.* ]]; then
+	if [[ "$OPT" =~ ^--[a-zA-Z0-9_-]+=.* ]]; then
 		OPT_VAL="${OPT#*=}"
 		OPT="${OPT%%=*}"
 	fi
