@@ -76,8 +76,9 @@ display_test_summary() {
 
 if [ -n "$1" ]; then
 	run_all_tests "$1"
+	exit_status=$?
 	display_test_summary
-	exit $?
+	exit $exit_status
 fi
 
 # Run all actions.
