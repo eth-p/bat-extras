@@ -7,11 +7,12 @@
 # -----------------------------------------------------------------------------
 PROGRAM="$(basename "${BASH_SOURCE[0]}")"
 
-# Sets the internal _ARGV and _ARGV_INDEX variables used when
+# Sets the internal _ARGV, _ARGV_INDEX, and _ARGV_LAST variables used when
 # parsing options with the shiftopt and shiftval functions.
 setargs() {
 	_ARGV=("$@") 
-	_ARGV_INDEX="$((${#_ARGV[@]} - 1))"
+	_ARGV_LAST="$((${#_ARGV[@]} - 1))"
+	_ARGV_INDEX=0
 }
 
 # Gets the next option passed to the script.
@@ -30,7 +31,7 @@ setargs() {
 #     done
 shiftopt() {
 	# Read the top of _ARGV.
-	[[ "$_ARGV_INDEX" -lt 0 ]] && return 1
+	[[ "$_ARGV_INDEX" -gt "$_ARGV_LAST" ]] && return 1
 	OPT="${_ARGV[$_ARGV_INDEX]}"
 	unset OPT_VAL
 	
@@ -40,7 +41,7 @@ shiftopt() {
 	fi
 
 	# Pop array.
-	((_ARGV_INDEX--))
+	((_ARGV_INDEX++))
 	return 0
 }
 
@@ -59,7 +60,7 @@ shiftval() {
 	fi
 
 	OPT_VAL="${_ARGV[$_ARGV_INDEX]}"
-	((_ARGV_INDEX--))
+	((_ARGV_INDEX++))
 
 	# Error if no value is provided.
 	if [[ "$OPT_VAL" =~ -.* ]]; then
