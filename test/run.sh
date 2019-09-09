@@ -23,6 +23,10 @@ run_test() {
 	local test_name="$1"
 	local test_action="$2"
 
+	export DIR_SRC="${HERE}/../src"
+	export DIR_BIN="${HERE}/../bin"
+	export DIR_LIB="${HERE}/../lib"
+
 	bash "$HERE/util/test-exec.sh" "$test_action" "$test_name"
 	return $?
 }

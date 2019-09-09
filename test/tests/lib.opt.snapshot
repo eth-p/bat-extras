@@ -1,0 +1,7 @@
+ARGUMENT:     "pos1"
+LONG_OPTION:  "--val1" with value "for_val1"
+LONG_OPTION:  "--val2" with value "for_val2"
+ARGUMENT:     "pos2"
+LONG_FLAG:    "--flag1"
+SHORT_OPTION: "-v4" with value "for_val4"
+LONG_FLAG:    "--flag2"
