@@ -6,6 +6,7 @@
 # Issues:     https://github.com/eth-p/bat-extras/issues
 # -----------------------------------------------------------------------------
 LIB="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/../lib"
+BAT="bat"
 source "${LIB}/print.sh"
 source "${LIB}/opt.sh"
 source "${LIB}/version.sh"
@@ -103,12 +104,12 @@ do_print() {
 	FIRST_PRINT=false
 
 	# Print the file.
-	bat "${BAT_ARGS[@]}" \
-		"${LAST_LR[@]}" \
-		"${LAST_LH[@]}" \
-		--style="${BAT_STYLE}" \
-		--paging=never \
-		"$LAST_FILE"
+	"$BAT" "${BAT_ARGS[@]}" \
+		   "${LAST_LR[@]}" \
+		   "${LAST_LH[@]}" \
+		   --style="${BAT_STYLE}" \
+		   --paging=never \
+		   "$LAST_FILE"
 
 	# Print the separator.
 	echo "$SEP"

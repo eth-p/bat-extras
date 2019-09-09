@@ -55,7 +55,7 @@ step_read() {
 # Build step: preprocess
 # Preprocesses the script.
 #
-# This will embed library scripts.
+# This will embed library scripts and replace the BAT variable.
 #
 # Input:
 #     The original file contents.
@@ -69,6 +69,12 @@ step_preprocess() {
 	while IFS='' read -r line; do
 		# Skip certain lines.
 		[[ "$line" =~ ^LIB=.*$ ]] && continue
+		
+		# Replace the BAT variable with the build option.
+		if [[ "$line" =~ ^BAT=.*$ ]]; then
+			printf "BAT=%q\n" "$OPT_BAT"
+			continue
+		fi
 
 		# Embed library scripts.
 		if [[ "$line" =~ ^[[:space:]]*source[[:space:]]+[\"\']\$\{?LIB\}/([a-z-]+\.sh)[\"\'] ]]; then
@@ -169,17 +175,28 @@ pp_minify() {
 OPT_INSTALL=false
 OPT_MINIFY="lib"
 OPT_PREFIX="/usr/local"
+OPT_BAT="bat"
 
 while shiftopt; do
 	case "$OPT" in
-		--install)   OPT_INSTALL=true;;
-		--prefix)    shiftval; OPT_PREFIX="$OPT_VAL";;
-		--minify)    shiftval; OPT_MINIFY="$OPT_VAL";;
+		--install)              OPT_INSTALL=true;;
+		--prefix)               shiftval; OPT_PREFIX="$OPT_VAL";;
+		--alternate-executable) shiftval; OPT_BAT="$OPT_VAL";;
+		--minify)               shiftval; OPT_MINIFY="$OPT_VAL";;
 		
 		*)         printc "%{RED}%s: unknown option '%s'%{CLEAR}" "$PROGRAM" "$OPT";
 		           exit 1;;
 	esac
 done
+
+if [[ "$OPT_BAT" != "bat" ]]; then
+	printc "%{YELLOW}Building executable scripts with an alternate bat executable at %{CLEAR}%s%{YELLOW}.%{CLEAR}\n" "$OPT_BAT" 1>&2
+	if ! command -v "$OPT_BAT"; then
+		printc "%{YELLOW}WARNING: Bash cannot execute the specified file.\n" 1>&2
+		printc "%{YELLOW}         The finished scripts may not run properly.%{CLEAR}\n" 1>&2
+	fi
+	printc "\n" 1>&2
+fi
 
 if [[ "$OPT_INSTALL" = true ]]; then
 	printc "%{YELLOW}Installing to %{MAGENTA}%s%{YELLOW}.%{CLEAR}\n" "$OPT_PREFIX" 1>&2

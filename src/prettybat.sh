@@ -6,6 +6,7 @@
 # Issues:     https://github.com/eth-p/bat-extras/issues
 # -----------------------------------------------------------------------------
 LIB="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/../lib"
+BAT="bat"
 source "${LIB}/opt.sh"
 source "${LIB}/str.sh"
 source "${LIB}/print.sh"
@@ -117,10 +118,10 @@ extname() {
 
 print_file() {
 	if [[ "${#BAT_ARGS[@]}" -eq 0 ]]; then
-		bat "$@"
+		"$BAT" "$@"
 		return $?
 	else
-		bat "${BAT_ARGS[@]}" "$@"
+		"$BAT" "${BAT_ARGS[@]}" "$@"
 		return $?
 	fi
 }

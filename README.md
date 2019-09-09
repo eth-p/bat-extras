@@ -49,3 +49,11 @@ This uses [shfmt](https://github.com/mvdan/sh) to perform minification.
 **Installation:**
 
 You can also specify `--install` and `--prefix=PATH` to have the build script automatically install the scripts for all users on the system. You may need to run the build script as root. 
+
+
+
+**Alternate Executable:**
+
+Depending on the distribution, bat may have been renamed to avoid package conflicts.
+If you wish to use these scripts on a distribution where this is the case, there is an `--alternate-executable=NAME` option which will build the scripts to use an alternate executable name.
+
