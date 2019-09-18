@@ -50,6 +50,8 @@ This uses [shfmt](https://github.com/mvdan/sh) to perform minification.
 
 You can also specify `--install` and `--prefix=PATH` to have the build script automatically install the scripts for all users on the system. You may need to run the build script as root. 
 
+If you only want to install a single script, you can run the build process and copy the script directly out of the newly-created `bin` folder.
+
 
 
 **Alternate Executable:**

@@ -50,6 +50,12 @@ The following options are passed directly to ripgrep, and are not handled by thi
 
 
 
+## Installation
+
+This script is a part of the `bat-extras` suite of scripts. You can find install instructions [here](../README.md#installation).
+
+
+
 ## Caveats
 
 **Differences from ripgrep:**

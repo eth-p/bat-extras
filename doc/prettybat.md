@@ -43,6 +43,12 @@ See `man bat` for more information.
 
 
 
+## Installation
+
+This script is a part of the `bat-extras` suite of scripts. You can find install instructions [here](../README.md#installation).
+
+
+
 ## Issues?
 
 If you find an issue or have a feature suggestion, make a pull request or issue through GitHub!

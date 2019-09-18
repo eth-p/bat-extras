@@ -18,6 +18,12 @@ None so far.
 
 
 
+## Installation
+
+This script is a part of the `bat-extras` suite of scripts. You can find install instructions [here](../README.md#installation).
+
+
+
 ## Acknowledgements
 
 Thanks to [@sharkdp](https://github.com/sharkdp) and [@LunarLambda](https://github.com/LunarLambda) for debugging how to make this work properly in [certain environments](https://github.com/sharkdp/bat/issues/652).
