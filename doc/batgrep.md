@@ -14,13 +14,14 @@ A script that combines [ripgrep](https://github.com/burntsushi/ripgrep) with bat
 
 **Options:**
 
-| Short | Long                       | Description                                                |
-| ----- | -------------------------- | ---------------------------------------------------------- |
-| `-i`  | `--ignore-case`            | Use case insensitive searching.                            |
-| `-A`  | `--after-context=[LINES]`  | Display the next *n* lines after a matched line.           |
-| `-B`  | `--before-context=[LINES]` | Display the previous `n` lines before a matched line.      |
-| `-C`  | `--context=[LINES]`        | A combination of `--after-context` and `--before-context`. |
-|       | `--no-follow`              | Do not follow symlinks.                                    |
+| Short | Long                       | Description                                                  |
+| ----- | -------------------------- | ------------------------------------------------------------ |
+| `-i`  | `--ignore-case`            | Use case insensitive searching.                              |
+| `-A`  | `--after-context=[LINES]`  | Display the next *n* lines after a matched line.             |
+| `-B`  | `--before-context=[LINES]` | Display the previous `n` lines before a matched line.        |
+| `-C`  | `--context=[LINES]`        | A combination of `--after-context` and `--before-context`.   |
+|       | `--no-follow`              | Do not follow symlinks.                                      |
+|       | `--no-snip`                | Do not show the `snip` decoration.<br /><br />This is disabled when `--context=0` or when `bat --version` is less than `0.12.x`. |
 
 
 

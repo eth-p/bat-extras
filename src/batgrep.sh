@@ -19,11 +19,12 @@ FILES=()
 OPT_CONTEXT_BEFORE=2
 OPT_CONTEXT_AFTER=2
 OPT_FOLLOW=true
+OPT_SNIP=""
 BAT_STYLE="header,numbers"
 
 # Set options based on the bat version.
 if version_compare "$(bat_version)" -gt "0.12"; then
-	BAT_STYLE="${BAT_STYLE},snip"
+	OPT_SNIP=",snip"
 fi
 
 # Parse arguments.
@@ -61,6 +62,7 @@ while shiftopt; do
 		
 		# Script Options
 		--no-follow)                   OPT_FOLLOW=false;;
+		--no-snip)                     OPT_SNIP="";;
 
 		# ???
 		-*) {
@@ -88,6 +90,10 @@ if "$OPT_FOLLOW"; then
 	RG_ARGS+=("--follow")	
 fi
 
+if [[ "$OPT_CONTEXT_BEFORE" -eq 0 && "$OPT_CONTEXT_AFTER" -eq 0 ]]; then
+	OPT_SNIP=""
+fi
+
 # Invoke ripgrep.
 FOUND_FILES=()
 FOUND=0
@@ -107,7 +113,7 @@ do_print() {
 	"$BAT" "${BAT_ARGS[@]}" \
 		   "${LAST_LR[@]}" \
 		   "${LAST_LH[@]}" \
-		   --style="${BAT_STYLE}" \
+		   --style="${BAT_STYLE}${OPT_SNIP}" \
 		   --paging=never \
 		   "$LAST_FILE"
 
