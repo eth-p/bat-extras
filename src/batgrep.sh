@@ -20,6 +20,7 @@ OPT_CONTEXT_BEFORE=2
 OPT_CONTEXT_AFTER=2
 OPT_FOLLOW=true
 OPT_SNIP=""
+OPT_HIGHLIGHT=true
 BAT_STYLE="header,numbers"
 
 # Set options based on the bat version.
@@ -63,6 +64,7 @@ while shiftopt; do
 		# Script Options
 		--no-follow)                   OPT_FOLLOW=false;;
 		--no-snip)                     OPT_SNIP="";;
+		--no-highlight)                OPT_HIGHLIGHT=false;;
 
 		# ???
 		-*) {
@@ -92,6 +94,7 @@ fi
 
 if [[ "$OPT_CONTEXT_BEFORE" -eq 0 && "$OPT_CONTEXT_AFTER" -eq 0 ]]; then
 	OPT_SNIP=""
+	OPT_HIGHLIGHT=false
 fi
 
 # Invoke ripgrep.
@@ -137,7 +140,7 @@ while IFS=':' read -r file line column; do
 	[[ "$line_start" -gt 0 ]] || line_start=''
 
 	LAST_LR+=("--line-range=${line_start}:${line_end}")
-	LAST_LH+=("--highlight-line=${line}")
+	[[ "$OPT_HIGHLIGHT" = "true" ]] && LAST_LH+=("--highlight-line=${line}")
 done < <(rg --with-filename --vimgrep "${RG_ARGS[@]}" --sort path "$PATTERN" "${FILES[@]}")
 do_print
 

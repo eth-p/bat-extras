@@ -21,7 +21,8 @@ A script that combines [ripgrep](https://github.com/burntsushi/ripgrep) with bat
 | `-B`  | `--before-context=[LINES]` | Display the previous `n` lines before a matched line.        |
 | `-C`  | `--context=[LINES]`        | A combination of `--after-context` and `--before-context`.   |
 |       | `--no-follow`              | Do not follow symlinks.                                      |
-|       | `--no-snip`                | Do not show the `snip` decoration.<br /><br />This is disabled when `--context=0` or when `bat --version` is less than `0.12.x`. |
+|       | `--no-snip`                | Do not show the `snip` decoration.<br /><br />This is automatically enabled when `--context=0` or when `bat --version` is less than `0.12.x`. |
+|       | `--no-highlight`           | Do not highlight matching lines.<br /><br />This is automatically enabled when `--context=0`. |
 
 
 
