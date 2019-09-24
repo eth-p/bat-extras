@@ -8,6 +8,7 @@
 LIB="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/../lib"
 BAT="bat"
 source "${LIB}/print.sh"
+source "${LIB}/pager.sh"
 source "${LIB}/opt.sh"
 source "${LIB}/version.sh"
 # -----------------------------------------------------------------------------
@@ -21,6 +22,7 @@ OPT_CONTEXT_AFTER=2
 OPT_FOLLOW=true
 OPT_SNIP=""
 OPT_HIGHLIGHT=true
+OPT_COLOR=false
 BAT_STYLE="header,numbers"
 
 # Set options based on the bat version.
@@ -28,12 +30,17 @@ if version_compare "$(bat_version)" -gt "0.12"; then
 	OPT_SNIP=",snip"
 fi
 
+# Set options based on tty.
+if [[ -t 1 ]]; then
+	OPT_COLOR=true
+fi
+
 # Parse arguments.
 while shiftopt; do
 	case "$OPT" in
 
 		# Ripgrep Options
-		-i|--ignore-case)    RG_ARGS+=("--ignore-case");;
+		-i|--ignore-case)              RG_ARGS+=("--ignore-case");;
 		-A|--after-context)  shiftval; OPT_CONTEXT_AFTER="$OPT_VAL";;
 		-B|--before-context) shiftval; OPT_CONTEXT_BEFORE="$OPT_VAL";;
 		-C|--context)        shiftval; OPT_CONTEXT_BEFORE="$OPT_VAL";
@@ -60,14 +67,20 @@ while shiftopt; do
 		--ignore-file)       shiftval; RG_ARGS+=("$OPT" "$OPT_VAL");;
 
 		# Bat Options
-		
+
 		# Script Options
 		--no-follow)                   OPT_FOLLOW=false;;
 		--no-snip)                     OPT_SNIP="";;
 		--no-highlight)                OPT_HIGHLIGHT=false;;
+		--color)                       OPT_COLOR=true;;
+		--no-color)                    OPT_COLOR=false;;
 
 		# ???
 		-*) {
+			if pager_shiftopt; then
+				continue
+			fi
+
 			printc "%{RED}%s: unknown option '%s'%{CLEAR}\n" "$PROGRAM" "$OPT" 1>&2
 			exit 1
 		};;
@@ -88,8 +101,13 @@ if [[ -z "$PATTERN" ]]; then
 	exit 1
 fi
 
+# Append ripgrep and bat arguments.
 if "$OPT_FOLLOW"; then
 	RG_ARGS+=("--follow")	
+fi
+
+if "$OPT_COLOR"; then
+	BAT_ARGS+=("--color=always")
 fi
 
 if [[ "$OPT_CONTEXT_BEFORE" -eq 0 && "$OPT_CONTEXT_AFTER" -eq 0 ]]; then
@@ -97,55 +115,60 @@ if [[ "$OPT_CONTEXT_BEFORE" -eq 0 && "$OPT_CONTEXT_AFTER" -eq 0 ]]; then
 	OPT_HIGHLIGHT=false
 fi
 
-# Invoke ripgrep.
-FOUND_FILES=()
-FOUND=0
-FIRST_PRINT=true
-LAST_LR=()
-LAST_LH=()
-LAST_FILE=''
+# Declare the main function.
+main() {
+	FOUND_FILES=()
+	FOUND=0
+	FIRST_PRINT=true
+	LAST_LR=()
+	LAST_LH=()
+	LAST_FILE=''
 
-do_print() {
-	[[ -z "$LAST_FILE" ]] && return 0
+	do_print() {
+		[[ -z "$LAST_FILE" ]] && return 0
 
-	# Print the separator.
-	"$FIRST_PRINT" && echo "$SEP"
-	FIRST_PRINT=false
+		# Print the separator.
+		"$FIRST_PRINT" && echo "$SEP"
+		FIRST_PRINT=false
 
-	# Print the file.
-	"$BAT" "${BAT_ARGS[@]}" \
-		   "${LAST_LR[@]}" \
-		   "${LAST_LH[@]}" \
-		   --style="${BAT_STYLE}${OPT_SNIP}" \
-		   --paging=never \
-		   "$LAST_FILE"
+		# Print the file.
+		"$BAT" "${BAT_ARGS[@]}" \
+			   "${LAST_LR[@]}" \
+			   "${LAST_LH[@]}" \
+			   --style="${BAT_STYLE}${OPT_SNIP}" \
+			   --paging=never \
+			   "$LAST_FILE"
 
-	# Print the separator.
-	echo "$SEP"
+		# Print the separator.
+		echo "$SEP"
+	}
+
+	while IFS=':' read -r file line column; do
+		((FOUND++))
+
+		if [[ "$LAST_FILE" != "$file" ]]; then
+			do_print
+			LAST_FILE="$file"
+			LAST_LR=()
+			LAST_LH=()
+		fi
+		
+		# Calculate the context line numbers.
+		line_start=$((line - OPT_CONTEXT_BEFORE))
+		line_end=$((line + OPT_CONTEXT_AFTER))
+		[[ "$line_start" -gt 0 ]] || line_start=''
+
+		LAST_LR+=("--line-range=${line_start}:${line_end}")
+		[[ "$OPT_HIGHLIGHT" = "true" ]] && LAST_LH+=("--highlight-line=${line}")
+	done < <(rg --with-filename --vimgrep "${RG_ARGS[@]}" --sort path "$PATTERN" "${FILES[@]}")
+	do_print
+
+	# Exit.
+	if [[ "$FOUND" -eq 0 ]]; then
+		exit 2
+	fi
 }
 
-while IFS=':' read -r file line column; do
-	((FOUND++))
-
-	if [[ "$LAST_FILE" != "$file" ]]; then
-		do_print
-		LAST_FILE="$file"
-		LAST_LR=()
-		LAST_LH=()
-	fi
-	
-	# Calculate the context line numbers.
-	line_start=$((line - OPT_CONTEXT_BEFORE))
-	line_end=$((line + OPT_CONTEXT_AFTER))
-	[[ "$line_start" -gt 0 ]] || line_start=''
-
-	LAST_LR+=("--line-range=${line_start}:${line_end}")
-	[[ "$OPT_HIGHLIGHT" = "true" ]] && LAST_LH+=("--highlight-line=${line}")
-done < <(rg --with-filename --vimgrep "${RG_ARGS[@]}" --sort path "$PATTERN" "${FILES[@]}")
-do_print
-
-# Exit.
-if [[ "$FOUND" -eq 0 ]]; then
-	exit 2
-fi
+# Execute main function with pager.
+pager_exec main
 
