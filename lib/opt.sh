@@ -5,7 +5,7 @@
 # Repository: https://github.com/eth-p/bat-extras
 # Issues:     https://github.com/eth-p/bat-extras/issues
 # -----------------------------------------------------------------------------
-PROGRAM="$(basename "${BASH_SOURCE[0]}")"
+PROGRAM="$(basename "$0" .sh)"
 
 # Sets the internal _ARGV, _ARGV_INDEX, and _ARGV_LAST variables used when
 # parsing options with the shiftopt and shiftval functions.
