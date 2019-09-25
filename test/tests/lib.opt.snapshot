@@ -1,3 +1,4 @@
+PROGRAM: lib.opt
 ARGUMENT:     "pos1"
 LONG_OPTION:  "--val1" with value "for_val1"
 LONG_OPTION:  "--val2" with value "for_val2"

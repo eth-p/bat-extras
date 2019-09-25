@@ -1,7 +1,5 @@
 set -e
-source "${DIR_LIB}/opt.sh"
-
-setargs pos1 \
+set - pos1 \
 	--val1 for_val1 \
 	--val2=for_val2 \
 	pos2 \
@@ -9,7 +7,10 @@ setargs pos1 \
 	-v4 for_val4 \
 	--flag2 \
 
+source "${DIR_LIB}/opt.sh"
+
 # Run a standard option parsing loop.
+echo "PROGRAM: $PROGRAM"
 while shiftopt; do
 	case "$OPT" in
 		--val*) shiftval; printf "LONG_OPTION:  \"%s\" with value \"%s\"\n" "${OPT}" "${OPT_VAL}" ;;
