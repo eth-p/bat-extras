@@ -152,14 +152,14 @@ process_file() {
 		data_raw="$(cat -)"
 		data_formatted="$("formatter_${formatter}_process" "$file" 2>/dev/null <<< "$data_raw")"
 		if [[ $? -ne 0 ]]; then
-			printc "%{YELLOW}[%s warning]%{CLEAR}: 'STDIN': Unable to format with '%s'\n" "$PROGRAM" "$formatter" 1>&2
+			print_warning "'STDIN': Unable to format with '%s'" "$formatter"
 			print_file --language="$lang" - <<< "$data_raw"
 			return 1
 		fi
 	else
 		data_formatted="$("formatter_${formatter}_process" "$file" < "$file")"
 		if [[ $? -ne 0 ]]; then
-			printc "%{YELLOW}[%s warning]%{CLEAR}: '%s': Unable to format with '%s'\n" "$PROGRAM" "$file" "$formatter" 1>&2
+			print_warning "'%s': Unable to format with '%s'" "$file" "$formatter"
 			print_file --language="$lang" "$file"
 			return 1
 		fi

@@ -52,7 +52,25 @@ printc_init() {
 	esac
 }
 
-# Initialization.
+# Print a warning message to STDERR.
+# Arguments:
+#     1   -- The printc formatting string.
+#     ... -- The printc formatting arguments.
+print_warning() {
+	printc "%{YELLOW}[%s warning]%{CLEAR}: $1%{CLEAR}\n" "$PROGRAM" "${@:2}" 1>&2
+}
+
+# Print an error message to STDERR.
+# Arguments:
+#     1   -- The printc formatting string.
+#     ... -- The printc formatting arguments.
+print_error() {
+	printc "%{RED}[%s error]%{CLEAR}: $1%{CLEAR}\n" "$PROGRAM" "${@:2}" 1>&2
+}
+
+# -----------------------------------------------------------------------------
+# Initialization:
+# -----------------------------------------------------------------------------
 printc_init <<END
 	CLEAR	\x1B[0m
 	RED		\x1B[31m

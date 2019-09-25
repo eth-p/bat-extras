@@ -92,7 +92,7 @@ while shiftopt; do
 done
 
 if [[ -z "$PATTERN" ]]; then
-	printc "%{RED}%s: no pattern provided%{CLEAR}\n" "$PROGRAM" 1>&2
+	print_error "no pattern provided"
 	exit 1
 fi
 
