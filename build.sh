@@ -76,6 +76,13 @@ step_preprocess() {
 			continue
 		fi
 
+		# Replace the DOCS_* variables.
+		if [[ "$line" =~ ^DOCS_[A-Z]+=.*$ ]]; then
+			local docvar="$(cut -d'=' -f1 <<< "$line")"
+			printf "%s=%q\n" "$docvar" "${!docvar}"
+			continue
+		fi
+
 		# Embed library scripts.
 		if [[ "$line" =~ ^[[:space:]]*source[[:space:]]+[\"\']\$\{?LIB\}/([a-z-]+\.sh)[\"\'] ]]; then
 			echo "# --- BEGIN LIBRARY FILE: ${BASH_REMATCH[1]} ---"
@@ -177,12 +184,17 @@ OPT_MINIFY="lib"
 OPT_PREFIX="/usr/local"
 OPT_BAT="bat"
 
+DOCS_URL="https://github.com/eth-p/bat-extras/blob/master/doc"
+DOCS_MAINTAINER="eth-p <eth-p@hidden.email>"
+
 while shiftopt; do
 	case "$OPT" in
 		--install)              OPT_INSTALL=true;;
 		--prefix)               shiftval; OPT_PREFIX="$OPT_VAL";;
 		--alternate-executable) shiftval; OPT_BAT="$OPT_VAL";;
 		--minify)               shiftval; OPT_MINIFY="$OPT_VAL";;
+		--docs:url)             shiftval; DOCS_URL="$OPT_VAL";;
+		--docs:maintainer)      shiftval; DOCS_MAINTAINER="$OPT_VAL";;
 		
 		*)         printc "%{RED}%s: unknown option '%s'%{CLEAR}" "$PROGRAM" "$OPT";
 		           exit 1;;
