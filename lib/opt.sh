@@ -6,6 +6,7 @@
 # Issues:     https://github.com/eth-p/bat-extras/issues
 # -----------------------------------------------------------------------------
 PROGRAM="$(basename "$0" .sh)"
+SHIFTOPT_HOOKS=()
 
 # Sets the internal _ARGV, _ARGV_INDEX, and _ARGV_LAST variables used when
 # parsing options with the shiftopt and shiftval functions.
@@ -42,6 +43,17 @@ shiftopt() {
 
 	# Pop array.
 	((_ARGV_INDEX++))
+
+	# Handle hooks.
+	local hook
+	for hook in "${SHIFTOPT_HOOKS[@]}"; do
+		if "$hook"; then
+			shiftopt
+			return $?
+		fi
+	done
+
+	# Return.
 	return 0
 }
 

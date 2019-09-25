@@ -19,12 +19,12 @@ printc() {
 # Initializes the color tags for printc.
 #
 # Arguments:
-#     color=on  -- Turns on color output.
-#     color=off -- Turns off color output.
+#     true  -- Turns on color output.
+#     false -- Turns off color output.
 printc_init() {
 	case "$1" in
-		color=on) _PRINTC_PATTERN="$_PRINTC_PATTERN_ANSI";;
-		color=off) _PRINTC_PATTERN="$_PRINTC_PATTERN_PLAIN";;
+		true) _PRINTC_PATTERN="$_PRINTC_PATTERN_ANSI";;
+		false) _PRINTC_PATTERN="$_PRINTC_PATTERN_PLAIN";;
 
 		"") {
 			_PRINTC_PATTERN_ANSI=""

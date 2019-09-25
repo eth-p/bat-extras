@@ -29,41 +29,6 @@ fi
 
 # -----------------------------------------------------------------------------
 
-# Parse arguments for the pager.
-# This should be called inside the shiftopt/shiftval loop.
-#
-# Example:
-#     while shiftopt; do
-#         case "$OPT" in
-#             # ...
-#         esac
-#         pager_shiftopt && continue
-#     done
-pager_shiftopt() {
-	case "$OPT" in
-		# Specify paging.
-		--no-pager)   shiftval; SCRIPT_PAGER_CMD='';;
-		--paging)     shiftval; {
-			case "$OPT_VAL" in
-				never)  SCRIPT_PAGER_CMD='';;
-				always) :;;
-				auto)   :;;
-			esac
-		};;
-
-		# Specify the pager.
-		--pager) {
-			shiftval;
-			SCRIPT_PAGER_CMD=($OPT_VAL);
-			PAGER_ARGS=()
-		};;
-
-		*) return 1;;
-	esac
-
-	return 0
-}
-
 # Executes a command or function, and pipes its output to the pager (if exists).
 #
 # Returns: The exit code of the command.

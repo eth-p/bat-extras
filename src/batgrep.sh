@@ -10,11 +10,16 @@ BAT="bat"
 source "${LIB}/print.sh"
 source "${LIB}/pager.sh"
 source "${LIB}/opt.sh"
+source "${LIB}/opt_hooks.sh"
 source "${LIB}/version.sh"
+# -----------------------------------------------------------------------------
+# Init:
+# -----------------------------------------------------------------------------
+hook_color
+hook_pager
 # -----------------------------------------------------------------------------
 # Options:
 # -----------------------------------------------------------------------------
-SEP="$(printc "%{DIM}%$(tput cols)s%{CLEAR}" | sed "s/ /─/g")"
 RG_ARGS=()
 BAT_ARGS=()
 PATTERN=""
@@ -24,17 +29,11 @@ OPT_CONTEXT_AFTER=2
 OPT_FOLLOW=true
 OPT_SNIP=""
 OPT_HIGHLIGHT=true
-OPT_COLOR=false
 BAT_STYLE="header,numbers"
 
 # Set options based on the bat version.
 if version_compare "$(bat_version)" -gt "0.12"; then
 	OPT_SNIP=",snip"
-fi
-
-# Set options based on tty.
-if [[ -t 1 ]]; then
-	OPT_COLOR=true
 fi
 
 # Parse arguments.
@@ -74,15 +73,9 @@ while shiftopt; do
 		--no-follow)                   OPT_FOLLOW=false;;
 		--no-snip)                     OPT_SNIP="";;
 		--no-highlight)                OPT_HIGHLIGHT=false;;
-		--color)                       OPT_COLOR=true;;
-		--no-color)                    OPT_COLOR=false;;
 
 		# ???
 		-*) {
-			if pager_shiftopt; then
-				continue
-			fi
-
 			printc "%{RED}%s: unknown option '%s'%{CLEAR}\n" "$PROGRAM" "$OPT" 1>&2
 			exit 1
 		};;
@@ -103,6 +96,9 @@ if [[ -z "$PATTERN" ]]; then
 	exit 1
 fi
 
+# Generate separator.
+SEP="$(printc "%{DIM}%$(tput cols)s%{CLEAR}" | sed "s/ /─/g")"
+
 # Append ripgrep and bat arguments.
 if "$OPT_FOLLOW"; then
 	RG_ARGS+=("--follow")	
@@ -110,6 +106,8 @@ fi
 
 if "$OPT_COLOR"; then
 	BAT_ARGS+=("--color=always")
+else
+	BAT_ARGS+=("--color=never")
 fi
 
 if [[ "$OPT_CONTEXT_BEFORE" -eq 0 && "$OPT_CONTEXT_AFTER" -eq 0 ]]; then
