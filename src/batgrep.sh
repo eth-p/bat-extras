@@ -12,10 +12,12 @@ source "${LIB}/pager.sh"
 source "${LIB}/opt.sh"
 source "${LIB}/version.sh"
 # -----------------------------------------------------------------------------
+# Options:
+# -----------------------------------------------------------------------------
 SEP="$(printc "%{DIM}%$(tput cols)s%{CLEAR}" | sed "s/ /─/g")"
 RG_ARGS=()
 BAT_ARGS=()
-PATTERN=
+PATTERN=""
 FILES=()
 OPT_CONTEXT_BEFORE=2
 OPT_CONTEXT_AFTER=2
@@ -115,7 +117,9 @@ if [[ "$OPT_CONTEXT_BEFORE" -eq 0 && "$OPT_CONTEXT_AFTER" -eq 0 ]]; then
 	OPT_HIGHLIGHT=false
 fi
 
-# Declare the main function.
+# -----------------------------------------------------------------------------
+# Main:
+# -----------------------------------------------------------------------------
 main() {
 	FOUND_FILES=()
 	FOUND=0
@@ -169,6 +173,6 @@ main() {
 	fi
 }
 
-# Execute main function with pager.
 pager_exec main
+exit $?
 
