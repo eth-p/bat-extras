@@ -25,14 +25,18 @@ fail() {
 				c="in source script"
 			fi
 
-			printf "\x1B[33mError (%s):\x1B[0m\n" "$c"
-			bat --style=numbers --paging=never -
+			if [[ "$TEST_QUIET" != "true" ]]; then	
+				printf "\x1B[33mError (%s):\x1B[0m\n" "$c"
+				bat --style=numbers --paging=never -
+			fi
 			;;
 
 		DIFF)
 			printf "\x1B[33m%s\x1B[0m\n" "$2"
-			printf "\x1B[33mDifference:\x1B[0m\n"
-			bat --style=plain --paging=never -l diff -
+			if [[ "$TEST_QUIET" != "true" ]]; then	
+				printf "\x1B[33mDifference:\x1B[0m\n"
+				bat --style=plain --paging=never -l diff -
+			fi
 			;;
 	esac
 	exit 1

@@ -264,7 +264,7 @@ done
 
 if "$OPT_VERIFY"; then
 	printc "\n%{YELLOW}Verifying scripts...%{CLEAR}\n" 1>&2
-	"$HERE/test/run.sh" consistency-test
+	TEST_QUIET=true "$HERE/test/run.sh" consistency-test
 	exit $?
 fi
 
