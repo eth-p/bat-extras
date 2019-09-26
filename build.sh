@@ -180,6 +180,7 @@ pp_minify() {
 # -----------------------------------------------------------------------------
 # Options.
 OPT_INSTALL=false
+OPT_VERIFY=true
 OPT_MINIFY="lib"
 OPT_PREFIX="/usr/local"
 OPT_BAT="bat"
@@ -193,6 +194,7 @@ while shiftopt; do
 		--prefix)               shiftval; OPT_PREFIX="$OPT_VAL";;
 		--alternate-executable) shiftval; OPT_BAT="$OPT_VAL";;
 		--minify)               shiftval; OPT_MINIFY="$OPT_VAL";;
+		--no-verify)            shiftval; OPT_VERIFY=false;;
 		--docs:url)             shiftval; DOCS_URL="$OPT_VAL";;
 		--docs:maintainer)      shiftval; DOCS_MAINTAINER="$OPT_VAL";;
 		
@@ -240,7 +242,6 @@ done
 # -----------------------------------------------------------------------------
 # Build files.
 
-
 printc "%{YELLOW}Building scripts...%{CLEAR}\n" 1>&2
 file_i=0
 file_n="${#SOURCES[@]}"
@@ -258,4 +259,12 @@ for file in "${SOURCES[@]}"; do
 		cat >/dev/null
 done
 
+# -----------------------------------------------------------------------------
+# Verify files by running the tests.
+
+if "$OPT_VERIFY"; then
+	printc "\n%{YELLOW}Verifying scripts...%{CLEAR}\n" 1>&2
+	"$HERE/test/run.sh" consistency-test
+	exit $?
+fi
 

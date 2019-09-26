@@ -60,3 +60,9 @@ If you only want to install a single script, you can run the build process and c
 Depending on the distribution, bat may have been renamed to avoid package conflicts.
 If you wish to use these scripts on a distribution where this is the case, there is an `--alternate-executable=NAME` option which will build the scripts to use an alternate executable name.
 
+
+
+**Verification:**
+
+The build script will attempt to verify the correctness of the "bin" scripts by comparing their output with their source counterparts. It is recommended to let it do this, but you can disable verification with the `--no-verify` option.
+
