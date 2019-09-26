@@ -13,7 +13,7 @@ Bash scripts that integrate [bat](https://github.com/sharkdp/bat) with various c
 
 &nbsp;
 
-## Installation
+## Installation (![CircleCI](https://circleci.com/gh/eth-p/bat-extras.svg?style=svg))
 
 The scripts in this repository are designed to run as-is, provided that they aren't moved around.
 This means that you're free to just symlink `src/[script].sh` to your local bin folder.
