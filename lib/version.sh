@@ -14,9 +14,9 @@ bat_version() {
 
 # Compares two version strings.
 # Arguments:
-#    0  -- The version to compare.
-#    1  -- The comparison operator (same as []).
-#    2  -- The version to compare with.
+#    1  -- The version to compare.
+#    2  -- The comparison operator (same as []).
+#    3  -- The version to compare with.
 version_compare() {
 	local version="$1"
 	local compare="$3"
