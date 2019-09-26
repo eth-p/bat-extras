@@ -129,7 +129,7 @@ if [[ -z "$OPT_WATCHER" ]]; then
 	OPT_WATCHER="$(determine_watcher)"
 	if [[ $? -ne 0 ]]; then
 		printc "%{RED}[%s error]%{CLEAR}: Your system does not have any supported watchers.\n" "$PROGRAM" 1>&2
-		printc "Please read the documentation at {BLUE}%s%{CLEAR} for more details.\n" "$DOCS_URL/batwatch.md" 1>&2
+		printc "Please read the documentation at %{BLUE}%s%{CLEAR} for more details.\n" "$DOCS_URL/batwatch.md" 1>&2
 		exit 2
 	fi
 fi
