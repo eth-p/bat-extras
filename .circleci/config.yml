@@ -33,7 +33,7 @@ commands:
         steps:
             - run:
                 name:    "Build"
-                command: ./build.sh --minify=<<parameters.minify>>
+                command: ./build.sh --minify=<<parameters.minify>> --no-verify
 
 
 jobs:
