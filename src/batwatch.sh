@@ -124,21 +124,23 @@ fi
 # -----------------------------------------------------------------------------
 # Main:
 # -----------------------------------------------------------------------------
-main() {
-	if [[ -z "$OPT_WATCHER" ]]; then
-		OPT_WATCHER="$(determine_watcher)"
-		if [[ $? -ne 0 ]]; then
-			printc "%{RED}[%s error]%{CLEAR}: Your system does not have any supported watchers.\n" "$PROGRAM" 1>&2
-			printc "Please read the documentation at {BLUE}%s%{CLEAR} for more details.\n" "$DOCS_URL/batwatch.md" 1>&2
-			return 2
-		fi
+# Determine the watcher.
+if [[ -z "$OPT_WATCHER" ]]; then
+	OPT_WATCHER="$(determine_watcher)"
+	if [[ $? -ne 0 ]]; then
+		printc "%{RED}[%s error]%{CLEAR}: Your system does not have any supported watchers.\n" "$PROGRAM" 1>&2
+		printc "Please read the documentation at {BLUE}%s%{CLEAR} for more details.\n" "$DOCS_URL/batwatch.md" 1>&2
+		exit 2
 	fi
+fi
 
-	if ! type "watcher_${OPT_WATCHER}_supported" &>/dev/null; then
-		printc "%{RED}[%s error]%{CLEAR}: Unknown watcher: '%s'\n" "$PROGRAM" "$OPT_WATCHER" 1>&2
-		return 1
-	fi
-	
+if ! type "watcher_${OPT_WATCHER}_supported" &>/dev/null; then
+	printc "%{RED}[%s error]%{CLEAR}: Unknown watcher: '%s'\n" "$PROGRAM" "$OPT_WATCHER" 1>&2
+	exit 1
+fi
+
+# Run the main function.
+main() {
 	"watcher_${OPT_WATCHER}_watch" "${FILES[@]}"
 	return $?
 }
