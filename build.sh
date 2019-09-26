@@ -84,7 +84,7 @@ step_preprocess() {
 		fi
 
 		# Embed library scripts.
-		if [[ "$line" =~ ^[[:space:]]*source[[:space:]]+[\"\']\$\{?LIB\}/([a-z-]+\.sh)[\"\'] ]]; then
+		if [[ "$line" =~ ^[[:space:]]*source[[:space:]]+[\"\']\$\{?LIB\}/([a-z_-]+\.sh)[\"\'] ]]; then
 			echo "# --- BEGIN LIBRARY FILE: ${BASH_REMATCH[1]} ---"
 			cat "$LIB/${BASH_REMATCH[1]}" | {
 				if [[ "$OPT_MINIFY" = "lib" ]]; then
