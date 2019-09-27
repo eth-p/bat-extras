@@ -14,7 +14,7 @@ source "${LIB}/print.sh"
 # Formatters:
 # -----------------------------------------------------------------------------
 
-FORMATTERS=("prettier" "rustfmt" "shfmt")
+FORMATTERS=("prettier" "rustfmt" "shfmt" "clangformat")
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 
@@ -35,6 +35,24 @@ formatter_prettier_supports() {
 
 formatter_prettier_process() {
 	prettier --stdin --stdin-filepath "$1" 2>/dev/null
+	return $?
+}
+
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+
+formatter_clangformat_supports() {
+	case "$1" in
+		.c|.cpp|.cxx|\
+		.h|.hpp|\
+		.m)
+			return 0;;
+	esac
+	
+	return 1
+}
+
+formatter_clangformat_process() {
+	clang-format "$1" 2>/dev/null
 	return $?
 }
 
@@ -135,6 +153,7 @@ process_file() {
 	fi
 
 	local formatter="$(map_extension_to_formatter "$fext")"
+	echo "FORMATTER >>> $formatter"
 	if [[ "$formatter" = "none" ]]; then
 		if [[ -z "$OPT_LANGUAGE" ]]; then
 			print_file "$file"
