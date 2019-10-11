@@ -105,7 +105,7 @@ fi
 
 for file in "${FILES[@]}"; do
 	if ! [[ -e "$file" ]]; then
-		print_error "'%s' does not exist"
+		print_error "'%s' does not exist" "$file"
 		exit 1
 	fi
 
