@@ -88,7 +88,7 @@ step_preprocess() {
 			echo "# --- BEGIN LIBRARY FILE: ${BASH_REMATCH[1]} ---"
 			cat "$LIB/${BASH_REMATCH[1]}" | {
 				if [[ "$OPT_MINIFY" = "lib" ]]; then
-					pp_strip_comments | pp_minify
+					pp_strip_comments | pp_minify | pp_minify_unsafe
 				else
 					cat
 				fi
@@ -111,7 +111,7 @@ step_preprocess() {
 # Output:
 #     The minified file contents.
 step_minify() {
-	if [[ "$OPT_MINIFY" != "all" ]]; then
+	if [[ "$OPT_MINIFY" =~ ^all($|+.*) ]]; then
 		smsg "Minifying" "SKIP"
 		cat
 		return 0
@@ -119,7 +119,7 @@ step_minify() {
 
 	smsg "Minifying"
 	printf "#!/usr/bin/env bash\n"
-	pp_minify
+	pp_minify | pp_minify_unsafe
 }
 
 # Build step: write
@@ -172,9 +172,22 @@ pp_strip_comments() {
 }
 
 # Minify a Bash source file.
-# https://github.com/precious/bash_minifier
+# https://github.com/mvdan/sh
 pp_minify() {
 	shfmt -mn
+}
+
+
+# Minifies the output script (unsafely).
+# Right now, this doesn't do anything.
+# This should be applied after shfmt minification.
+pp_minify_unsafe() {
+	if ! [[ "$OPT_MINIFY" =~ ^.*+unsafe(+.*)*$ ]]; then
+		cat
+		return 0
+	fi
+
+	cat
 }
 
 # -----------------------------------------------------------------------------
