@@ -26,8 +26,7 @@ set -eo pipefail
 # Output:
 #     The processed file data.
 next() {
-	local buffer="$(cat)"
-	"$@" <<< "$buffer"
+	"$@"
 	return $?
 }
 
@@ -122,6 +121,31 @@ step_minify() {
 	pp_minify | pp_minify_unsafe
 }
 
+# Build step: compress
+# Compresses the input into a gzipped self-executable script.
+#
+# Input:
+#     The original file contents.
+#
+# Output:
+#     The compressed self-executable script.
+step_compress() {
+	if ! "$OPT_COMPRESS"; then
+		smsg "Compressing" "SKIP"
+		cat
+		return 0
+	fi
+
+	local wrapper="$({
+		printf '#!/usr/bin/env bash\n'
+		printf "(exec -a \"\$0\" bash -c 'eval \"\$(cat <&3)\"' \"\$0\" \"\$@\" 3< <(dd bs=1 if=\"\$0\" skip=::: 2>/dev/null | gunzip)); exit \$?;\n"
+	})"
+
+	smsg "Compressing"
+	sed "s/:::/$(wc -c <<< "$wrapper" | bc)/" <<< "$wrapper"
+	gzip
+}
+
 # Build step: write
 # Writes the output script to a file.
 #
@@ -193,6 +217,7 @@ pp_minify_unsafe() {
 # -----------------------------------------------------------------------------
 # Options.
 OPT_INSTALL=false
+OPT_COMPRESS=false
 OPT_VERIFY=true
 OPT_MINIFY="lib"
 OPT_PREFIX="/usr/local"
@@ -204,6 +229,7 @@ DOCS_MAINTAINER="eth-p <eth-p@hidden.email>"
 while shiftopt; do
 	case "$OPT" in
 		--install)              OPT_INSTALL=true;;
+		--compress)             OPT_COMPRESS=true;;
 		--prefix)               shiftval; OPT_PREFIX="$OPT_VAL";;
 		--alternate-executable) shiftval; OPT_BAT="$OPT_VAL";;
 		--minify)               shiftval; OPT_MINIFY="$OPT_VAL";;
@@ -267,6 +293,7 @@ for file in "${SOURCES[@]}"; do
 	step_read "$file" |\
 		next step_preprocess |\
 		next step_minify |\
+		next step_compress |\
 		next step_write "${BIN}/${filename}" |\
 		next step_write_install "${OPT_PREFIX}/bin/${filename}" |\
 		cat >/dev/null
