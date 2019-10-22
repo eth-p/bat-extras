@@ -80,6 +80,13 @@ case "$1" in
 		fi
 	};;
 
+	--supports) {
+		echo "snapshot-generate"
+		echo "snapshot-test"
+		echo "consistency-test"
+		exit 0
+	};;
+
 	*) {
 		printf "\x1B[31mUnknown subcommand.\x1B[0m\n"
 		printf " - \x1B[33msnapshot-generate\x1B[0m  -- generate new snapshots\n"

@@ -79,6 +79,13 @@ display_test_summary() {
 # -----------------------------------------------------------------------------
 
 if [ -n "$1" ]; then
+	test_types="$("$HERE/util/test-exec.sh" --supports)"
+	if ! grep -F "$1" <<< "$test_types" &>/dev/null; then
+		printc "%{RED}Unknown test type: %s%{CLEAR}\n" "$1"
+		printc "%{RED}Supported types:%{CLEAR}\n%s\n" "$test_types"
+		exit 2
+	fi
+
 	run_all_tests "$1"
 	exit_status=$?
 	display_test_summary
