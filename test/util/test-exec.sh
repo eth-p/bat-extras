@@ -56,7 +56,13 @@ case "$1" in
 	snapshot-generate) {
 		run src "$TEST_OUT"
 		mv "$TEST_OUT" "$TEST_OUT_SNAPSHOT"
-		printf "\x1B[33mTest [%s]:\x1B[35m %s\x1B[0m\n" "$1" "Updated"
+		printf "\x1B[33mTest [%s]:\x1B[35m %s\x1B[0m\n" "$TEST_ID" "Updated"
+	};;
+
+	snapshot-display) {
+		run src "$TEST_OUT"
+		printf "\x1B[33mTest [%s]:\x1B[35m %s\x1B[0m\n" "$TEST_ID" "Output:"
+		cat "$TEST_OUT"
 	};;
 		
 	snapshot-test) {
@@ -82,6 +88,7 @@ case "$1" in
 
 	--supports) {
 		echo "snapshot-generate"
+		echo "snapshot-display"
 		echo "snapshot-test"
 		echo "consistency-test"
 		exit 0
