@@ -5,7 +5,7 @@
 # Repository: https://github.com/eth-p/bat-extras
 # Issues:     https://github.com/eth-p/bat-extras/issues
 # -----------------------------------------------------------------------------
-LIB="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/../lib"
+LIB="$(cd "$(dirname "$(readlink "${BASH_SOURCE[0]}" || echo "${BASH_SOURCE[0]}")")" && pwd)/../lib"
 BAT="bat"
 source "${LIB}/print.sh"
 source "${LIB}/pager.sh"
