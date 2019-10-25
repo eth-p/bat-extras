@@ -209,18 +209,18 @@ fi
 if [[ -z "$OPT_WATCHER" ]]; then
 	OPT_WATCHER="$(determine_watcher)"
 	if [[ $? -ne 0 ]]; then
-		printc "%{RED}[%s error]%{CLEAR}: Your system does not have any supported watchers.\n" "$PROGRAM" 1>&2
+		print_error "Your system does not have any supported watchers."
 		printc "Please read the documentation at %{BLUE}%s%{CLEAR} for more details.\n" "$DOCS_URL/batwatch.md" 1>&2
 		exit 2
 	fi
 else
 	if ! type "watcher_${OPT_WATCHER}_supported" &>/dev/null; then
-		printc "%{RED}[%s error]%{CLEAR}: Unknown watcher: '%s'\n" "$PROGRAM" "$OPT_WATCHER" 1>&2
+		print_error "Unknown watcher: '%s'" "$OPT_WATCHER"
 		exit 1
 	fi
 
 	if ! "watcher_${OPT_WATCHER}_supported" &>/dev/null; then
-		printc "%{RED}[%s error]%{CLEAR}: Unsupported watcher: '%s'\n" "$PROGRAM" "$OPT_WATCHER" 1>&2
+		print_error "Unsupported watcher: '%s'" "$OPT_WATCHER"
 		exit 1
 	fi
 fi
