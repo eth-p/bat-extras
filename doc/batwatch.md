@@ -18,6 +18,7 @@ Watch for changes in one or more files, and print them when updated.
 | ----- | --------------------- | ------------------------------------------------------------ |
 |       | `--watcher=[watcher]` | Use a specific program to watch for file changes. See [below](#watchers) for more details. |
 |       | `--clear`             | Clear the screen before printing the files.<br />This is enabled by default. |
+|       | `--no-clear`          | Do not clear the screen before printing the files.           |
 |       | `--color`             | Force color output.                                          |
 |       | `--no-color`          | Force disable color output.                                  |
 
@@ -34,6 +35,8 @@ Batwatch uses external programs to watch for file changes.
 Currently, the following programs are supported:
 
 - [entr](http://entrproject.org/)
+
+There is also a fallback `poll` watcher available.
 
 
 
