@@ -31,27 +31,11 @@ next() {
 }
 
 # Prints a build step message.
-SMSG_CACHE_MSG=()
-SMSG_CACHE_META=()
-SMSG_EXPECT=1
 smsg() {
-	if [[ "$1" != "$SMSG_EXPECT" ]]; then
-		SMSG_CACHE_MSG["$1"]="$2"
-		SMSG_CACHE_META["$1"]="$3"
-		return;
-	fi
-
-	((SMSG_EXPECT++))
-	case "$3" in
-		"SKIP") printc "    %{YELLOW}      %{DIM}%s [skipped]%{CLEAR}\n" "$2" 1>&2;;
-		*)      printc "    %{YELLOW}      %s...%{CLEAR}\n" "$2" 1>&2;;
+	case "$2" in
+		"SKIP") printc "    %{YELLOW}      %{DIM}%s [skipped]%{CLEAR}\n" "$1" 1>&2;;
+		*)      printc "    %{YELLOW}      %s...%{CLEAR}\n" "$1" 1>&2;;
 	esac
-
-	# Cached messages.
-	echo "${SMSG_CACHE_MSG[$SMSG_EXPECT]}" 1>&2 
-	if [[ -n "${SMSG_CACHE_MSG[$SMSG_EXPECT]}" ]]; then
-		smsg "$SMSG_EXPECT" "${SMSG_CACHE_MSG[$SMSG_EXPECT]}" "${SMSG_CACHE_META[$SMSG_EXPECT]}"
-	fi
 }
 
 # Build step: read
@@ -63,8 +47,8 @@ smsg() {
 # Output:
 #     The file contents.
 step_read() {
-	smsg 1 "Reading"
 	cat "$1"
+	smsg "Reading"
 }
 
 # Build step: preprocess
@@ -78,8 +62,6 @@ step_read() {
 # Output:
 #      The processed file contents.
 step_preprocess() {
-	smsg 2 "Preprocessing"
-
 	local line
 	while IFS='' read -r line; do
 		# Skip certain lines.
@@ -115,6 +97,8 @@ step_preprocess() {
 		# Forward data.
 		echo "$line"
 	done
+	
+	smsg "Preprocessing"
 }
 
 # Build step: minify
@@ -127,14 +111,14 @@ step_preprocess() {
 #     The minified file contents.
 step_minify() {
 	if [[ "$OPT_MINIFY" =~ ^all($|+.*) ]]; then
-		smsg 3 "Minifying" "SKIP"
 		cat
+		smsg "Minifying" "SKIP"
 		return 0
 	fi
 
-	smsg 3 "Minifying"
 	printf "#!/usr/bin/env bash\n"
 	pp_minify | pp_minify_unsafe
+	smsg "Minifying"
 }
 
 # Build step: compress
@@ -147,8 +131,8 @@ step_minify() {
 #     The compressed self-executable script.
 step_compress() {
 	if ! "$OPT_COMPRESS"; then
-		smsg 4 "Compressing" "SKIP"
 		cat
+		smsg "Compressing" "SKIP"
 		return 0
 	fi
 
@@ -157,9 +141,9 @@ step_compress() {
 		printf "(exec -a \"\$0\" bash -c 'eval \"\$(cat <&3)\"' \"\$0\" \"\$@\" 3< <(dd bs=1 if=\"\$0\" skip=::: 2>/dev/null | gunzip)); exit \$?;\n"
 	})"
 
-	smsg 4 "Compressing"
 	sed "s/:::/$(wc -c <<< "$wrapper" | bc)/" <<< "$wrapper"
 	gzip
+	smsg "Compressing"
 }
 
 # Build step: write
@@ -174,9 +158,9 @@ step_compress() {
 # Output:
 #     The file contents.
 step_write() {
-	smsg 5 "Building"
 	tee "$1"
 	chmod +x "$1"
+	smsg "Building"
 }
 
 # Build step: write
@@ -193,14 +177,14 @@ step_write() {
 
 step_write_install() {
 	if [[ "$OPT_INSTALL" != true ]]; then
-		smsg 6 "Installing" "SKIP"
 		cat
+		smsg "Installing" "SKIP"
 		return 0
 	fi
 
-	smsg 6 "Installing"
 	tee "$1"
 	chmod +x "$1"
+	smsg "Installing"
 }
 
 # -----------------------------------------------------------------------------
