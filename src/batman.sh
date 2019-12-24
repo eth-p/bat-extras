@@ -25,7 +25,6 @@ fi
 # -----------------------------------------------------------------------------
 export MANPAGER='sh -c "col -bx | '"$(printf "%q" "$BAT")"' --language=man --style=grid '"${BAT_ARGS[@]}"'"'
 export MANROFFOPT='-c'
-export BAT_PAGER="$PAGER"
 
 command man "${MAN_ARGS[@]}"
 exit $?
