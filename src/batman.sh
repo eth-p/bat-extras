@@ -29,7 +29,7 @@ export MANPAGER='sh -c "col -bx | '"$(printf "%q" "$BAT")"' --language=man --sty
 export MANROFFOPT='-c'
 
 if [[ -n "${SCRIPT_PAGER_CMD}" ]]; then
-	export BAT_PAGER="$(printf "%q " "${SCRIPT_PAGER_CMD}" "${SCRIPT_PAGER_ARGS[@]}")"
+	export BAT_PAGER="$(printf "%q " "${SCRIPT_PAGER_CMD[@]}" "${SCRIPT_PAGER_ARGS[@]}")"
 else
 	unset BAT_PAGER
 fi
