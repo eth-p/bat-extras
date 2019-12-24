@@ -7,11 +7,13 @@
 # -----------------------------------------------------------------------------
 LIB="$(cd "$(dirname "$(readlink "${BASH_SOURCE[0]}" || echo "${BASH_SOURCE[0]}")")" && pwd)/../lib"
 BAT="bat"
+source "${LIB}/pager.sh"
 source "${LIB}/print.sh"
 source "${LIB}/opt.sh"
 source "${LIB}/opt_hooks.sh"
 # -----------------------------------------------------------------------------
 hook_color
+hook_pager
 # -----------------------------------------------------------------------------
 MAN_ARGS=()
 BAT_ARGS=()
@@ -25,6 +27,12 @@ fi
 # -----------------------------------------------------------------------------
 export MANPAGER='sh -c "col -bx | '"$(printf "%q" "$BAT")"' --language=man --style=grid '"${BAT_ARGS[@]}"'"'
 export MANROFFOPT='-c'
+
+if [[ -n "${SCRIPT_PAGER_CMD}" ]]; then
+	export BAT_PAGER="$(printf "%q " "${SCRIPT_PAGER_CMD}" "${SCRIPT_PAGER_ARGS[@]}")"
+else
+	unset BAT_PAGER
+fi
 
 command man "${MAN_ARGS[@]}"
 exit $?
