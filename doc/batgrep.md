@@ -17,6 +17,8 @@ A script that combines [ripgrep](https://github.com/burntsushi/ripgrep) with bat
 | Short | Long                       | Description                                                  |
 | ----- | -------------------------- | ------------------------------------------------------------ |
 | `-i`  | `--ignore-case`            | Use case insensitive searching.                              |
+| `-s`  | `--case-sensitive`         | Use case sensitive searching.                                |
+| `-S`  | `--smart-case`             | Use smart case searching.                                    |
 | `-A`  | `--after-context=[LINES]`  | Display the next *n* lines after a matched line.             |
 | `-B`  | `--before-context=[LINES]` | Display the previous `n` lines before a matched line.        |
 | `-C`  | `--context=[LINES]`        | A combination of `--after-context` and `--before-context`.   |
