@@ -77,6 +77,18 @@ while shiftopt; do
 		--no-snip)                     OPT_SNIP="";;
 		--no-highlight)                OPT_HIGHLIGHT=false;;
 
+		# Option Forwarding
+		--rg:*) {
+			if [[ "${OPT:5:1}" = "-" ]]; then
+				RG_ARGS+=("${OPT:5}")
+			else
+				RG_ARGS+=("--${OPT:5}")
+			fi
+			if [[ -n "$OPT_VAL" ]]; then
+				RG_ARGS+=("$OPT_VAL")
+			fi
+		};;
+
 		# ???
 		-*) {
 			printc "%{RED}%s: unknown option '%s'%{CLEAR}\n" "$PROGRAM" "$OPT" 1>&2
