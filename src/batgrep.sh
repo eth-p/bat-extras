@@ -24,6 +24,7 @@ RG_ARGS=()
 BAT_ARGS=()
 PATTERN=""
 FILES=()
+OPT_CASE_SENSITIVITY=''
 OPT_CONTEXT_BEFORE=2
 OPT_CONTEXT_AFTER=2
 OPT_FOLLOW=true
@@ -41,7 +42,9 @@ while shiftopt; do
 	case "$OPT" in
 
 		# Ripgrep Options
-		-i|--ignore-case)              RG_ARGS+=("--ignore-case");;
+		-i|--ignore-case)              OPT_CASE_SENSITIVITY="--ignore-case";;
+		-s|--case-sensitive)           OPT_CASE_SENSITIVITY="--case-sensitive";;
+		-S|--smart-case)               OPT_CASE_SENSITIVITY="--smart-case";;
 		-A|--after-context)  shiftval; OPT_CONTEXT_AFTER="$OPT_VAL";;
 		-B|--before-context) shiftval; OPT_CONTEXT_BEFORE="$OPT_VAL";;
 		-C|--context)        shiftval; OPT_CONTEXT_BEFORE="$OPT_VAL";
@@ -100,6 +103,10 @@ fi
 SEP="$(printc "%{DIM}%$(tput cols)s%{CLEAR}" | sed "s/ /─/g")"
 
 # Append ripgrep and bat arguments.
+if [[ -n "$OPT_CASE_SENSITIVITY" ]]; then
+	RG_ARGS+=("$OPT_CASE_SENSITIVITY")
+fi
+
 if "$OPT_FOLLOW"; then
 	RG_ARGS+=("--follow")	
 fi
