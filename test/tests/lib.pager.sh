@@ -25,7 +25,11 @@ pager_info() {
 
 pager_test() {
 	if [[ "$1" = "TTY" ]]; then
-		script -q /dev/null bash "${BASH_SOURCE[0]}" --execute
+		if [[ "$(uname -s)" = "Darwin" ]]; then
+			script -q /dev/null bash "${BASH_SOURCE[0]}" --execute
+		else
+			script -q -c "bash $(printf "%q" "${BASH_SOURCE[0]}") --execute" /dev/null
+		fi
 	elif [[ "$1" = "FILE" ]]; then
 		bash "${BASH_SOURCE[0]}" --execute | cat
 	fi
