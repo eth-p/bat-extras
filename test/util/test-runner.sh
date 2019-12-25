@@ -29,12 +29,12 @@ export LANG="en_US.UTF-8"
 shift
 case "$TEST_RUNNER_USE" in
 	src)
-		bash "${DIR_SRC}/${SCRIPT}.sh" "$@"
+		bash "${DIR_SRC}/${SCRIPT}.sh" "$@" 2>&1 | cat
 		exit $?
 		;;
 
 	bin|"")
-		"${DIR_BIN}/${SCRIPT}" "$@"
+		"${DIR_BIN}/${SCRIPT}" "$@" 2>&1 | cat
 		exit $?
 		;;
 
