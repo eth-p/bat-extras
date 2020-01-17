@@ -30,6 +30,7 @@ OPT_CONTEXT_AFTER=2
 OPT_FOLLOW=true
 OPT_SNIP=""
 OPT_HIGHLIGHT=true
+OPT_SEARCH_PATTERN=false
 BAT_STYLE="header,numbers"
 
 # Set options based on the bat version.
@@ -76,6 +77,8 @@ while shiftopt; do
 		--no-follow)                   OPT_FOLLOW=false;;
 		--no-snip)                     OPT_SNIP="";;
 		--no-highlight)                OPT_HIGHLIGHT=false;;
+		-p|--less-search-pattern)      OPT_LESS_SEARCH_PATTERN=true;;
+		--no-search-pattern)           OPT_SEARCH_PATTERN=false;;
 
 		# Option Forwarding
 		--rg:*) {
@@ -132,6 +135,10 @@ fi
 if [[ "$OPT_CONTEXT_BEFORE" -eq 0 && "$OPT_CONTEXT_AFTER" -eq 0 ]]; then
 	OPT_SNIP=""
 	OPT_HIGHLIGHT=false
+fi
+
+if [[ "$OPT_LESS_SEARCH_PATTERN" = true ]]; then
+    SCRIPT_PAGER_ARGS+=(-p "$PATTERN")
 fi
 
 # -----------------------------------------------------------------------------
