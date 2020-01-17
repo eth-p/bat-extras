@@ -31,6 +31,7 @@ OPT_FOLLOW=true
 OPT_SNIP=""
 OPT_HIGHLIGHT=true
 OPT_SEARCH_PATTERN=false
+OPT_FIXED_STRINGS=false
 BAT_STYLE="header,numbers"
 
 # Set options based on the bat version.
@@ -51,7 +52,8 @@ while shiftopt; do
 		-C|--context)        shiftval; OPT_CONTEXT_BEFORE="$OPT_VAL";
 			                           OPT_CONTEXT_AFTER="$OPT_VAL";;
 
-		-F|--fixed-strings|\
+		-F|--fixed-strings) OPT_FIXED_STRINGS=true; RG_ARGS+=("$OPT");;
+
 		-U|--multiline|\
 		-P|--pcre2|\
 		-z|--search-zip|\
@@ -138,7 +140,17 @@ if [[ "$OPT_CONTEXT_BEFORE" -eq 0 && "$OPT_CONTEXT_AFTER" -eq 0 ]]; then
 fi
 
 if [[ "$OPT_LESS_SEARCH_PATTERN" = true ]]; then
-    SCRIPT_PAGER_ARGS+=(-p "$PATTERN")
+	if [[ "$OPT_FIXED_STRINGS" = true ]]; then
+		# Depending on your editor, this may look identical. However, there is a
+		# special control character at the beginning of the pattern string, right
+		# after the first double quote. It is a a ^R, or Control-R, character. This
+		# instructs less to NOT use regular expressions, which is what the -F flag
+		# does for ripgrep. If we did not use this, then less would match a
+		# different pattern than ripgrep searched for.
+		SCRIPT_PAGER_ARGS+=(-p "$PATTERN")
+	else
+		SCRIPT_PAGER_ARGS+=(-p "$PATTERN")
+	fi
 fi
 
 # -----------------------------------------------------------------------------
