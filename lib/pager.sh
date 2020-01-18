@@ -8,12 +8,22 @@
 
 # Returns 0 (true) if the current script pager is less, otherwise 1 (false)
 is_pager_less() {
-	[[ "$(get_pager)" = "less" ]]
+	[[ "$(pager_name)" = "less" ]]
+	return $?
 }
 
-# Echos the name of the pager command
-get_pager() {
-	echo "$(basename "${SCRIPT_PAGER_CMD[0]}")"
+# Gets the name of the pager command.
+pager_name() {
+	if [[ -z "${SCRIPT_PAGER_CMD[0]}" ]]; then return; fi
+	if [[ -z "$_SCRIPT_PAGER_NAME" ]]; then
+		local output="$("${SCRIPT_PAGER_CMD[0]}" --version 2>&1)"
+
+		if head -n 1 <<< "$output" | grep '^less \d' &>/dev/null; then
+			_SCRIPT_PAGER_NAME="less"
+		fi
+	fi
+
+	echo "$_SCRIPT_PAGER_NAME"
 }
 
 # Executes a command or function, and pipes its output to the pager (if exists).
@@ -52,7 +62,7 @@ SCRIPT_PAGER_CMD=("$PAGER")
 SCRIPT_PAGER_ARGS=()
 
 # Add arguments for the less pager.
-if is_pager_less "$(basename "${SCRIPT_PAGER_CMD[0]}")"; then
+if is_pager_less; then
 	SCRIPT_PAGER_ARGS=(-R)
 fi
 
@@ -67,3 +77,4 @@ if ! [[ -t 1 ]]; then
 	SCRIPT_PAGER_CMD=()
 	SCRIPT_PAGER_ARGS=()
 fi
+

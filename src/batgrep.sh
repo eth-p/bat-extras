@@ -151,8 +151,8 @@ if [[ "$OPT_SEARCH_PATTERN" ]]; then
 			SCRIPT_PAGER_ARGS+=(-p "$PATTERN")
 		fi
 	else
-		print_error "Unsupported pager '$(get_pager)' for option "\
-		            "-p/--less-search-pattern"
+		print_error "Unsupported pager '$(pager_name)' for option "\
+		            "-p/--search-pattern"
 		exit 1
 	fi
 fi
