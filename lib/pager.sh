@@ -7,6 +7,7 @@
 # -----------------------------------------------------------------------------
 
 # Defaults.
+_SCRIPT_PAGER_NAME=
 SCRIPT_PAGER_CMD=("$PAGER")
 SCRIPT_PAGER_ARGS=()
 
@@ -28,6 +29,20 @@ if ! [[ -t 1 ]]; then
 fi
 
 # -----------------------------------------------------------------------------
+
+# Gets the pager name.
+pager_name() {
+	if [[ -z "${SCRIPT_PAGER_CMD[0]}" ]]; then return; fi
+	if [[ -z "$_SCRIPT_PAGER_NAME" ]]; then
+		local output="$("${SCRIPT_PAGER_CMD[0]}" --version 2>&1)"
+
+		if head -n 1 <<< "$output" | grep '^less \d' &>/dev/null; then
+			_SCRIPT_PAGER_NAME="less"
+		fi
+	fi
+
+	echo "$_SCRIPT_PAGER_NAME"
+}
 
 # Executes a command or function, and pipes its output to the pager (if exists).
 #
