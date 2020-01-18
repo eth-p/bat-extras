@@ -117,7 +117,8 @@ if [[ -z "$PATTERN" ]]; then
 fi
 
 # Generate separator.
-SEP="$(printc "%{DIM}%$(tput cols)s%{CLEAR}" | sed "s/ /─/g")"
+COLS="$(tput cols)"
+SEP="$(printc "%{DIM}%${COLS}s%{CLEAR}" | sed "s/ /─/g")"
 
 # Append ripgrep and bat arguments.
 if [[ -n "$OPT_CASE_SENSITIVITY" ]]; then
@@ -189,6 +190,7 @@ main() {
 			   "${LAST_LH[@]}" \
 			   --style="${BAT_STYLE}${OPT_SNIP}" \
 			   --paging=never \
+			   --terminal-width="$COLS" \
 			   "$LAST_FILE"
 
 		# Print the separator.
