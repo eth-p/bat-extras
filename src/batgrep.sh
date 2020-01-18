@@ -151,7 +151,7 @@ if "$OPT_SEARCH_PATTERN"; then
 		else
 			SCRIPT_PAGER_ARGS+=(-p "$PATTERN")
 		fi
-	elif [[ -z "$(pager_name)" ]]; then
+	elif is_pager_disabled; then
 		print_error "$(
 			echo "The -p/--search-pattern option requires a pager, but" \
 			     "the pager was explicitly disabled by \$BAT_PAGER or the" \

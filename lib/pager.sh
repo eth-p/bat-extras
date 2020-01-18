@@ -6,9 +6,15 @@
 # Issues:     https://github.com/eth-p/bat-extras/issues
 # -----------------------------------------------------------------------------
 
-# Returns 0 (true) if the current script pager is less, otherwise 1 (false)
+# Returns 0 (true) if the current pager is less, otherwise 1 (false)
 is_pager_less() {
 	[[ "$(pager_name)" = "less" ]]
+	return $?
+}
+
+# Returns 0 (true) if the current pager is disabled, otherwise 1 (false)
+is_pager_disabled() {
+	[[ -z "$(pager_name)" ]]
 	return $?
 }
 
@@ -20,6 +26,8 @@ pager_name() {
 
 		if head -n 1 <<< "$output" | grep '^less \d' &>/dev/null; then
 			_SCRIPT_PAGER_NAME="less"
+		else
+			_SCRIPT_PAGER_NAME="$(basename "${SCRIPT_PAGER_CMD[0]}")"
 		fi
 	fi
 
