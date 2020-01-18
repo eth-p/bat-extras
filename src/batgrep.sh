@@ -140,9 +140,9 @@ if [[ "$OPT_CONTEXT_BEFORE" -eq 0 && "$OPT_CONTEXT_AFTER" -eq 0 ]]; then
 fi
 
 # Handle the --search-pattern option.
-if [[ "$OPT_SEARCH_PATTERN" ]]; then
+if "$OPT_SEARCH_PATTERN"; then
 	if is_pager_less; then
-		if [[ "$OPT_FIXED_STRINGS" ]]; then
+		if "$OPT_FIXED_STRINGS"; then
 			# This strange character is a ^R, or Control-R, character. This instructs
 			# less to NOT use regular expressions, which is what the -F flag does for
 			# ripgrep. If we did not use this, then less would match a different pattern
