@@ -30,6 +30,8 @@ OPT_CONTEXT_AFTER=2
 OPT_FOLLOW=true
 OPT_SNIP=""
 OPT_HIGHLIGHT=true
+OPT_SEARCH_PATTERN=false
+OPT_FIXED_STRINGS=false
 BAT_STYLE="header,numbers"
 
 # Set options based on the bat version.
@@ -50,7 +52,8 @@ while shiftopt; do
 		-C|--context)        shiftval; OPT_CONTEXT_BEFORE="$OPT_VAL";
 			                           OPT_CONTEXT_AFTER="$OPT_VAL";;
 
-		-F|--fixed-strings|\
+		-F|--fixed-strings) OPT_FIXED_STRINGS=true; RG_ARGS+=("$OPT");;
+
 		-U|--multiline|\
 		-P|--pcre2|\
 		-z|--search-zip|\
@@ -76,6 +79,8 @@ while shiftopt; do
 		--no-follow)                   OPT_FOLLOW=false;;
 		--no-snip)                     OPT_SNIP="";;
 		--no-highlight)                OPT_HIGHLIGHT=false;;
+		-p|--search-pattern)           OPT_SEARCH_PATTERN=true;;
+		--no-search-pattern)           OPT_SEARCH_PATTERN=false;;
 
 		# Option Forwarding
 		--rg:*) {
@@ -132,6 +137,32 @@ fi
 if [[ "$OPT_CONTEXT_BEFORE" -eq 0 && "$OPT_CONTEXT_AFTER" -eq 0 ]]; then
 	OPT_SNIP=""
 	OPT_HIGHLIGHT=false
+fi
+
+# Handle the --search-pattern option.
+if "$OPT_SEARCH_PATTERN"; then
+	if is_pager_less; then
+		if "$OPT_FIXED_STRINGS"; then
+			# This strange character is a ^R, or Control-R, character. This instructs
+			# less to NOT use regular expressions, which is what the -F flag does for
+			# ripgrep. If we did not use this, then less would match a different pattern
+			# than ripgrep searched for. See man less(1).
+			SCRIPT_PAGER_ARGS+=(-p $'\x12'"$PATTERN")
+		else
+			SCRIPT_PAGER_ARGS+=(-p "$PATTERN")
+		fi
+	elif [[ -z "$(pager_name)" ]]; then
+		print_error "$(
+			echo "The -p/--search-pattern option requires a pager, but" \
+			     "the pager was explicitly disabled by \$BAT_PAGER or the" \
+                 "--paging option."
+		)"
+		exit 1
+	else
+		print_error "Unsupported pager '%s' for option -p/--search-pattern" \
+		            "$(pager_name)"
+		exit 1
+	fi
 fi
 
 # -----------------------------------------------------------------------------
