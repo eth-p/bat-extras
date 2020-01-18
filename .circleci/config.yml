@@ -22,7 +22,7 @@ commands:
                 command: apk add git bash python2 diffutils ca-certificates curl
             - run:
                 name:    "Setup: Install test packages."
-                command: apk add util-linux
+                command: apk add util-linux coreutils
             - run:
                 name:    "Setup: Install runtime packages."
                 command: apk add bat ripgrep ncurses
