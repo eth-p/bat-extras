@@ -79,7 +79,7 @@ while shiftopt; do
 		--no-follow)                   OPT_FOLLOW=false;;
 		--no-snip)                     OPT_SNIP="";;
 		--no-highlight)                OPT_HIGHLIGHT=false;;
-		-p|--less-search-pattern)      OPT_LESS_SEARCH_PATTERN=true;;
+		-p|--search-pattern)           OPT_SEARCH_PATTERN=true;;
 		--no-search-pattern)           OPT_SEARCH_PATTERN=false;;
 
 		# Option Forwarding
@@ -139,17 +139,21 @@ if [[ "$OPT_CONTEXT_BEFORE" -eq 0 && "$OPT_CONTEXT_AFTER" -eq 0 ]]; then
 	OPT_HIGHLIGHT=false
 fi
 
-if [[ "$OPT_LESS_SEARCH_PATTERN" = true ]]; then
-	if [[ "$OPT_FIXED_STRINGS" = true ]]; then
-		# Depending on your editor, this may look identical. However, there is a
-		# special control character at the beginning of the pattern string, right
-		# after the first double quote. It is a a ^R, or Control-R, character. This
-		# instructs less to NOT use regular expressions, which is what the -F flag
-		# does for ripgrep. If we did not use this, then less would match a
-		# different pattern than ripgrep searched for.
-		SCRIPT_PAGER_ARGS+=(-p "$PATTERN")
+if [[ "$OPT_SEARCH_PATTERN" ]]; then
+	if is_pager_less; then
+		if [[ "$OPT_FIXED_STRINGS" ]]; then
+			# This strange character is a ^R, or Control-R, character. This instructs
+			# less to NOT use regular expressions, which is what the -F flag does for
+			# ripgrep. If we did not use this, then less would match a different pattern
+			# than ripgrep searched for. See man less(1).
+			SCRIPT_PAGER_ARGS+=(-p $'\x12'"$PATTERN")
+		else
+			SCRIPT_PAGER_ARGS+=(-p "$PATTERN")
+		fi
 	else
-		SCRIPT_PAGER_ARGS+=(-p "$PATTERN")
+		print_error "Unsupported pager '$(get_pager)' for option "\
+		            "-p/--less-search-pattern"
+		exit 1
 	fi
 fi
 
