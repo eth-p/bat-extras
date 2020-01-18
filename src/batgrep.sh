@@ -139,6 +139,7 @@ if [[ "$OPT_CONTEXT_BEFORE" -eq 0 && "$OPT_CONTEXT_AFTER" -eq 0 ]]; then
 	OPT_HIGHLIGHT=false
 fi
 
+# Handle the --search-pattern option.
 if [[ "$OPT_SEARCH_PATTERN" ]]; then
 	if is_pager_less; then
 		if [[ "$OPT_FIXED_STRINGS" ]]; then
@@ -150,9 +151,16 @@ if [[ "$OPT_SEARCH_PATTERN" ]]; then
 		else
 			SCRIPT_PAGER_ARGS+=(-p "$PATTERN")
 		fi
+	elif [[ -z "$(pager_name)" ]]; then
+		print_error "$(
+			echo "The -p/--search-pattern option requires a pager, but" \
+			     "the pager was explicitly disabled by \$BAT_PAGER or the" \
+                 "--paging option."
+		)"
+		exit 1
 	else
-		print_error "Unsupported pager '$(pager_name)' for option "\
-		            "-p/--search-pattern"
+		print_error "Unsupported pager '%s' for option -p/--search-pattern" \
+		            "$(pager_name)"
 		exit 1
 	fi
 fi
