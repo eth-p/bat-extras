@@ -13,7 +13,9 @@ commands:
         steps:
             - run:
                 name:   "APK: Add repository."
-                command: printf "\n%s\n" "http://nl.alpinelinux.org/alpine/edge/testing" >> /etc/apk/repositories
+                command: |
+                  printf "\n%s\n" "http://nl.alpinelinux.org/alpine/edge/testing" >> /etc/apk/repositories
+                  printf "\n%s\n" "http://nl.alpinelinux.org/alpine/edge/community" >> /etc/apk/repositories
             - run:
                 name:    "APK: Update cache."
                 command: apk update
