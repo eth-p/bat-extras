@@ -1,0 +1,5 @@
+templink="$(basename "$0" ".sh")._temp"
+tempabs="$(pwd)/${templink}"
+ln -s "../../src/batgrep.sh" "$templink"
+chmod +x "$templink"
+"$(basename "$templink")" "templink" "${BASH_SOURCE[0]}" -C 0 | sed '1d;$d' || true
