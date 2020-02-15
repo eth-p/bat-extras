@@ -7,6 +7,7 @@
 # -----------------------------------------------------------------------------
 LIB="$(cd "$(dirname "${BASH_SOURCE[0]}")" && cd "$(dirname "$(readlink "${BASH_SOURCE[0]}" || echo ".")")/../lib" && pwd)"
 BAT="bat"
+if [[ -n "${MANPAGER}" ]]; then BAT_PAGER="$MANPAGER"; fi
 source "${LIB}/pager.sh"
 source "${LIB}/print.sh"
 source "${LIB}/opt.sh"

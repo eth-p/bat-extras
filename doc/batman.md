@@ -12,6 +12,17 @@ A script that allows bat to be used as a manual highlighter.
 
 
 
+**Environment:**
+
+| Variable   | Description                                                  |
+| ---------- | ------------------------------------------------------------ |
+| `MANPAGER` | Changes the pager used for `batman`. This is treated like `BAT_PAGER`, but only affects this command. |
+
+
+
+
+
+
 ## Caveats
 
 None so far.
