@@ -2,6 +2,10 @@
 .DS_Store
 ._*
 
+# Developer
+.idea
+*.iml
+
 # Project
 /.circleci/.config.yml
 .download

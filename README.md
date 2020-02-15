@@ -36,11 +36,11 @@ This will combine and preprocess each script under the `src` directory, and crea
 
 There are three different options for minification:
 
-| Option          | Description                                          |
-| --------------- | ---------------------------------------------------- |
-| `--minify=none` | Nothing will be minified.                            |
-| `--minify=lib`  | Embedded library scripts will be minified. [default] |
-| `--minify=all`  | Everything will be minified.                         |
+| Option          | Description                                            |
+| --------------- | ------------------------------------------------------ |
+| `--minify=none` | Nothing will be minified.                              |
+| `--minify=lib`  | Embedded library scripts will be minified. \[default]\ |
+| `--minify=all`  | Everything will be minified.                           |
 
 This uses [shfmt](https://github.com/mvdan/sh) to perform minification.
 
