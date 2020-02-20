@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 case "$1" in
 	cols) echo 80 ;;
 	lines) echo 22 ;;
