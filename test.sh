@@ -30,7 +30,7 @@ done
 
 # -----------------------------------------------------------------------------
 # Initialize submodule if it isn't already.
-if ! [[ -d "${HERE}/.test-framework" ]]; then
+if ! [[ -f "${HERE}/.test-framework/bin/best.sh" ]]; then
 	git submodule init '.test-framework'
 	git submodule update
 fi
