@@ -52,7 +52,7 @@ jobs:
             - store_artifacts:
                 path: bin
 
-    test-snapshots:
+    test:
         executor: linux_alpine
         steps:
             - setup
@@ -60,7 +60,7 @@ jobs:
             - build:
                 minify: "all"
             - run:
-                name:    "Test: Snapshots"
+                name:    "Test: Unit Tests / Snapshots"
                 command: ./test.sh
 
     test-consistency:
@@ -91,10 +91,10 @@ workflows:
     default:
         jobs:
             - build
-            - test-snapshots:
+            - test:
                 requires: [build]
             - test-consistency:
-                requires: [build]
+                requires: [build, test]
             - test-symlink:
                 requires: [build]
 
