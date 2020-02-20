@@ -61,7 +61,7 @@ jobs:
                 minify: "all"
             - run:
                 name:    "Test: Unit Tests / Snapshots"
-                command: ./test.sh
+                command: ./test.sh --verbose --snapshot:show
 
     test-consistency:
         executor: linux_alpine
@@ -72,7 +72,7 @@ jobs:
                 minify: "all"
             - run:
                 name:    "Test: Consistency"
-                command: ./test.sh --compiled
+                command: ./test.sh --compiled --verbose --snapshot:show
 
     test-symlink:
         executor: linux_alpine
