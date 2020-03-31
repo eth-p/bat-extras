@@ -6,13 +6,13 @@
 # Issues:     https://github.com/eth-p/bat-extras/issues
 # -----------------------------------------------------------------------------
 
-# Returns 0 (true) if the current pager is less, otherwise 1 (false)
+# Returns 0 (true) if the current pager is less, otherwise 1 (false).
 is_pager_less() {
 	[[ "$(pager_name)" = "less" ]]
 	return $?
 }
 
-# Returns 0 (true) if the current pager is disabled, otherwise 1 (false)
+# Returns 0 (true) if the current pager is disabled, otherwise 1 (false).
 is_pager_disabled() {
 	[[ -z "$(pager_name)" ]]
 	return $?
@@ -24,7 +24,7 @@ pager_name() {
 	if [[ -z "$_SCRIPT_PAGER_NAME" ]]; then
 		local output="$("${SCRIPT_PAGER_CMD[0]}" --version 2>&1)"
 
-		if head -n 1 <<< "$output" | grep '^less \d' &>/dev/null; then
+		if head -n 1 <<<"$output" | grep '^less \d' &>/dev/null; then
 			_SCRIPT_PAGER_NAME="less"
 		else
 			_SCRIPT_PAGER_NAME="$(basename "${SCRIPT_PAGER_CMD[0]}")"
@@ -34,7 +34,7 @@ pager_name() {
 	echo "$_SCRIPT_PAGER_NAME"
 }
 
-# Executes a command or function, and pipes its output to the pager (if exists).
+# Executes a command or function, and pipes its output to the pager (if it exists).
 #
 # Returns: The exit code of the command.
 # Example:
@@ -51,7 +51,7 @@ pager_exec() {
 	fi
 }
 
-# Displays the output of a command or function inside the pager (if exists).
+# Displays the output of a command or function inside the pager (if it exists).
 #
 # Example:
 #     bat | pager_display
@@ -85,4 +85,3 @@ if ! [[ -t 1 ]]; then
 	SCRIPT_PAGER_CMD=()
 	SCRIPT_PAGER_ARGS=()
 fi
-

@@ -25,8 +25,11 @@ export SNAPSHOT_DIR="${HERE}/test/snapshot"
 OPT_ARGV=()
 while shiftopt; do
 	case "$OPT" in
-		--compiled) TEST_ENV_BIN_DIR="${HERE}/bin"; TEST_ENV_BIN_SUFFIX="" ;;
-		*)          OPT_ARGV+=("$OPT") ;;
+	--compiled)
+		TEST_ENV_BIN_DIR="${HERE}/bin"
+		TEST_ENV_BIN_SUFFIX=""
+		;;
+	*) OPT_ARGV+=("$OPT") ;;
 	esac
 done
 

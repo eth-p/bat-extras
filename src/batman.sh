@@ -37,4 +37,3 @@ fi
 
 command man "${MAN_ARGS[@]}"
 exit $?
-

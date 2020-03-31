@@ -13,7 +13,7 @@
 #     printc "%{RED}This is red %s.%{CLEAR}\n" "text"
 #
 printc() {
-	printf "$(sed "$_PRINTC_PATTERN" <<< "$1")" "${@:2}"
+	printf "$(sed "$_PRINTC_PATTERN" <<<"$1")" "${@:2}"
 }
 
 # Initializes the color tags for printc.
@@ -23,36 +23,36 @@ printc() {
 #     false -- Turns off color output.
 printc_init() {
 	case "$1" in
-		true) _PRINTC_PATTERN="$_PRINTC_PATTERN_ANSI";;
-		false) _PRINTC_PATTERN="$_PRINTC_PATTERN_PLAIN";;
+	true) _PRINTC_PATTERN="$_PRINTC_PATTERN_ANSI" ;;
+	false) _PRINTC_PATTERN="$_PRINTC_PATTERN_PLAIN" ;;
 
-		"") {
-			_PRINTC_PATTERN_ANSI=""
-			_PRINTC_PATTERN_PLAIN=""
+	"") {
+		_PRINTC_PATTERN_ANSI=""
+		_PRINTC_PATTERN_PLAIN=""
 
-			local name
-			local ansi
-			while read -r name ansi; do
-				if [[ -z "${name}" && -z "${ansi}" ]] || [[ "${name:0:1}" = "#" ]]; then
-					continue
-				fi
-
-				ansi="$(sed 's/\\/\\\\/' <<< "$ansi")"
-
-				_PRINTC_PATTERN_PLAIN="${_PRINTC_PATTERN_PLAIN}s/%{${name}}//g;"
-				_PRINTC_PATTERN_ANSI="${_PRINTC_PATTERN_ANSI}s/%{${name}}/${ansi}/g;"
-			done
-
-			if [ -t 1 ]; then
-				_PRINTC_PATTERN="$_PRINTC_PATTERN_ANSI"
-			else
-				_PRINTC_PATTERN="$_PRINTC_PATTERN_PLAIN"
+		local name
+		local ansi
+		while read -r name ansi; do
+			if [[ -z "${name}" && -z "${ansi}" ]] || [[ "${name:0:1}" = "#" ]]; then
+				continue
 			fi
-		};;
+
+			ansi="$(sed 's/\\/\\\\/' <<<"$ansi")"
+
+			_PRINTC_PATTERN_PLAIN="${_PRINTC_PATTERN_PLAIN}s/%{${name}}//g;"
+			_PRINTC_PATTERN_ANSI="${_PRINTC_PATTERN_ANSI}s/%{${name}}/${ansi}/g;"
+		done
+
+		if [ -t 1 ]; then
+			_PRINTC_PATTERN="$_PRINTC_PATTERN_ANSI"
+		else
+			_PRINTC_PATTERN="$_PRINTC_PATTERN_PLAIN"
+		fi
+	} ;;
 	esac
 }
 
-# Print a warning message to STDERR.
+# Print a warning message to stderr.
 # Arguments:
 #     1   -- The printc formatting string.
 #     ... -- The printc formatting arguments.
@@ -60,7 +60,7 @@ print_warning() {
 	printc "%{YELLOW}[%s warning]%{CLEAR}: $1%{CLEAR}\n" "$PROGRAM" "${@:2}" 1>&2
 }
 
-# Print an error message to STDERR.
+# Print an error message to stderr.
 # Arguments:
 #     1   -- The printc formatting string.
 #     ... -- The printc formatting arguments.
@@ -82,4 +82,3 @@ printc_init <<END
 
 	DIM		\x1B[2m
 END
-

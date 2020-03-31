@@ -16,20 +16,21 @@ source "${LIB}/print.sh"
 
 FORMATTERS=("prettier" "rustfmt" "shfmt" "clangformat")
 
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 formatter_prettier_supports() {
 	case "$1" in
-		.js|.jsx|\
-		.ts|.tsx|\
-		.css|.scss|.sass|\
-		.html|\
-		.json|\
-		.md|\
+	.js | .jsx | \
+		.ts | .tsx | \
+		.css | .scss | .sass | \
+		.html | \
+		.json | \
+		.md | \
 		.yml)
-			return 0;;
+		return 0
+		;;
 	esac
-	
+
 	return 1
 }
 
@@ -38,16 +39,17 @@ formatter_prettier_process() {
 	return $?
 }
 
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 formatter_clangformat_supports() {
 	case "$1" in
-		.c|.cpp|.cxx|\
-		.h|.hpp|\
+	.c | .cpp | .cxx | \
+		.h | .hpp | \
 		.m)
-			return 0;;
+		return 0
+		;;
 	esac
-	
+
 	return 1
 }
 
@@ -56,7 +58,7 @@ formatter_clangformat_process() {
 	return $?
 }
 
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 formatter_rustfmt_supports() {
 	[[ "$1" = ".rs" ]]
@@ -68,7 +70,7 @@ formatter_rustfmt_process() {
 	return $?
 }
 
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 formatter_shfmt_supports() {
 	[[ "$1" = ".sh" ]]
@@ -79,8 +81,6 @@ formatter_shfmt_process() {
 	shfmt
 	return $?
 }
-
-
 
 # -----------------------------------------------------------------------------
 # Functions:
@@ -93,21 +93,21 @@ map_language_to_extension() {
 	local ext=".txt"
 
 	case "$1" in
-		sh|bash)               ext=".sh"   ;;
-		js|es6|es)             ext=".js"   ;;
-		jsx)                   ext=".jsx"  ;;
-		ts)                    ext=".ts"   ;;
-		tsx)                   ext=".tsx"  ;;
-		css)                   ext=".css"  ;;
-		scss)                  ext=".scss" ;;
-		sass)                  ext=".sass" ;;
-		html|htm|shtml|xhtml)  ext=".html" ;;
-		json)                  ext=".json" ;;
-		md|mdown|markdown)     ext=".md"   ;;
-		yaml|yml)              ext=".yml"  ;;
-		rust|rs)               ext=".rs"   ;;
+	sh | bash) ext=".sh" ;;
+	js | es6 | es) ext=".js" ;;
+	jsx) ext=".jsx" ;;
+	ts) ext=".ts" ;;
+	tsx) ext=".tsx" ;;
+	css) ext=".css" ;;
+	scss) ext=".scss" ;;
+	sass) ext=".sass" ;;
+	html | htm | shtml | xhtml) ext=".html" ;;
+	json) ext=".json" ;;
+	md | mdown | markdown) ext=".md" ;;
+	yaml | yml) ext=".yml" ;;
+	rust | rs) ext=".rs" ;;
 	esac
-	
+
 	echo "$ext"
 }
 
@@ -121,7 +121,7 @@ map_extension_to_formatter() {
 			return 0
 		fi
 	done
-	
+
 	echo "none"
 	return 0
 }
@@ -146,7 +146,7 @@ process_file() {
 	local ext="$2"
 	local fext="$ext"
 	local lang="${ext:1}"
-	
+
 	if [[ -n "$OPT_LANGUAGE" ]]; then
 		lang="$OPT_LANGUAGE"
 		fext="$(map_language_to_extension "$lang")"
@@ -169,14 +169,14 @@ process_file() {
 	local data_formatted
 	if [[ "$file" = "-" ]]; then
 		data_raw="$(cat -)"
-		data_formatted="$("formatter_${formatter}_process" "$file" 2>/dev/null <<< "$data_raw")"
+		data_formatted="$("formatter_${formatter}_process" "$file" 2>/dev/null <<<"$data_raw")"
 		if [[ $? -ne 0 ]]; then
 			print_warning "'STDIN': Unable to format with '%s'" "$formatter"
-			print_file --language="$lang" - <<< "$data_raw"
+			print_file --language="$lang" - <<<"$data_raw"
 			return 1
 		fi
 	else
-		data_formatted="$("formatter_${formatter}_process" "$file" < "$file")"
+		data_formatted="$("formatter_${formatter}_process" "$file" <"$file")"
 		if [[ $? -ne 0 ]]; then
 			print_warning "'%s': Unable to format with '%s'" "$file" "$formatter"
 			print_file --language="$lang" "$file"
@@ -184,7 +184,7 @@ process_file() {
 		fi
 	fi
 
-	print_file --language="$lang" - <<< "$data_formatted"
+	print_file --language="$lang" - <<<"$data_formatted"
 	return $?
 }
 
@@ -199,20 +199,26 @@ FILES=()
 while shiftopt; do
 	case "$OPT" in
 
-		# Language Options
-		-l)         shiftval; OPT_LANGUAGE="${OPT_VAL}" ;;
-		-l*)                  OPT_LANGUAGE="${OPT:2}"   ;;
-		--language) shiftval; OPT_LANGUAGE="$OPT_VAL"   ;;
+	# Language options
+	-l)
+		shiftval
+		OPT_LANGUAGE="${OPT_VAL}"
+		;;
+	-l*) OPT_LANGUAGE="${OPT:2}" ;;
+	--language)
+		shiftval
+		OPT_LANGUAGE="$OPT_VAL"
+		;;
 
-		# Bat Options
-		-*) {
-			BAT_ARGS+=("$OPT=$OPT_VAL")
-		};;
-			
-		# Files
-		*) {
-			FILES+=("$OPT")
-		};;		
+	# bat options
+	-*) {
+		BAT_ARGS+=("$OPT=$OPT_VAL")
+	} ;;
+
+	# Files
+	*) {
+		FILES+=("$OPT")
+	} ;;
 
 	esac
 done
@@ -231,4 +237,3 @@ done
 
 # Exit.
 exit $EXIT
-

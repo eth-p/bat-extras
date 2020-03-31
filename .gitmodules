@@ -1,4 +1,3 @@
 [submodule "best"]
-	path = .test-framework
-	url = https://github.com/eth-p/best.git
-
+path = .test-framework
+url = https://github.com/eth-p/best.git

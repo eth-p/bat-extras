@@ -6,13 +6,12 @@
 # Issues:     https://github.com/eth-p/bat-extras/issues
 # -----------------------------------------------------------------------------
 
-
 # -----------------------------------------------------------------------------
 # Hooks:
 # -----------------------------------------------------------------------------
 
 # Option parser hook: color support.
-# This will accept --no-color, or --color.
+# This will accept --no-color or --color.
 # It will also try to accept --color=never|always|auto.
 #
 # The variable OPT_COLOR will be set depending on whether or not a TTY is
@@ -21,16 +20,25 @@ hook_color() {
 	SHIFTOPT_HOOKS+=("__shiftopt_hook__color")
 	__shiftopt_hook__color() {
 		case "$OPT" in
-			--no-color) OPT_COLOR=false; printc_init "$OPT_COLOR";;
-			--color)    {
-				case "$OPT_VAL" in
-					auto)        :;;
-					always|true) OPT_COLOR=true;  printc_init "$OPT_COLOR";;
-					never|false) OPT_COLOR=false; printc_init "$OPT_COLOR";;
-				esac
-			};;
+		--no-color)
+			OPT_COLOR=false
+			printc_init "$OPT_COLOR"
+			;;
+		--color) {
+			case "$OPT_VAL" in
+			auto) : ;;
+			always | true)
+				OPT_COLOR=true
+				printc_init "$OPT_COLOR"
+				;;
+			never | false)
+				OPT_COLOR=false
+				printc_init "$OPT_COLOR"
+				;;
+			esac
+		} ;;
 
-			*) return 1;;
+		*) return 1 ;;
 		esac
 	}
 
@@ -51,25 +59,30 @@ hook_pager() {
 	SHIFTOPT_HOOKS+=("__shiftopt_hook__pager")
 	__shiftopt_hook__pager() {
 		case "$OPT" in
-	    	# Specify paging.
-			--no-pager)   shiftval; SCRIPT_PAGER_CMD='';;
-			--paging)     shiftval; {
+		# Specify paging.
+		--no-pager)
+			shiftval
+			SCRIPT_PAGER_CMD=''
+			;;
+		--paging)
+			shiftval
+			{
 				case "$OPT_VAL" in
-					auto)   :;;
-					never)  SCRIPT_PAGER_CMD='';;
-					always) :;;
+				auto) : ;;
+				never) SCRIPT_PAGER_CMD='' ;;
+				always) : ;;
 				esac
-			};;
+			}
+			;;
 
-			# Specify the pager.
-			--pager) {
-				shiftval;
-				SCRIPT_PAGER_CMD=($OPT_VAL);
-				PAGER_ARGS=()
-			};;
+		# Specify the pager.
+		--pager) {
+			shiftval
+			SCRIPT_PAGER_CMD=($OPT_VAL)
+			PAGER_ARGS=()
+		} ;;
 
-			*) return 1;;
+		*) return 1 ;;
 		esac
 	}
 }
-

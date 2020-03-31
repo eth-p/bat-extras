@@ -33,8 +33,8 @@ next() {
 # Prints a build step message.
 smsg() {
 	case "$2" in
-		"SKIP") printc "    %{YELLOW}      %{DIM}%s [skipped]%{CLEAR}\n" "$1" 1>&2;;
-		*)      printc "    %{YELLOW}      %s...%{CLEAR}\n" "$1" 1>&2;;
+	"SKIP") printc "    %{YELLOW}      %{DIM}%s [skipped]%{CLEAR}\n" "$1" 1>&2 ;;
+	*) printc "    %{YELLOW}      %s...%{CLEAR}\n" "$1" 1>&2 ;;
 	esac
 }
 
@@ -58,7 +58,7 @@ step_read() {
 #
 # Input:
 #     The original file contents.
-# 
+#
 # Output:
 #      The processed file contents.
 step_preprocess() {
@@ -66,7 +66,7 @@ step_preprocess() {
 	while IFS='' read -r line; do
 		# Skip certain lines.
 		[[ "$line" =~ ^LIB=.*$ ]] && continue
-		
+
 		# Replace the BAT variable with the build option.
 		if [[ "$line" =~ ^BAT=.*$ ]]; then
 			printf "BAT=%q\n" "$OPT_BAT"
@@ -75,7 +75,7 @@ step_preprocess() {
 
 		# Replace the DOCS_* variables.
 		if [[ "$line" =~ ^DOCS_[A-Z]+=.*$ ]]; then
-			local docvar="$(cut -d'=' -f1 <<< "$line")"
+			local docvar="$(cut -d'=' -f1 <<<"$line")"
 			printf "%s=%q\n" "$docvar" "${!docvar}"
 			continue
 		fi
@@ -97,7 +97,7 @@ step_preprocess() {
 		# Forward data.
 		echo "$line"
 	done
-	
+
 	smsg "Preprocessing"
 }
 
@@ -141,7 +141,7 @@ step_compress() {
 		printf "(exec -a \"\$0\" bash -c 'eval \"\$(cat <&3)\"' \"\$0\" \"\$@\" 3< <(dd bs=1 if=\"\$0\" skip=::: 2>/dev/null | gunzip)); exit \$?;\n"
 	})"
 
-	sed "s/:::/$(wc -c <<< "$wrapper" | bc)/" <<< "$wrapper"
+	sed "s/:::/$(wc -c <<<"$wrapper" | bc)/" <<<"$wrapper"
 	gzip
 	smsg "Compressing"
 }
@@ -233,17 +233,37 @@ DOCS_MAINTAINER="eth-p <eth-p@hidden.email>"
 
 while shiftopt; do
 	case "$OPT" in
-		--install)              OPT_INSTALL=true;;
-		--compress)             OPT_COMPRESS=true;;
-		--prefix)               shiftval; OPT_PREFIX="$OPT_VAL";;
-		--alternate-executable) shiftval; OPT_BAT="$OPT_VAL";;
-		--minify)               shiftval; OPT_MINIFY="$OPT_VAL";;
-		--no-verify)            shiftval; OPT_VERIFY=false;;
-		--docs:url)             shiftval; DOCS_URL="$OPT_VAL";;
-		--docs:maintainer)      shiftval; DOCS_MAINTAINER="$OPT_VAL";;
-		
-		*)         printc "%{RED}%s: unknown option '%s'%{CLEAR}" "$PROGRAM" "$OPT";
-		           exit 1;;
+	--install) OPT_INSTALL=true ;;
+	--compress) OPT_COMPRESS=true ;;
+	--prefix)
+		shiftval
+		OPT_PREFIX="$OPT_VAL"
+		;;
+	--alternate-executable)
+		shiftval
+		OPT_BAT="$OPT_VAL"
+		;;
+	--minify)
+		shiftval
+		OPT_MINIFY="$OPT_VAL"
+		;;
+	--no-verify)
+		shiftval
+		OPT_VERIFY=false
+		;;
+	--docs:url)
+		shiftval
+		DOCS_URL="$OPT_VAL"
+		;;
+	--docs:maintainer)
+		shiftval
+		DOCS_MAINTAINER="$OPT_VAL"
+		;;
+
+	*)
+		printc "%{RED}%s: unknown option '%s'%{CLEAR}" "$PROGRAM" "$OPT"
+		exit 1
+		;;
 	esac
 done
 
@@ -290,17 +310,17 @@ printc "%{YELLOW}Building scripts...%{CLEAR}\n" 1>&2
 file_i=0
 file_n="${#SOURCES[@]}"
 for file in "${SOURCES[@]}"; do
-	((file_i++)) || true;
+	((file_i++)) || true
 
 	filename="$(basename "$file" .sh)"
 
 	printc "    %{YELLOW}[%s/%s] %{MAGENTA}%s%{CLEAR}\n" "$file_i" "$file_n" "$file" 1>&2
-	step_read "$file" |\
-		next step_preprocess |\
-		next step_minify |\
-		next step_compress |\
-		next step_write "${BIN}/${filename}" |\
-		next step_write_install "${OPT_PREFIX}/bin/${filename}" |\
+	step_read "$file" |
+		next step_preprocess |
+		next step_minify |
+		next step_compress |
+		next step_write "${BIN}/${filename}" |
+		next step_write_install "${OPT_PREFIX}/bin/${filename}" |
 		cat >/dev/null
 done
 
@@ -312,4 +332,3 @@ if "$OPT_VERIFY"; then
 	"${HERE}/test.sh" --compiled
 	exit $?
 fi
-
