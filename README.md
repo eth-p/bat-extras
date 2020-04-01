@@ -39,7 +39,7 @@ There are three different options for minification:
 | Option          | Description                                            |
 | --------------- | ------------------------------------------------------ |
 | `--minify=none` | Nothing will be minified.                              |
-| `--minify=lib`  | Embedded library scripts will be minified. \[default]\ |
+| `--minify=lib`  | Embedded library scripts will be minified. \[default\] |
 | `--minify=all`  | Everything will be minified.                           |
 
 This uses [shfmt](https://github.com/mvdan/sh) to perform minification.
@@ -65,4 +65,10 @@ If you wish to use these scripts on a distribution where this is the case, there
 **Verification:**
 
 The build script will attempt to verify the correctness of the "bin" scripts by comparing their output with their source counterparts. It is recommended to let it do this, but you can disable verification with the `--no-verify` option.
+
+
+
+## Installation via Package Manager
+
+**Homebrew:** `brew install eth-p/software/bat-extras`
 
