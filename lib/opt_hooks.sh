@@ -24,6 +24,7 @@ hook_color() {
 		--no-color) OPT_COLOR=false ;;
 		--color) {
 			case "$OPT_VAL" in
+			"")            OPT_COLOR=true ;;
 			always | true) OPT_COLOR=true  ;;
 			never | false) OPT_COLOR=false ;;
 			auto) return 0 ;;
