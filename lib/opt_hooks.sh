@@ -26,8 +26,11 @@ hook_color() {
 			case "$OPT_VAL" in
 			always | true) OPT_COLOR=true  ;;
 			never | false) OPT_COLOR=false ;;
-
 			auto) return 0 ;;
+			*)
+				printc "%{RED}%s: '--color' expects value of 'auto', 'always', or 'never'%{CLEAR}\n" "$PROGRAM"
+				exit 1
+				;;
 			esac
 		} ;;
 
@@ -65,6 +68,10 @@ hook_pager() {
 			auto)   : ;;
 			always) : ;;
 			never)  SCRIPT_PAGER_CMD='' ;;
+			*)
+				printc "%{RED}%s: '--paging' expects value of 'auto', 'always', or 'never'%{CLEAR}\n" "$PROGRAM"
+				exit 1
+				;;
 			esac
 		} ;;
 
