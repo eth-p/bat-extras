@@ -314,6 +314,25 @@ done
 
 if "$OPT_VERIFY"; then
 	printc "\n%{YELLOW}Verifying scripts...%{CLEAR}\n" 1>&2
-	"${HERE}/test.sh" --compiled
-	exit $?
+
+	# Run the tests.
+	FAIL=0
+	while read -r action data1 data2 splat; do
+		[[ "$action" == "result" ]] || continue
+
+		printf "\x1B[G\x1B[K%s" "$data1" 1>&2
+		if [[ "$data2" == "fail" ]]; then
+			printf " failed.\n" 1>&2
+			((FAIL++)) || true
+		fi
+	done < <("${HERE}/test.sh" --compiled --porcelain)
+
+	# Print the overall result.
+	if [[ "$FAIL" -ne 0 ]]; then
+		printc "%{RED}One or more tests failed.\n" 1>&2
+		printc "Run ./test.sh for more detailed information.%{CLEAR}\n" 1>&2
+		exit 1
+	fi
+
+	printc "\x1B[G\x1B[K%{YELLOW}Verified successfully.%{CLEAR}\n" 1>&2
 fi
