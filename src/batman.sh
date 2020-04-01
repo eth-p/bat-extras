@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
-# shellcheck disable=SC2155
 # -----------------------------------------------------------------------------
 # bat-extras | Copyright (C) 2019 eth-p | MIT License
 #
 # Repository: https://github.com/eth-p/bat-extras
 # Issues:     https://github.com/eth-p/bat-extras/issues
 # -----------------------------------------------------------------------------
+# shellcheck disable=SC1090 disable=SC2155
 LIB="$(cd "$(dirname "${BASH_SOURCE[0]}")" && cd "$(dirname "$(readlink "${BASH_SOURCE[0]}" || echo ".")")/../lib" && pwd)"
 BAT="bat"
 if [[ -n "${MANPAGER}" ]]; then BAT_PAGER="$MANPAGER"; fi

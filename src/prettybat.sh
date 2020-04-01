@@ -5,6 +5,7 @@
 # Repository: https://github.com/eth-p/bat-extras
 # Issues:     https://github.com/eth-p/bat-extras/issues
 # -----------------------------------------------------------------------------
+# shellcheck disable=SC1090
 LIB="$(cd "$(dirname "${BASH_SOURCE[0]}")" && cd "$(dirname "$(readlink "${BASH_SOURCE[0]}" || echo ".")")/../lib" && pwd)"
 BAT="bat"
 source "${LIB}/opt.sh"
@@ -165,7 +166,6 @@ process_file() {
 	fi
 
 	# Prettify, then print.
-	local status
 	local data_raw
 	local data_formatted
 
