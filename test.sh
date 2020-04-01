@@ -9,7 +9,7 @@ HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 LIB="${HERE}/lib"
 source "${LIB}/opt.sh"
 # -----------------------------------------------------------------------------
-cd "$HERE"
+cd "$HERE" || exit
 
 # -----------------------------------------------------------------------------
 export TEST_ENV_LIB="${HERE}/lib"
@@ -25,8 +25,11 @@ export SNAPSHOT_DIR="${HERE}/test/snapshot"
 OPT_ARGV=()
 while shiftopt; do
 	case "$OPT" in
-		--compiled) TEST_ENV_BIN_DIR="${HERE}/bin"; TEST_ENV_BIN_SUFFIX="" ;;
-		*)          OPT_ARGV+=("$OPT") ;;
+	--compiled)
+		TEST_ENV_BIN_DIR="${HERE}/bin"
+		TEST_ENV_BIN_SUFFIX=""
+		;;
+	*) OPT_ARGV+=("$OPT") ;;
 	esac
 done
 

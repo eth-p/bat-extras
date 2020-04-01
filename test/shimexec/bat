@@ -6,4 +6,4 @@ while read -d ':' -r dir; do
 	if [[ -f "${dir}/bat" ]]; then
 		exec "${dir}/bat" "$@" --theme="Monokai Extended"
 	fi
-done <<< "$PATH"
+done <<<"$PATH"

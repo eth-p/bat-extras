@@ -5,6 +5,7 @@
 # Repository: https://github.com/eth-p/bat-extras
 # Issues:     https://github.com/eth-p/bat-extras/issues
 # -----------------------------------------------------------------------------
+# shellcheck disable=SC1090 disable=SC2155
 LIB="$(cd "$(dirname "${BASH_SOURCE[0]}")" && cd "$(dirname "$(readlink "${BASH_SOURCE[0]}" || echo ".")")/../lib" && pwd)"
 BAT="bat"
 if [[ -n "${MANPAGER}" ]]; then BAT_PAGER="$MANPAGER"; fi
@@ -21,12 +22,12 @@ BAT_ARGS=()
 
 while shiftopt; do MAN_ARGS+=("$OPT"); done
 if "$OPT_COLOR"; then
-	BAT_ARGS="--color=always --decorations=always"
+	BAT_ARGS=("--color=always --decorations=always")
 else
-	BAT_ARGS="--color=never --decorations=never"
+	BAT_ARGS=("--color=never --decorations=never")
 fi
 # -----------------------------------------------------------------------------
-export MANPAGER='sh -c "col -bx | '"$(printf "%q" "$BAT")"' --language=man --style=grid '"${BAT_ARGS[@]}"'"'
+export MANPAGER='sh -c "col -bx | '"$(printf "%q" "$BAT")"' --language=man --style=grid '"${BAT_ARGS[*]}"'"'
 export MANROFFOPT='-c'
 
 if [[ -n "${SCRIPT_PAGER_CMD}" ]]; then
@@ -37,4 +38,3 @@ fi
 
 command man "${MAN_ARGS[@]}"
 exit $?
-

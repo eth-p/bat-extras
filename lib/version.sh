@@ -49,7 +49,7 @@ version_compare__recurse() {
 	# Compare the versions specially if the final number has been reached.
 	if [[ -z "$v_minor" && -z "$c_minor" ]]; then
 		[ "$v_major" $operator "$c_major" ];
-		return $?;
+		return $?
 	fi
 
 	# Insert zeroes where there are missing numbers.
@@ -64,15 +64,13 @@ version_compare__recurse() {
 	# Compare the versions.
 	# This is an early escape case.
 	case "$operator" in
-		-eq)     [[ "$v_major" -ne "$c_major" ]] && return 1;;
-		-ne)     [[ "$v_major" -ne "$c_major" ]] && return 0;;
-		-ge|-gt) [[ "$v_major" -lt "$c_major" ]] && return 1;
-		         [[ "$v_major" -gt "$c_major" ]] && return 0;;
-		-le|-lt) [[ "$v_major" -gt "$c_major" ]] && return 1;
-		         [[ "$v_major" -lt "$c_major" ]] && return 0;;
+	-eq)       [[ "$v_major" -ne "$c_major" ]] && return 1 ;;
+	-ne)       [[ "$v_major" -ne "$c_major" ]] && return 0 ;;
+	-ge | -gt) [[ "$v_major" -lt "$c_major" ]] && return 1
+	           [[ "$v_major" -gt "$c_major" ]] && return 0 ;;
+	-le | -lt) [[ "$v_major" -gt "$c_major" ]] && return 1
+	           [[ "$v_major" -lt "$c_major" ]] && return 0 ;;
 	esac
 
 	version_compare__recurse "$v_minor" "$operator" "$c_minor"
 }
-
-

@@ -8,11 +8,10 @@
 
 # Converts a string to lower case.
 tolower() {
-	tr "[[:upper:]]" "[[:lower:]]" <<< "$1"
+	tr "[:upper:]" "[:lower:]" <<<"$1"
 }
 
 # Converts a string to upper case.
 toupper() {
-	tr "[[:lower:]]" "[[:upper:]]" <<< "$1"
+	tr "[:lower:]" "[:upper:]" <<<"$1"
 }
-

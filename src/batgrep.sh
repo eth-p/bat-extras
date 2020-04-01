@@ -5,6 +5,7 @@
 # Repository: https://github.com/eth-p/bat-extras
 # Issues:     https://github.com/eth-p/bat-extras/issues
 # -----------------------------------------------------------------------------
+# shellcheck disable=SC1090
 LIB="$(cd "$(dirname "${BASH_SOURCE[0]}")" && cd "$(dirname "$(readlink "${BASH_SOURCE[0]}" || echo ".")")/../lib" && pwd)"
 BAT="bat"
 source "${LIB}/print.sh"
@@ -43,71 +44,84 @@ fi
 while shiftopt; do
 	case "$OPT" in
 
-		# Ripgrep Options
-		-i|--ignore-case)              OPT_CASE_SENSITIVITY="--ignore-case";;
-		-s|--case-sensitive)           OPT_CASE_SENSITIVITY="--case-sensitive";;
-		-S|--smart-case)               OPT_CASE_SENSITIVITY="--smart-case";;
-		-A|--after-context)  shiftval; OPT_CONTEXT_AFTER="$OPT_VAL";;
-		-B|--before-context) shiftval; OPT_CONTEXT_BEFORE="$OPT_VAL";;
-		-C|--context)        shiftval; OPT_CONTEXT_BEFORE="$OPT_VAL";
-			                           OPT_CONTEXT_AFTER="$OPT_VAL";;
+	# ripgrep options
+	-i | --ignore-case)              OPT_CASE_SENSITIVITY="--ignore-case" ;;
+	-s | --case-sensitive)           OPT_CASE_SENSITIVITY="--case-sensitive" ;;
+	-S | --smart-case)               OPT_CASE_SENSITIVITY="--smart-case" ;;
+	-A | --after-context)  shiftval; OPT_CONTEXT_AFTER="$OPT_VAL" ;;
+	-B | --before-context) shiftval; OPT_CONTEXT_BEFORE="$OPT_VAL" ;;
 
-		-F|--fixed-strings) OPT_FIXED_STRINGS=true; RG_ARGS+=("$OPT");;
+	-C | --context)
+		shiftval
+		OPT_CONTEXT_BEFORE="$OPT_VAL"
+		OPT_CONTEXT_AFTER="$OPT_VAL"
+		;;
 
-		-U|--multiline|\
-		-P|--pcre2|\
-		-z|--search-zip|\
-		-w|--word-regexp|\
-		--one-file-system|\
-		--multiline-dotall|\
-		--ignore|--no-ignore|\
-		--crlf|--no-crlf|\
-		--hidden|--no-hidden)          RG_ARGS+=("$OPT");;
+	-F | --fixed-strings)
+		OPT_FIXED_STRINGS=true
+		RG_ARGS+=("$OPT")
+		;;
 
-		-E|--encoding|\
-		-g|--glob|\
-		-t|--type|\
-		-T|--type-not|\
-		-m|--max-count|\
-		--max-depth|\
-		--iglob|\
-		--ignore-file)       shiftval; RG_ARGS+=("$OPT" "$OPT_VAL");;
+	-U | --multiline | \
+	-P | --pcre2 | \
+	-z | --search-zip | \
+	-w | --word-regexp | \
+	--one-file-system | \
+	--multiline-dotall | \
+	--ignore | --no-ignore | \
+	--crlf | --no-crlf | \
+	--hidden | --no-hidden)
+		RG_ARGS+=("$OPT")
+		;;
 
-		# Bat Options
+	-E | --encoding | \
+	-g | --glob | \
+	-t | --type | \
+	-T | --type-not | \
+	-m | --max-count | \
+	--max-depth | \
+	--iglob | \
+	--ignore-file)
+		shiftval
+		RG_ARGS+=("$OPT" "$OPT_VAL")
+		;;
 
-		# Script Options
-		--no-follow)                   OPT_FOLLOW=false;;
-		--no-snip)                     OPT_SNIP="";;
-		--no-highlight)                OPT_HIGHLIGHT=false;;
-		-p|--search-pattern)           OPT_SEARCH_PATTERN=true;;
-		--no-search-pattern)           OPT_SEARCH_PATTERN=false;;
+	# bat options
 
-		# Option Forwarding
-		--rg:*) {
-			if [[ "${OPT:5:1}" = "-" ]]; then
-				RG_ARGS+=("${OPT:5}")
-			else
-				RG_ARGS+=("--${OPT:5}")
-			fi
-			if [[ -n "$OPT_VAL" ]]; then
-				RG_ARGS+=("$OPT_VAL")
-			fi
-		};;
+	# Script options
+	--no-follow)           OPT_FOLLOW=false ;;
+	--no-snip)             OPT_SNIP="" ;;
+	--no-highlight)        OPT_HIGHLIGHT=false ;;
+	-p | --search-pattern) OPT_SEARCH_PATTERN=true ;;
+	--no-search-pattern)   OPT_SEARCH_PATTERN=false ;;
 
-		# ???
-		-*) {
-			printc "%{RED}%s: unknown option '%s'%{CLEAR}\n" "$PROGRAM" "$OPT" 1>&2
-			exit 1
-		};;
+	# Option forwarding
+	--rg:*) {
+		if [[ "${OPT:5:1}" = "-" ]]; then
+			RG_ARGS+=("${OPT:5}")
+		else
+			RG_ARGS+=("--${OPT:5}")
+		fi
+		if [[ -n "$OPT_VAL" ]]; then
+			RG_ARGS+=("$OPT_VAL")
+		fi
+	} ;;
 
-		# Search
-		*) {
-			if [ -z "$PATTERN" ]; then
-				PATTERN="$OPT"
-			else
-				FILES+=("$OPT")
-			fi
-		};;		
+	# ???
+	-*) {
+		printc "%{RED}%s: unknown option '%s'%{CLEAR}\n" "$PROGRAM" "$OPT" 1>&2
+		exit 1
+	} ;;
+
+	# Search
+	*) {
+		if [ -z "$PATTERN" ]; then
+			PATTERN="$OPT"
+		else
+			FILES+=("$OPT")
+		fi
+	} ;;
+
 	esac
 done
 
@@ -126,7 +140,7 @@ if [[ -n "$OPT_CASE_SENSITIVITY" ]]; then
 fi
 
 if "$OPT_FOLLOW"; then
-	RG_ARGS+=("--follow")	
+	RG_ARGS+=("--follow")
 fi
 
 if "$OPT_COLOR"; then
@@ -153,15 +167,14 @@ if "$OPT_SEARCH_PATTERN"; then
 			SCRIPT_PAGER_ARGS+=(-p "$PATTERN")
 		fi
 	elif is_pager_disabled; then
-		print_error "$(
-			echo "The -p/--search-pattern option requires a pager, but" \
-			     "the pager was explicitly disabled by \$BAT_PAGER or the" \
-                 "--paging option."
-		)"
+		print_error "%s %s %s" \
+			"The -p/--search-pattern option requires a pager, but" \
+			"the pager was explicitly disabled by \$BAT_PAGER or the" \
+			"--paging option."
 		exit 1
 	else
 		print_error "Unsupported pager '%s' for option -p/--search-pattern" \
-		            "$(pager_name)"
+			"$(pager_name)"
 		exit 1
 	fi
 fi
@@ -170,6 +183,7 @@ fi
 # Main:
 # -----------------------------------------------------------------------------
 main() {
+	# shellcheck disable=SC2034
 	FOUND_FILES=()
 	FOUND=0
 	FIRST_PRINT=true
@@ -186,17 +200,18 @@ main() {
 
 		# Print the file.
 		"$BAT" "${BAT_ARGS[@]}" \
-			   "${LAST_LR[@]}" \
-			   "${LAST_LH[@]}" \
-			   --style="${BAT_STYLE}${OPT_SNIP}" \
-			   --paging=never \
-			   --terminal-width="$COLS" \
-			   "$LAST_FILE"
+			"${LAST_LR[@]}" \
+			"${LAST_LH[@]}" \
+			--style="${BAT_STYLE}${OPT_SNIP}" \
+			--paging=never \
+			--terminal-width="$COLS" \
+			"$LAST_FILE"
 
 		# Print the separator.
 		echo "$SEP"
 	}
 
+	# shellcheck disable=SC2034
 	while IFS=':' read -r file line column; do
 		((FOUND++))
 
@@ -206,7 +221,7 @@ main() {
 			LAST_LR=()
 			LAST_LH=()
 		fi
-		
+
 		# Calculate the context line numbers.
 		line_start=$((line - OPT_CONTEXT_BEFORE))
 		line_end=$((line + OPT_CONTEXT_AFTER))
@@ -225,4 +240,3 @@ main() {
 
 pager_exec main
 exit $?
-

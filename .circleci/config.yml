@@ -12,22 +12,22 @@ commands:
         description: "Set up the environment needed to test and run the scripts."
         steps:
             - run:
-                name:   "APK: Add repository."
-                command: |
-                  printf "\n%s\n" "http://nl.alpinelinux.org/alpine/edge/testing" >> /etc/apk/repositories
-                  printf "\n%s\n" "http://nl.alpinelinux.org/alpine/edge/community" >> /etc/apk/repositories
+                  name: "APK: Add repository."
+                  command: |
+                      printf "\n%s\n" "http://nl.alpinelinux.org/alpine/edge/testing" >> /etc/apk/repositories
+                      printf "\n%s\n" "http://nl.alpinelinux.org/alpine/edge/community" >> /etc/apk/repositories
             - run:
-                name:    "APK: Update cache."
-                command: apk update
+                  name: "APK: Update cache."
+                  command: apk update
             - run:
-                name:    "Setup: Install build packages."
-                command: apk add git bash python2 diffutils ca-certificates curl shfmt
+                  name: "Setup: Install build packages."
+                  command: apk add git bash python2 diffutils ca-certificates curl shfmt
             - run:
-                name:    "Setup: Install test packages."
-                command: apk add util-linux coreutils
+                  name: "Setup: Install test packages."
+                  command: apk add util-linux coreutils
             - run:
-                name:    "Setup: Install runtime packages."
-                command: apk add bat ripgrep ncurses
+                  name: "Setup: Install runtime packages."
+                  command: apk add bat ripgrep ncurses
 
     build:
         description: "Build the self-contained scripts."
@@ -37,9 +37,8 @@ commands:
                 default: "lib"
         steps:
             - run:
-                name:    "Build"
-                command: ./build.sh --minify=<<parameters.minify>> --no-verify
-
+                  name: "Build"
+                  command: ./build.sh --minify=<<parameters.minify>> --no-verify
 
 jobs:
     build:
@@ -48,9 +47,9 @@ jobs:
             - setup
             - checkout
             - build:
-                minify: "all"
+                  minify: "all"
             - store_artifacts:
-                path: bin
+                  path: bin
 
     test:
         executor: linux_alpine
@@ -58,10 +57,10 @@ jobs:
             - setup
             - checkout
             - build:
-                minify: "all"
+                  minify: "all"
             - run:
-                name:    "Test: Unit Tests / Snapshots"
-                command: ./test.sh --verbose --snapshot:show
+                  name: "Test: Unit Tests / Snapshots"
+                  command: ./test.sh --verbose --snapshot:show
 
     test-consistency:
         executor: linux_alpine
@@ -69,10 +68,10 @@ jobs:
             - setup
             - checkout
             - build:
-                minify: "all"
+                  minify: "all"
             - run:
-                name:    "Test: Consistency"
-                command: ./test.sh --compiled --verbose --snapshot:show
+                  name: "Test: Consistency"
+                  command: ./test.sh --compiled --verbose --snapshot:show
 
     test-symlink:
         executor: linux_alpine
@@ -80,11 +79,11 @@ jobs:
             - setup
             - checkout
             - run:
-                name:    "Symlink"
-                command: ln -s "$PWD/src/batgrep.sh" /tmp/batgrep
+                  name: "Symlink"
+                  command: ln -s "$PWD/src/batgrep.sh" /tmp/batgrep
             - run:
-                name:    "Test: Symlink"
-                command: /tmp/batgrep 'a' >/dev/null
+                  name: "Test: Symlink"
+                  command: /tmp/batgrep 'a' >/dev/null
 
 workflows:
     version: 2
@@ -92,9 +91,8 @@ workflows:
         jobs:
             - build
             - test:
-                requires: [build]
+                  requires: [build]
             - test-consistency:
-                requires: [build, test]
+                  requires: [build, test]
             - test-symlink:
-                requires: [build]
-
+                  requires: [build]

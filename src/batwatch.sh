@@ -5,6 +5,7 @@
 # Repository: https://github.com/eth-p/bat-extras
 # Issues:     https://github.com/eth-p/bat-extras/issues
 # -----------------------------------------------------------------------------
+# shellcheck disable=SC1090
 LIB="$(cd "$(dirname "${BASH_SOURCE[0]}")" && cd "$(dirname "$(readlink "${BASH_SOURCE[0]}" || echo ".")")/../lib" && pwd)"
 BAT="bat"
 DOCS_URL="https://github.com/eth-p/bat-extras/blob/master/doc"
@@ -23,7 +24,7 @@ hook_pager
 
 WATCHERS=("entr" "poll")
 
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 watcher_entr_watch() {
 	ENTR_ARGS=()
@@ -45,8 +46,7 @@ watcher_entr_supported() {
 	return $?
 }
 
-
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 POLL_STAT_VARIANT=''
 POLL_STAT_COMMAND=()
@@ -96,7 +96,7 @@ watcher_poll_watch() {
 			if [[ "$OPT_CLEAR" = "true" ]]; then
 				clear
 			fi
-	
+
 			"$BAT" "${BAT_ARGS[@]}" \
 				--terminal-width="$TERM_WIDTH" \
 				--paging=never \
@@ -106,7 +106,7 @@ watcher_poll_watch() {
 		local i=0
 		for file in "${files[@]}"; do
 			time="$("${POLL_STAT_COMMAND[@]}" "$file")"
-			
+
 			if [[ "$time" -ne "${times[$i]}" ]]; then
 				times[$i]="$time"
 				modified=true
@@ -139,7 +139,7 @@ determine_watcher() {
 			return 0
 		fi
 	done
-	
+
 	return 1
 }
 
@@ -162,26 +162,26 @@ fi
 while shiftopt; do
 	case "$OPT" in
 
-		# Script Options
-		--watcher)        shiftval; OPT_WATCHER="$OPT_VAL";;
-		--clear)                    OPT_CLEAR=true;;
-		--no-clear)                 OPT_CLEAR=false;;
-		--terminal-width) shiftval; TERM_WIDTH="$OPT_VAL";;
+	# Script options
+	--watcher)        shiftval; OPT_WATCHER="$OPT_VAL" ;;
+	--clear)                    OPT_CLEAR=true ;;
+	--no-clear)                 OPT_CLEAR=false ;;
+	--terminal-width) shiftval; TERM_WIDTH="$OPT_VAL" ;;
 
-		# Bat/Pager Options
-		-*) BAT_ARGS+=("$OPT=$OPT_VAL");;
-		
-		# Files
-		*) {
-			FILES+=("$OPT")
-		};;		
+	# bat/Pager options
+	-*) BAT_ARGS+=("$OPT=$OPT_VAL") ;;
+
+	# Files
+	*) {
+		FILES+=("$OPT")
+	} ;;
 
 	esac
 done
 
-if [[ -z "$FILES" ]]; then
-    print_error "no files provided"
-    exit 1
+if [[ ${#FILES[@]} -eq 0 ]]; then
+	print_error "no files provided"
+	exit 1
 fi
 
 for file in "${FILES[@]}"; do
@@ -207,8 +207,7 @@ fi
 # -----------------------------------------------------------------------------
 # Determine the watcher.
 if [[ -z "$OPT_WATCHER" ]]; then
-	OPT_WATCHER="$(determine_watcher)"
-	if [[ $? -ne 0 ]]; then
+	if ! OPT_WATCHER="$(determine_watcher)"; then
 		print_error "Your system does not have any supported watchers."
 		printc "Please read the documentation at %{BLUE}%s%{CLEAR} for more details.\n" "$DOCS_URL/batwatch.md" 1>&2
 		exit 2
@@ -233,4 +232,3 @@ main() {
 
 pager_exec main
 exit $?
-
