@@ -155,7 +155,14 @@ process_file() {
 	fi
 
 	formatter="$(map_extension_to_formatter "$fext")"
-	echo "FORMATTER >>> $formatter"
+
+	# Debug: Print the name and formatter.
+	if "$DEBUG_PRINT_FORMATTER"; then
+		printc "%{CYAN}%s%{CLEAR}: %s\n" "$file" "$formatter"
+		return 0
+	fi
+
+	# Print the formatted file.
 	if [[ "$formatter" = "none" ]]; then
 		if [[ -z "$OPT_LANGUAGE" ]]; then
 			print_file "$file"
@@ -199,6 +206,7 @@ process_file() {
 BAT_ARGS=()
 OPT_LANGUAGE=
 FILES=()
+DEBUG_PRINT_FORMATTER=false
 
 # Parse arguments.
 while shiftopt; do
@@ -208,6 +216,9 @@ while shiftopt; do
 	-l)         shiftval; OPT_LANGUAGE="${OPT_VAL}" ;;
 	-l*)                  OPT_LANGUAGE="${OPT:2}" ;;
 	--language) shiftval; OPT_LANGUAGE="$OPT_VAL" ;;
+
+	# Debug options
+	--debug:formatter) DEBUG_PRINT_FORMATTER=true ;;
 
 	# bat options
 	-*) {
