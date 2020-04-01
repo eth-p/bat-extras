@@ -162,16 +162,10 @@ while shiftopt; do
 	case "$OPT" in
 
 	# Script options
-	--watcher)
-		shiftval
-		OPT_WATCHER="$OPT_VAL"
-		;;
-	--clear) OPT_CLEAR=true ;;
-	--no-clear) OPT_CLEAR=false ;;
-	--terminal-width)
-		shiftval
-		TERM_WIDTH="$OPT_VAL"
-		;;
+	--watcher)        shiftval; OPT_WATCHER="$OPT_VAL" ;;
+	--clear)                    OPT_CLEAR=true ;;
+	--no-clear)                 OPT_CLEAR=false ;;
+	--terminal-width) shiftval; TERM_WIDTH="$OPT_VAL" ;;
 
 	# bat/Pager options
 	-*) BAT_ARGS+=("$OPT=$OPT_VAL") ;;
@@ -212,8 +206,7 @@ fi
 # -----------------------------------------------------------------------------
 # Determine the watcher.
 if [[ -z "$OPT_WATCHER" ]]; then
-	OPT_WATCHER="$(determine_watcher)"
-	if ! "$OPT_WATCHER"; then
+	if ! OPT_WATCHER="$(determine_watcher)"; then
 		print_error "Your system does not have any supported watchers."
 		printc "Please read the documentation at %{BLUE}%s%{CLEAR} for more details.\n" "$DOCS_URL/batwatch.md" 1>&2
 		exit 2

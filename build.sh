@@ -34,7 +34,7 @@ next() {
 smsg() {
 	case "$2" in
 	"SKIP") printc "    %{YELLOW}      %{DIM}%s [skipped]%{CLEAR}\n" "$1" 1>&2 ;;
-	*) printc "    %{YELLOW}      %s...%{CLEAR}\n" "$1" 1>&2 ;;
+	*)      printc "    %{YELLOW}      %s...%{CLEAR}\n" "$1" 1>&2 ;;
 	esac
 }
 
@@ -63,6 +63,7 @@ step_read() {
 #      The processed file contents.
 step_preprocess() {
 	local line
+	local docvar
 	while IFS='' read -r line; do
 		# Skip certain lines.
 		[[ "$line" =~ ^LIB=.*$ ]] && continue
@@ -75,7 +76,6 @@ step_preprocess() {
 
 		# Replace the DOCS_* variables.
 		if [[ "$line" =~ ^DOCS_[A-Z]+=.*$ ]]; then
-			local docvar
 			docvar="$(cut -d'=' -f1 <<<"$line")"
 			printf "%s=%q\n" "$docvar" "${!docvar}"
 			continue
@@ -143,7 +143,7 @@ step_compress() {
 		printf "(exec -a \"\$0\" bash -c 'eval \"\$(cat <&3)\"' \"\$0\" \"\$@\" 3< <(dd bs=1 if=\"\$0\" skip=::: 2>/dev/null | gunzip)); exit \$?;\n"
 	})"
 
-	sed "s/:::/$(wc -c <<<"$wrapper" | bc)/" <<<"$wrapper"
+	echo "${wrapper/:::/$(wc -c <<<"$wrapper" | sed 's/^[[:space:]]*//')}"
 	gzip
 	smsg "Compressing"
 }
@@ -234,33 +234,16 @@ DOCS_URL="https://github.com/eth-p/bat-extras/blob/master/doc"
 DOCS_MAINTAINER="eth-p <eth-p@hidden.email>"
 
 while shiftopt; do
+	# shellcheck disable=SC2034
 	case "$OPT" in
-	--install) OPT_INSTALL=true ;;
-	--compress) OPT_COMPRESS=true ;;
-	--prefix)
-		shiftval
-		OPT_PREFIX="$OPT_VAL"
-		;;
-	--alternate-executable)
-		shiftval
-		OPT_BAT="$OPT_VAL"
-		;;
-	--minify)
-		shiftval
-		OPT_MINIFY="$OPT_VAL"
-		;;
-	--no-verify)
-		shiftval
-		OPT_VERIFY=false
-		;;
-	--docs:url)
-		shiftval
-		DOCS_URL="$OPT_VAL"
-		;;
-	--docs:maintainer)
-		shiftval
-		DOCS_MAINTAINER="$OPT_VAL"
-		;;
+	--install)                        OPT_INSTALL=true ;;
+	--compress)                       OPT_COMPRESS=true ;;
+	--prefix)               shiftval; OPT_PREFIX="$OPT_VAL" ;;
+	--alternate-executable) shiftval; OPT_BAT="$OPT_VAL" ;;
+	--minify)		        shiftval; OPT_MINIFY="$OPT_VAL" ;;
+	--no-verify)            shiftval; OPT_VERIFY=false ;;
+	--docs:url)             shiftval; DOCS_URL="$OPT_VAL" ;;
+	--docs:maintainer)      shiftval; DOCS_MAINTAINER="$OPT_VAL" ;;
 
 	*)
 		printc "%{RED}%s: unknown option '%s'%{CLEAR}" "$PROGRAM" "$OPT"

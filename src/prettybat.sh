@@ -93,19 +93,19 @@ map_language_to_extension() {
 	local ext=".txt"
 
 	case "$1" in
-	sh | bash) ext=".sh" ;;
-	js | es6 | es) ext=".js" ;;
-	jsx) ext=".jsx" ;;
-	ts) ext=".ts" ;;
-	tsx) ext=".tsx" ;;
-	css) ext=".css" ;;
-	scss) ext=".scss" ;;
-	sass) ext=".sass" ;;
+	sh | bash)                  ext=".sh" ;;
+	js | es6 | es)              ext=".js" ;;
+	jsx)                        ext=".jsx" ;;
+	ts)                         ext=".ts" ;;
+	tsx)                        ext=".tsx" ;;
+	css)                        ext=".css" ;;
+	scss)                       ext=".scss" ;;
+	sass)                       ext=".sass" ;;
 	html | htm | shtml | xhtml) ext=".html" ;;
-	json) ext=".json" ;;
-	md | mdown | markdown) ext=".md" ;;
-	yaml | yml) ext=".yml" ;;
-	rust | rs) ext=".rs" ;;
+	json)                       ext=".json" ;;
+	md | mdown | markdown)      ext=".md" ;;
+	yaml | yml)                 ext=".yml" ;;
+	rust | rs)                  ext=".rs" ;;
 	esac
 
 	echo "$ext"
@@ -146,13 +146,13 @@ process_file() {
 	local ext="$2"
 	local fext="$ext"
 	local lang="${ext:1}"
+	local formatter
 
 	if [[ -n "$OPT_LANGUAGE" ]]; then
 		lang="$OPT_LANGUAGE"
 		fext="$(map_language_to_extension "$lang")"
 	fi
 
-	local formatter
 	formatter="$(map_extension_to_formatter "$fext")"
 	echo "FORMATTER >>> $formatter"
 	if [[ "$formatter" = "none" ]]; then
@@ -168,17 +168,21 @@ process_file() {
 	local status
 	local data_raw
 	local data_formatted
+
+	# shellcheck disable=SC2094 disable=SC2181
 	if [[ "$file" = "-" ]]; then
 		data_raw="$(cat -)"
 		data_formatted="$("formatter_${formatter}_process" "$file" 2>/dev/null <<<"$data_raw")"
-		if "$data_formatted"; then
+
+		if [[ $? -ne 0 ]]; then
 			print_warning "'STDIN': Unable to format with '%s'" "$formatter"
 			print_file --language="$lang" - <<<"$data_raw"
 			return 1
 		fi
 	else
 		data_formatted="$("formatter_${formatter}_process" "$file" <"$file")"
-		if ! "$data_formatted"; then
+
+		if [[ $? -ne 0 ]]; then
 			print_warning "'%s': Unable to format with '%s'" "$file" "$formatter"
 			print_file --language="$lang" "$file"
 			return 1
@@ -201,15 +205,9 @@ while shiftopt; do
 	case "$OPT" in
 
 	# Language options
-	-l)
-		shiftval
-		OPT_LANGUAGE="${OPT_VAL}"
-		;;
-	-l*) OPT_LANGUAGE="${OPT:2}" ;;
-	--language)
-		shiftval
-		OPT_LANGUAGE="$OPT_VAL"
-		;;
+	-l)         shiftval; OPT_LANGUAGE="${OPT_VAL}" ;;
+	-l*)                  OPT_LANGUAGE="${OPT:2}" ;;
+	--language) shiftval; OPT_LANGUAGE="$OPT_VAL" ;;
 
 	# bat options
 	-*) {
@@ -237,4 +235,4 @@ for file in "${FILES[@]}"; do
 done
 
 # Exit.
-exit "$EXIT"
+exit "$FAIL"

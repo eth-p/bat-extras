@@ -23,10 +23,10 @@ printc() {
 #     false -- Turns off color output.
 printc_init() {
 	case "$1" in
-	true) _PRINTC_PATTERN="$_PRINTC_PATTERN_ANSI" ;;
+	true)  _PRINTC_PATTERN="$_PRINTC_PATTERN_ANSI" ;;
 	false) _PRINTC_PATTERN="$_PRINTC_PATTERN_PLAIN" ;;
 
-	"") {
+	"[DEFINE]") {
 		_PRINTC_PATTERN_ANSI=""
 		_PRINTC_PATTERN_PLAIN=""
 
@@ -37,7 +37,7 @@ printc_init() {
 				continue
 			fi
 
-			ansi="$(sed 's/\\/\\\\/' <<<"$ansi")"
+			ansi="${ansi/\\/\\\\}"
 
 			_PRINTC_PATTERN_PLAIN="${_PRINTC_PATTERN_PLAIN}s/%{${name}}//g;"
 			_PRINTC_PATTERN_ANSI="${_PRINTC_PATTERN_ANSI}s/%{${name}}/${ansi}/g;"
@@ -71,7 +71,7 @@ print_error() {
 # -----------------------------------------------------------------------------
 # Initialization:
 # -----------------------------------------------------------------------------
-printc_init <<END
+printc_init "[DEFINE]" <<END
 	CLEAR	\x1B[0m
 	RED		\x1B[31m
 	GREEN	\x1B[32m

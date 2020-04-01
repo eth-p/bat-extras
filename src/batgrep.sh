@@ -44,17 +44,12 @@ while shiftopt; do
 	case "$OPT" in
 
 	# ripgrep options
-	-i | --ignore-case) OPT_CASE_SENSITIVITY="--ignore-case" ;;
-	-s | --case-sensitive) OPT_CASE_SENSITIVITY="--case-sensitive" ;;
-	-S | --smart-case) OPT_CASE_SENSITIVITY="--smart-case" ;;
-	-A | --after-context)
-		shiftval
-		OPT_CONTEXT_AFTER="$OPT_VAL"
-		;;
-	-B | --before-context)
-		shiftval
-		OPT_CONTEXT_BEFORE="$OPT_VAL"
-		;;
+	-i | --ignore-case)              OPT_CASE_SENSITIVITY="--ignore-case" ;;
+	-s | --case-sensitive)           OPT_CASE_SENSITIVITY="--case-sensitive" ;;
+	-S | --smart-case)               OPT_CASE_SENSITIVITY="--smart-case" ;;
+	-A | --after-context)  shiftval; OPT_CONTEXT_AFTER="$OPT_VAL" ;;
+	-B | --before-context) shiftval; OPT_CONTEXT_BEFORE="$OPT_VAL" ;;
+
 	-C | --context)
 		shiftval
 		OPT_CONTEXT_BEFORE="$OPT_VAL"
@@ -67,23 +62,25 @@ while shiftopt; do
 		;;
 
 	-U | --multiline | \
-		-P | --pcre2 | \
-		-z | --search-zip | \
-		-w | --word-regexp | \
-		--one-file-system | \
-		--multiline-dotall | \
-		--ignore | --no-ignore | \
-		--crlf | --no-crlf | \
-		--hidden | --no-hidden) RG_ARGS+=("$OPT") ;;
+	-P | --pcre2 | \
+	-z | --search-zip | \
+	-w | --word-regexp | \
+	--one-file-system | \
+	--multiline-dotall | \
+	--ignore | --no-ignore | \
+	--crlf | --no-crlf | \
+	--hidden | --no-hidden)
+		RG_ARGS+=("$OPT")
+		;;
 
 	-E | --encoding | \
-		-g | --glob | \
-		-t | --type | \
-		-T | --type-not | \
-		-m | --max-count | \
-		--max-depth | \
-		--iglob | \
-		--ignore-file)
+	-g | --glob | \
+	-t | --type | \
+	-T | --type-not | \
+	-m | --max-count | \
+	--max-depth | \
+	--iglob | \
+	--ignore-file)
 		shiftval
 		RG_ARGS+=("$OPT" "$OPT_VAL")
 		;;
@@ -91,11 +88,11 @@ while shiftopt; do
 	# bat options
 
 	# Script options
-	--no-follow) OPT_FOLLOW=false ;;
-	--no-snip) OPT_SNIP="" ;;
-	--no-highlight) OPT_HIGHLIGHT=false ;;
+	--no-follow)           OPT_FOLLOW=false ;;
+	--no-snip)             OPT_SNIP="" ;;
+	--no-highlight)        OPT_HIGHLIGHT=false ;;
 	-p | --search-pattern) OPT_SEARCH_PATTERN=true ;;
-	--no-search-pattern) OPT_SEARCH_PATTERN=false ;;
+	--no-search-pattern)   OPT_SEARCH_PATTERN=false ;;
 
 	# Option forwarding
 	--rg:*) {
@@ -123,6 +120,7 @@ while shiftopt; do
 			FILES+=("$OPT")
 		fi
 	} ;;
+
 	esac
 done
 
@@ -168,11 +166,10 @@ if "$OPT_SEARCH_PATTERN"; then
 			SCRIPT_PAGER_ARGS+=(-p "$PATTERN")
 		fi
 	elif is_pager_disabled; then
-		print_error "$(
+		print_error "%s %s %s" \
 			"The -p/--search-pattern option requires a pager, but" \
-				"the pager was explicitly disabled by \$BAT_PAGER or the" \
-				"--paging option."
-		)"
+			"the pager was explicitly disabled by \$BAT_PAGER or the" \
+			"--paging option."
 		exit 1
 	else
 		print_error "Unsupported pager '%s' for option -p/--search-pattern" \
@@ -185,6 +182,7 @@ fi
 # Main:
 # -----------------------------------------------------------------------------
 main() {
+	# shellcheck disable=SC2034
 	FOUND_FILES=()
 	FOUND=0
 	FIRST_PRINT=true
@@ -212,6 +210,7 @@ main() {
 		echo "$SEP"
 	}
 
+	# shellcheck disable=SC2034
 	while IFS=':' read -r file line column; do
 		((FOUND++))
 

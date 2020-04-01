@@ -64,16 +64,12 @@ version_compare__recurse() {
 	# Compare the versions.
 	# This is an early escape case.
 	case "$operator" in
-	-eq) [[ "$v_major" -ne "$c_major" ]] && return 1 ;;
-	-ne) [[ "$v_major" -ne "$c_major" ]] && return 0 ;;
-	-ge | -gt)
-		[[ "$v_major" -lt "$c_major" ]] && return 1
-		[[ "$v_major" -gt "$c_major" ]] && return 0
-		;;
-	-le | -lt)
-		[[ "$v_major" -gt "$c_major" ]] && return 1
-		[[ "$v_major" -lt "$c_major" ]] && return 0
-		;;
+	-eq)       [[ "$v_major" -ne "$c_major" ]] && return 1 ;;
+	-ne)       [[ "$v_major" -ne "$c_major" ]] && return 0 ;;
+	-ge | -gt) [[ "$v_major" -lt "$c_major" ]] && return 1
+	           [[ "$v_major" -gt "$c_major" ]] && return 0 ;;
+	-le | -lt) [[ "$v_major" -gt "$c_major" ]] && return 1
+	           [[ "$v_major" -lt "$c_major" ]] && return 0 ;;
 	esac
 
 	version_compare__recurse "$v_minor" "$operator" "$c_minor"

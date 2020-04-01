@@ -77,6 +77,8 @@ fi
 
 # Prefer the bat pager.
 if [[ -n "${BAT_PAGER+x}" ]]; then
+	# [note]: This is intentional.
+	# shellcheck disable=SC2206
 	SCRIPT_PAGER_CMD=($BAT_PAGER)
 	SCRIPT_PAGER_ARGS=()
 fi
