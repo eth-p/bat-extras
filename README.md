@@ -13,6 +13,12 @@ Bash scripts that integrate [bat](https://github.com/sharkdp/bat) with various c
 
 &nbsp;
 
+## Installation via Package Manager
+
+**Homebrew:** `brew install eth-p/software/bat-extras`
+
+&nbsp;
+
 ## Installation (![CircleCI](https://circleci.com/gh/eth-p/bat-extras.svg?style=svg))
 
 The scripts in this repository are designed to run as-is, provided that they aren't moved around.
@@ -65,10 +71,3 @@ If you wish to use these scripts on a distribution where this is the case, there
 **Verification:**
 
 The build script will attempt to verify the correctness of the "bin" scripts by comparing their output with their source counterparts. It is recommended to let it do this, but you can disable verification with the `--no-verify` option.
-
-
-
-## Installation via Package Manager
-
-**Homebrew:** `brew install eth-p/software/bat-extras`
-
