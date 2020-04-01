@@ -21,16 +21,18 @@ BAT_ARGS=()
 
 while shiftopt; do MAN_ARGS+=("$OPT"); done
 if "$OPT_COLOR"; then
-	BAT_ARGS="--color=always --decorations=always"
+	BAT_ARGS=("--color=always --decorations=always")
 else
-	BAT_ARGS="--color=never --decorations=never"
+	BAT_ARGS=("--color=never --decorations=never")
 fi
 # -----------------------------------------------------------------------------
-export MANPAGER='sh -c "col -bx | '"$(printf "%q" "$BAT")"' --language=man --style=grid '"${BAT_ARGS[@]}"'"'
+export MANPAGER
+MANPAGER='sh -c "col -bx | '"$(printf "%q" "$BAT")"' --language=man --style=grid '"${BAT_ARGS[*]}"'"'
 export MANROFFOPT='-c'
 
 if [[ -n "${SCRIPT_PAGER_CMD}" ]]; then
-	export BAT_PAGER="$(printf "%q " "${SCRIPT_PAGER_CMD[@]}" "${SCRIPT_PAGER_ARGS[@]}")"
+	export BAT_PAGER
+	BAT_PAGER="$(printf "%q " "${SCRIPT_PAGER_CMD[@]}" "${SCRIPT_PAGER_ARGS[@]}")"
 else
 	unset BAT_PAGER
 fi

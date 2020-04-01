@@ -152,7 +152,8 @@ process_file() {
 		fext="$(map_language_to_extension "$lang")"
 	fi
 
-	local formatter="$(map_extension_to_formatter "$fext")"
+	local formatter
+	formatter="$(map_extension_to_formatter "$fext")"
 	echo "FORMATTER >>> $formatter"
 	if [[ "$formatter" = "none" ]]; then
 		if [[ -z "$OPT_LANGUAGE" ]]; then
@@ -170,14 +171,14 @@ process_file() {
 	if [[ "$file" = "-" ]]; then
 		data_raw="$(cat -)"
 		data_formatted="$("formatter_${formatter}_process" "$file" 2>/dev/null <<<"$data_raw")"
-		if [[ $? -ne 0 ]]; then
+		if "$data_formatted"; then
 			print_warning "'STDIN': Unable to format with '%s'" "$formatter"
 			print_file --language="$lang" - <<<"$data_raw"
 			return 1
 		fi
 	else
 		data_formatted="$("formatter_${formatter}_process" "$file" <"$file")"
-		if [[ $? -ne 0 ]]; then
+		if ! "$data_formatted"; then
 			print_warning "'%s': Unable to format with '%s'" "$file" "$formatter"
 			print_file --language="$lang" "$file"
 			return 1
@@ -224,7 +225,7 @@ while shiftopt; do
 done
 
 if [[ "${#FILES[@]}" -eq 0 ]]; then
-	FILES="-"
+	FILES=("-")
 fi
 
 # Handle input files.
@@ -236,4 +237,4 @@ for file in "${FILES[@]}"; do
 done
 
 # Exit.
-exit $EXIT
+exit "$EXIT"

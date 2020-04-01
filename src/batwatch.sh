@@ -184,7 +184,7 @@ while shiftopt; do
 	esac
 done
 
-if [[ -z "$FILES" ]]; then
+if [[ ${#FILES[@]} -eq 0 ]]; then
 	print_error "no files provided"
 	exit 1
 fi
@@ -213,7 +213,7 @@ fi
 # Determine the watcher.
 if [[ -z "$OPT_WATCHER" ]]; then
 	OPT_WATCHER="$(determine_watcher)"
-	if [[ $? -ne 0 ]]; then
+	if ! "$OPT_WATCHER"; then
 		print_error "Your system does not have any supported watchers."
 		printc "Please read the documentation at %{BLUE}%s%{CLEAR} for more details.\n" "$DOCS_URL/batwatch.md" 1>&2
 		exit 2

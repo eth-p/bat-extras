@@ -22,7 +22,8 @@ is_pager_disabled() {
 pager_name() {
 	if [[ -z "${SCRIPT_PAGER_CMD[0]}" ]]; then return; fi
 	if [[ -z "$_SCRIPT_PAGER_NAME" ]]; then
-		local output="$("${SCRIPT_PAGER_CMD[0]}" --version 2>&1)"
+		local output
+		output="$("${SCRIPT_PAGER_CMD[0]}" --version 2>&1)"
 
 		if head -n 1 <<<"$output" | grep '^less \d' &>/dev/null; then
 			_SCRIPT_PAGER_NAME="less"

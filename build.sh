@@ -75,7 +75,8 @@ step_preprocess() {
 
 		# Replace the DOCS_* variables.
 		if [[ "$line" =~ ^DOCS_[A-Z]+=.*$ ]]; then
-			local docvar="$(cut -d'=' -f1 <<<"$line")"
+			local docvar
+			docvar="$(cut -d'=' -f1 <<<"$line")"
 			printf "%s=%q\n" "$docvar" "${!docvar}"
 			continue
 		fi
@@ -83,13 +84,13 @@ step_preprocess() {
 		# Embed library scripts.
 		if [[ "$line" =~ ^[[:space:]]*source[[:space:]]+[\"\']\$\{?LIB\}/([a-z_-]+\.sh)[\"\'] ]]; then
 			echo "# --- BEGIN LIBRARY FILE: ${BASH_REMATCH[1]} ---"
-			cat "$LIB/${BASH_REMATCH[1]}" | {
+			{
 				if [[ "$OPT_MINIFY" = "lib" ]]; then
 					pp_strip_comments | pp_minify | pp_minify_unsafe
 				else
 					cat
 				fi
-			}
+			} <"$LIB/${BASH_REMATCH[1]}"
 			echo "# --- END LIBRARY FILE ---"
 			continue
 		fi
@@ -136,7 +137,8 @@ step_compress() {
 		return 0
 	fi
 
-	local wrapper="$({
+	local wrapper
+	wrapper="$({
 		printf '#!/usr/bin/env bash\n'
 		printf "(exec -a \"\$0\" bash -c 'eval \"\$(cat <&3)\"' \"\$0\" \"\$@\" 3< <(dd bs=1 if=\"\$0\" skip=::: 2>/dev/null | gunzip)); exit \$?;\n"
 	})"
