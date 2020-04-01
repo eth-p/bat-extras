@@ -238,10 +238,10 @@ while shiftopt; do
 	case "$OPT" in
 	--install)                        OPT_INSTALL=true ;;
 	--compress)                       OPT_COMPRESS=true ;;
+	--no-verify)                      OPT_VERIFY=false ;;
 	--prefix)               shiftval; OPT_PREFIX="$OPT_VAL" ;;
 	--alternate-executable) shiftval; OPT_BAT="$OPT_VAL" ;;
 	--minify)		        shiftval; OPT_MINIFY="$OPT_VAL" ;;
-	--no-verify)            shiftval; OPT_VERIFY=false ;;
 	--docs:url)             shiftval; DOCS_URL="$OPT_VAL" ;;
 	--docs:maintainer)      shiftval; DOCS_MAINTAINER="$OPT_VAL" ;;
 
