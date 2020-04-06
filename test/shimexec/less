@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+if [[ "$1" = "--version" ]]; then
+cat <<EOF
+less ${MOCK_LESS_VERSION:-551} (PCRE regular expressions)
+Copyright (C) 1984-2019  Mark Nudelman
+
+less comes with NO WARRANTY, to the extent permitted by law.
+For information about the terms of redistribution,
+see the file named README in the less distribution.
+Home page: http://www.greenwoodsoftware.com/less
+EOF
+exit 0
+fi
+
+cat "$1"

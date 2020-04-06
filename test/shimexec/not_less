@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+if [[ "$1" = "--version" ]]; then
+cat <<EOF
+not less ${MOCK_LESS_VERSION:-551} (PCRE regular expressions)
+:(
+EOF
+exit 0
+fi
+
+cat "$1"
