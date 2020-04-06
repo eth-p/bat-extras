@@ -1,11 +1,25 @@
+HAS_RIPGREP=false
+
 setup() {
 	use_shim 'batgrep'
+
+	if command -v rg &>/dev/null; then
+		HAS_RIPGREP=true
+	fi
+}
+
+require_rg() {
+	if ! "$HAS_RIPGREP"; then
+		skip "Ripgrep (rg) is not installed."
+	fi
 }
 
 test:regular_file() {
 	description "Search for a pattern in a regular file."
 	snapshot stdout
 	snapshot stderr
+
+	require_rg
 
 	batgrep "ca" file.txt
 }
@@ -15,6 +29,8 @@ test:symlink_file() {
 	snapshot stdout
 	snapshot stderr
 
+	require_rg
+
 	batgrep "ca" link.txt
 }
 
@@ -22,6 +38,8 @@ test:output_with_color() {
 	description "Snapshot test for colored output."
 	snapshot stdout
 	snapshot stderr
+
+	require_rg
 
 	batgrep "ca" file.txt --color=always
 }
@@ -31,6 +49,8 @@ test:output_without_color() {
 	snapshot stdout
 	snapshot stderr
 
+	require_rg
+
 	batgrep "ca" file.txt --color=never
 }
 
@@ -38,6 +58,8 @@ test:search_regex() {
 	description "Search for a regex pattern."
 	snapshot stdout
 	snapshot stderr
+
+	require_rg
 
 	batgrep "^[cb]" file.txt
 }
@@ -47,6 +69,8 @@ test:search_fixed() {
 	snapshot stdout
 	snapshot stderr
 
+	require_rg
+
 	batgrep --fixed-strings '$' file.txt
 }
 
@@ -54,6 +78,8 @@ test:option_context() {
 	description "Search and use the context option."
 	snapshot stdout
 	snapshot stderr
+
+	require_rg
 
 	batgrep -C 0 '\$' file.txt
 }
