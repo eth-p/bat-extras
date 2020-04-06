@@ -1,6 +1,8 @@
 # bat-extras: prettybat
 
-A script that uses various pretty-printing tools and bat to display code in your terminal.
+Pretty-print source code and highlight it with `bat`.
+
+The only thing better than syntax highlighting? Syntax highlighting *and* code formatting. This script combines the best of both worlds by using [various formatters](#Languages) to format source files before using `bat` to highlight them.
 
 
 

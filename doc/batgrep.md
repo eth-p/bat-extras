@@ -1,6 +1,8 @@
 # bat-extras: batgrep
 
-A script that combines [ripgrep](https://github.com/burntsushi/ripgrep) with bat's syntax highlighting and output formatting.
+Quickly search through and highlight files using [ripgrep](https://github.com/burntsushi/ripgrep).
+
+Search through files or directories looking for matching regular expressions (or fixed strings with `-F`), and print the output using `bat` for an easy and syntax-highlighted experience.
 
 
 

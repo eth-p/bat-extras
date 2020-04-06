@@ -1,6 +1,8 @@
 # bat-extras: batwatch
 
-Watch for changes in one or more files, and print them when updated.
+Watch for changes in one or more files, and print them with `bat`.
+
+
 
 
 

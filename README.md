@@ -6,10 +6,29 @@ Bash scripts that integrate [bat](https://github.com/sharkdp/bat) with various c
 
 ## Scripts
 
-- [`batgrep`](doc/batgrep.md) (ripgrep + bat)
-- [`batman`](doc/batman.md) (man with bat)
-- [`batwatch`](doc/batwatch.md) (watch files with bat)
-- [`prettybat`](doc/prettybat.md) (pretty printing + bat)
+### [`batgrep`](doc/batgrep.md)
+Quickly search through and highlight files using [ripgrep](https://github.com/burntsushi/ripgrep).
+<u>Requirements:</u> `ripgrep`
+
+
+
+### [`batman`](doc/batman.md)
+
+Read system manual pages (`man`) using `bat` as the manual page formatter.
+
+
+
+### [`batwatch`](doc/batwatch.md)
+
+Watch for changes in one or more files, and print them with `bat`.
+<u>Requirements:</u> `entr` (optional)
+
+
+
+### [`prettybat`](doc/prettybat.md)
+
+Pretty-print source code and highlight it with `bat`.
+<u>Requirements:</u> (see doc/prettybat.md)
 
 &nbsp;
 
@@ -55,7 +74,7 @@ This uses [shfmt](https://github.com/mvdan/sh) to perform minification.
 
 **Installation:**
 
-You can also specify `--install` and `--prefix=PATH` to have the build script automatically install the scripts for all users on the system. You may need to run the build script as root. 
+You can also specify `--install` and `--prefix=PATH` to have the build script automatically install the scripts for all users on the system. You may need to run the build script as root.
 
 If you only want to install a single script, you can run the build process and copy the script directly out of the newly-created `bin` folder.
 
