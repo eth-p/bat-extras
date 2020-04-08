@@ -314,6 +314,8 @@ if [[ "$OPT_BAT" != "bat" ]]; then
 		printc "%{YELLOW}WARNING: Bash cannot execute the specified file.\n" 1>&2
 		printc "%{YELLOW}         The finished scripts may not run properly.%{CLEAR}\n" 1>&2
 	fi
+
+	EXECUTABLE_BAT="$OPT_BAT"
 	printc "\n" 1>&2
 fi
 

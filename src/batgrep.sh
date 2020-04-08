@@ -7,7 +7,6 @@
 # -----------------------------------------------------------------------------
 # shellcheck disable=SC1090
 LIB="$(cd "$(dirname "${BASH_SOURCE[0]}")" && cd "$(dirname "$(readlink "${BASH_SOURCE[0]}" || echo ".")")/../lib" && pwd)"
-BAT="bat"
 source "${LIB}/constants.sh"
 source "${LIB}/print.sh"
 source "${LIB}/pager.sh"
@@ -201,7 +200,7 @@ main() {
 		FIRST_PRINT=false
 
 		# Print the file.
-		"$BAT" "${BAT_ARGS[@]}" \
+		"$EXECUTABLE_BAT" "${BAT_ARGS[@]}" \
 			"${LAST_LR[@]}" \
 			"${LAST_LH[@]}" \
 			--style="${BAT_STYLE}${OPT_SNIP}" \

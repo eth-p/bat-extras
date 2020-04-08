@@ -8,7 +8,7 @@
 
 # Gets the current bat version.
 bat_version() {
-	"$BAT" --version | cut -d ' ' -f 2
+	"$EXECUTABLE_BAT" --version | cut -d ' ' -f 2
 	return
 }
 

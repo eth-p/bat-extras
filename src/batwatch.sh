@@ -7,7 +7,6 @@
 # -----------------------------------------------------------------------------
 # shellcheck disable=SC1090
 LIB="$(cd "$(dirname "${BASH_SOURCE[0]}")" && cd "$(dirname "$(readlink "${BASH_SOURCE[0]}" || echo ".")")/../lib" && pwd)"
-BAT="bat"
 source "${LIB}/constants.sh"
 source "${LIB}/opt.sh"
 source "${LIB}/opt_hooks.sh"
@@ -35,7 +34,7 @@ watcher_entr_watch() {
 	fi
 
 	entr "${ENTR_ARGS[@]}" \
-		"$BAT" "${BAT_ARGS[@]}" \
+		"$EXECUTABLE_BAT" "${BAT_ARGS[@]}" \
 		--terminal-width="$TERM_WIDTH" \
 		--paging=never \
 		"$@" \
@@ -98,7 +97,7 @@ watcher_poll_watch() {
 				clear
 			fi
 
-			"$BAT" "${BAT_ARGS[@]}" \
+			"$EXECUTABLE_BAT" "${BAT_ARGS[@]}" \
 				--terminal-width="$TERM_WIDTH" \
 				--paging=never \
 				"${files[@]}"
