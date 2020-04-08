@@ -18,6 +18,9 @@ test:version() {
 	description "Test 'batgrep --version'"
 	snapshot stdout
 	snapshot stderr
+
+	batgrep --version | head -n1 | cut -d' ' -f1
+	batgrep --version | awk 'p{print} /^$/ { p=1 }'
 }
 
 test:regular_file() {
