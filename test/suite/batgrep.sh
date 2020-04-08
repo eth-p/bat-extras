@@ -14,6 +14,12 @@ require_rg() {
 	fi
 }
 
+test:version() {
+	description "Test 'batgrep --version'"
+	snapshot stdout
+	snapshot stderr
+}
+
 test:regular_file() {
 	description "Search for a pattern in a regular file."
 	snapshot stdout

@@ -8,9 +8,15 @@
 # shellcheck disable=SC1090
 LIB="$(cd "$(dirname "${BASH_SOURCE[0]}")" && cd "$(dirname "$(readlink "${BASH_SOURCE[0]}" || echo ".")")/../lib" && pwd)"
 BAT="bat"
+source "${LIB}/constants.sh"
 source "${LIB}/opt.sh"
+source "${LIB}/opt_hooks.sh"
 source "${LIB}/str.sh"
 source "${LIB}/print.sh"
+# -----------------------------------------------------------------------------
+# Init:
+# -----------------------------------------------------------------------------
+hook_version
 # -----------------------------------------------------------------------------
 # Formatters:
 # -----------------------------------------------------------------------------

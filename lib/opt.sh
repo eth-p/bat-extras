@@ -5,7 +5,7 @@
 # Repository: https://github.com/eth-p/bat-extras
 # Issues:     https://github.com/eth-p/bat-extras/issues
 # -----------------------------------------------------------------------------
-PROGRAM="$(basename "$0" .sh)"
+source "${LIB}/constants.sh"
 SHIFTOPT_HOOKS=()
 
 # Sets the internal _ARGV, _ARGV_INDEX, and _ARGV_LAST variables used when

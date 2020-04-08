@@ -8,6 +8,7 @@
 # shellcheck disable=SC1090
 LIB="$(cd "$(dirname "${BASH_SOURCE[0]}")" && cd "$(dirname "$(readlink "${BASH_SOURCE[0]}" || echo ".")")/../lib" && pwd)"
 BAT="bat"
+source "${LIB}/constants.sh"
 source "${LIB}/print.sh"
 source "${LIB}/pager.sh"
 source "${LIB}/opt.sh"
@@ -18,6 +19,7 @@ source "${LIB}/version.sh"
 # -----------------------------------------------------------------------------
 hook_color
 hook_pager
+hook_version
 # -----------------------------------------------------------------------------
 # Options:
 # -----------------------------------------------------------------------------
