@@ -9,7 +9,7 @@
 LIB="$(cd "$(dirname "${BASH_SOURCE[0]}")" && cd "$(dirname "$(readlink "${BASH_SOURCE[0]}" || echo ".")")/../lib" && pwd)"
 source "${LIB}/constants.sh"
 source "${LIB}/opt.sh"
-source "${LIB}/opt_hooks.sh"
+source "${LIB}/opt_hook_version.sh"
 source "${LIB}/str.sh"
 source "${LIB}/print.sh"
 # -----------------------------------------------------------------------------
