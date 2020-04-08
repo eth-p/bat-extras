@@ -11,6 +11,7 @@ SRC="$HERE/src"
 LIB="$HERE/lib"
 source "${LIB}/print.sh"
 source "${LIB}/opt.sh"
+source "${LIB}/constants.sh"
 # -----------------------------------------------------------------------------
 set -eo pipefail
 
@@ -38,6 +39,16 @@ smsg() {
 	esac
 }
 
+# Escapes a sed pattern.
+# Arguments:
+#     1  -- The pattern.
+
+# Output:
+#     The escaped string.
+sed_escape() {
+	sed 's/\([][\\\/\^\$\*\.\-]\)/\\\1/g' <<< "$1"
+}
+
 # Build step: read
 # Reads the file from its source.
 #
@@ -54,7 +65,7 @@ step_read() {
 # Build step: preprocess
 # Preprocesses the script.
 #
-# This will embed library scripts and replace the BAT variable.
+# This will embed library scripts and inline constants.
 #
 # Input:
 #     The original file contents.
@@ -64,40 +75,14 @@ step_read() {
 step_preprocess() {
 	local line
 	local docvar
-	while IFS='' read -r line; do
+	pp_consolidate | while IFS='' read -r line; do
 		# Skip certain lines.
 		[[ "$line" =~ ^LIB=.*$ ]] && continue
-
-		# Replace the BAT variable with the build option.
-		if [[ "$line" =~ ^BAT=.*$ ]]; then
-			printf "BAT=%q\n" "$OPT_BAT"
-			continue
-		fi
-
-		# Replace the DOCS_* variables.
-		if [[ "$line" =~ ^DOCS_[A-Z]+=.*$ ]]; then
-			docvar="$(cut -d'=' -f1 <<<"$line")"
-			printf "%s=%q\n" "$docvar" "${!docvar}"
-			continue
-		fi
-
-		# Embed library scripts.
-		if [[ "$line" =~ ^[[:space:]]*source[[:space:]]+[\"\']\$\{?LIB\}/([a-z_-]+\.sh)[\"\'] ]]; then
-			echo "# --- BEGIN LIBRARY FILE: ${BASH_REMATCH[1]} ---"
-			{
-				if [[ "$OPT_MINIFY" = "lib" ]]; then
-					pp_strip_comments | pp_minify | pp_minify_unsafe
-				else
-					cat
-				fi
-			} <"$LIB/${BASH_REMATCH[1]}"
-			echo "# --- END LIBRARY FILE ---"
-			continue
-		fi
+		[[ "$line" =~ ^[[:space:]]*source[[:space:]]+[\"\']\$\{?LIB\}/(constants\.sh)[\"\'] ]] && continue
 
 		# Forward data.
 		echo "$line"
-	done
+	done | pp_inline_constants
 
 	smsg "Preprocessing"
 }
@@ -192,6 +177,79 @@ step_write_install() {
 # -----------------------------------------------------------------------------
 # Preprocessor.
 
+# Consolidates all scripts into a single file.
+# This follows all `source "${LIB}/..."` files and embeds them into the script.
+pp_consolidate() {
+	PP_CONSOLIDATE_PROCESSED=()
+	pp_consolidate__do 0
+}
+
+pp_consolidate__do() {
+	local depth="$1"
+	local indent="$(printf "%-${depth}s" | tr ' ' $'\t')"
+
+	local line
+	while IFS='' read -r line; do
+		# Embed library scripts.
+		if [[ "$line" =~ ^[[:space:]]*source[[:space:]]+[\"\']\$\{?LIB\}/([a-z_-]+\.sh)[\"\'] ]]; then
+			local script_name="${BASH_REMATCH[1]}"
+			local script="$LIB/$script_name"
+
+			# Skip if it's the constants library.
+			[[ "$script_name" = "constants.sh" ]] && continue
+
+			# Skip if it's already embedded.
+			local other
+			for other in "${PP_CONSOLIDATE_PROCESSED[@]}"; do
+				[[ "$script" = "$other" ]] && continue 2
+			done
+			PP_CONSOLIDATE_PROCESSED+=("$script")
+
+			# Embed the script.
+			echo "${indent}# --- BEGIN LIBRARY FILE: ${BASH_REMATCH[1]} ---"
+			{
+				if [[ "$OPT_MINIFY" = "lib" ]]; then
+					pp_strip_comments | pp_minify | pp_minify_unsafe
+				else
+					cat
+				fi
+			} < <(pp_consolidate__do "$((depth + 1))" < "$script") | sed "s/^/${indent}/"
+			echo "${indent}# --- END LIBRARY FILE ---"
+			continue
+		fi
+
+		# Forward data.
+		echo "$line"
+	done
+}
+
+# Inlines constants:
+# EXECUTABLE_BAT
+# PROGRAM_*
+pp_inline_constants() {
+	local constants=("EXECUTABLE_BAT" "PROGRAM")
+
+	# Determine the PROGRAM_ constants.
+	local nf_constants="$( ( set -o posix ; set) | grep '^PROGRAM_' | cut -d'=' -f1)"
+	local line
+	while read -r line; do
+		constants+=("$line")
+	done <<< "$nf_constants"
+
+	# Generate a sed replace for the constants.
+	local constants_pattern=''
+	local constant_name
+	local constant_value
+	for constant_name in "${constants[@]}"; do
+		constant_value="$(sed_escape "${!constant_name}")"
+		constant_name="$(sed_escape "$constant_name")"
+		constant_sed="s/\\\$${constant_name}\([^A-Za-z0-9_]\)/${constant_value}\1/; s/\\\${${constant_name}}/${constant_value}/g;"
+		constants_pattern="${constants_pattern}${constant_sed}"
+	done
+
+	sed "${constants_pattern}"
+}
+
 # Strips comments from a Bash source file.
 pp_strip_comments() {
 	sed '/^[[:space:]]*#.*$/d'
@@ -242,8 +300,6 @@ while shiftopt; do
 	--prefix)               shiftval; OPT_PREFIX="$OPT_VAL" ;;
 	--alternate-executable) shiftval; OPT_BAT="$OPT_VAL" ;;
 	--minify)		        shiftval; OPT_MINIFY="$OPT_VAL" ;;
-	--docs:url)             shiftval; DOCS_URL="$OPT_VAL" ;;
-	--docs:maintainer)      shiftval; DOCS_MAINTAINER="$OPT_VAL" ;;
 
 	*)
 		printc "%{RED}%s: unknown option '%s'%{CLEAR}" "$PROGRAM" "$OPT"
@@ -298,6 +354,8 @@ for file in "${SOURCES[@]}"; do
 	((file_i++)) || true
 
 	filename="$(basename "$file" .sh)"
+	PROGRAM="$filename"
+	PROGRAM_VERSION="$(<"${HERE}/version.txt")"
 
 	printc "    %{YELLOW}[%s/%s] %{MAGENTA}%s%{CLEAR}\n" "$file_i" "$file_n" "$file" 1>&2
 	step_read "$file" |
