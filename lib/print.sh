@@ -5,6 +5,7 @@
 # Repository: https://github.com/eth-p/bat-extras
 # Issues:     https://github.com/eth-p/bat-extras/issues
 # -----------------------------------------------------------------------------
+source "${LIB}/constants.sh"
 
 # Printf, but with optional colors.
 # This uses the same syntax and arguments as printf.
