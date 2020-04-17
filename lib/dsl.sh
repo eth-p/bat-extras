@@ -48,7 +48,7 @@ dsl_parse() {
 
 		# Parse the indentation.
 		# If the indentation is greater than zero, it's considered an option.
-		[[ "$line_raw" =~ ^(	|[[:space:]]{2,}) ]]
+		[[ "$line_raw" =~ ^(	|[[:space:]]{2,}) ]] || true
 		indent="${BASH_REMATCH[1]}"
 		line="${line_raw:${#indent}}"
 
@@ -77,6 +77,8 @@ dsl_parse() {
 	if [[ -n "$DSL_COMMAND" ]]; then
 		dsl_on_command_commit
 	fi
+
+	return 0
 }
 
 # Parses a line into fields.
