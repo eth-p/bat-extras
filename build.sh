@@ -42,11 +42,59 @@ smsg() {
 # Escapes a sed pattern.
 # Arguments:
 #     1  -- The pattern.
-
+#
 # Output:
 #     The escaped string.
 sed_escape() {
 	sed 's/\([][\\\/\^\$\*\.\-]\)/\\\1/g' <<< "$1"
+}
+
+# Checks if the output scripts will be minified.
+# Arguments:
+#    1  "all"    -- All scripts will be minified.
+#       "any"    -- Any scripts will be minified.
+#       "lib"    -- Library scripts will be minified.
+#       "unsafe" -- Unsafe minifications will be applied.
+will_minify() {
+	case "$1" in
+	all)
+		[[ "$OPT_MINIFY" =~ ^all($|\+.*) ]]
+		return $? ;;
+	unsafe)
+		[[ "$OPT_MINIFY" =~ ^.*+unsafe(\+.*)*$ ]]
+		return $? ;;
+	lib)
+		[[ "$OPT_MINIFY" =~ ^lib($|\+.*) ]]
+		return $? ;;
+	any|"")
+		[[ "$OPT_MINIFY" != "none" ]]
+		return $? ;;
+	esac
+	return 1
+}
+
+# Generates the banner for the output files.
+#
+# Output:
+#    The contents of banner.txt
+generate_banner() {
+	local step="$1"
+	if ! "$OPT_BANNER"; then
+		return 0
+	fi
+
+	# Don't run it unless the comments are removed or hidden.
+	if ! { will_minify all || "$OPT_COMPRESS"; }; then
+		return 0
+	fi
+
+	# Only run it in the compression step if both minifying and compressing.
+	if will_minify all && "$OPT_COMPRESS" && [[ "$step" != "step_compress" ]]; then
+		return 0
+	fi
+
+	# Write the banner.
+	bat "${HERE}/banner.txt"
 }
 
 # Build step: read
@@ -96,13 +144,14 @@ step_preprocess() {
 # Output:
 #     The minified file contents.
 step_minify() {
-	if [[ "$OPT_MINIFY" =~ ^all($|+.*) ]]; then
+	if ! will_minify all; then
 		cat
 		smsg "Minifying" "SKIP"
 		return 0
 	fi
 
 	printf "#!/usr/bin/env bash\n"
+	generate_banner step_minify
 	pp_minify | pp_minify_unsafe
 	smsg "Minifying"
 }
@@ -125,6 +174,7 @@ step_compress() {
 	local wrapper
 	wrapper="$({
 		printf '#!/usr/bin/env bash\n'
+		generate_banner step_compress
 		printf "(exec -a \"\$0\" bash -c 'eval \"\$(cat <&3)\"' \"\$0\" \"\$@\" 3< <(dd bs=1 if=\"\$0\" skip=::: 2>/dev/null | gunzip)); exit \$?;\n"
 	})"
 
@@ -161,7 +211,6 @@ step_write() {
 #
 # Output:
 #     The file contents.
-
 step_write_install() {
 	if [[ "$OPT_INSTALL" != true ]]; then
 		cat
@@ -175,7 +224,8 @@ step_write_install() {
 }
 
 # -----------------------------------------------------------------------------
-# Preprocessor.
+# Preprocessor:
+# -----------------------------------------------------------------------------
 
 # Consolidates all scripts into a single file.
 # This follows all `source "${LIB}/..."` files and embeds them into the script.
@@ -208,7 +258,7 @@ pp_consolidate__do() {
 			# Embed the script.
 			echo "${indent}# --- BEGIN LIBRARY FILE: ${BASH_REMATCH[1]} ---"
 			{
-				if [[ "$OPT_MINIFY" = "lib" ]]; then
+				if will_minify lib; then
 					pp_strip_comments | pp_minify | pp_minify_unsafe
 				else
 					cat
@@ -258,7 +308,7 @@ pp_strip_comments() {
 # Minify a Bash source file.
 # https://github.com/mvdan/sh
 pp_minify() {
-	if [[ "$OPT_MINIFY" = "none" ]]; then
+	if will_minify none; then
 		cat
 		return
 	fi
@@ -271,7 +321,7 @@ pp_minify() {
 # Right now, this doesn't do anything.
 # This should be applied after shfmt minification.
 pp_minify_unsafe() {
-	if ! [[ "$OPT_MINIFY" =~ ^.*+unsafe(+.*)*$ ]]; then
+	if ! will_minify unsafe; then
 		cat
 		return 0
 	fi
@@ -280,10 +330,12 @@ pp_minify_unsafe() {
 }
 
 # -----------------------------------------------------------------------------
-# Options.
+# Options:
+# -----------------------------------------------------------------------------
 OPT_INSTALL=false
 OPT_COMPRESS=false
 OPT_VERIFY=true
+OPT_BANNER=true
 OPT_MINIFY="lib"
 OPT_PREFIX="/usr/local"
 OPT_BAT="bat"
@@ -297,6 +349,7 @@ while shiftopt; do
 	--install)                        OPT_INSTALL=true ;;
 	--compress)                       OPT_COMPRESS=true ;;
 	--no-verify)                      OPT_VERIFY=false ;;
+	--no-banner)                      OPT_BANNER=false ;;
 	--prefix)               shiftval; OPT_PREFIX="$OPT_VAL" ;;
 	--alternate-executable) shiftval; OPT_BAT="$OPT_VAL" ;;
 	--minify)		        shiftval; OPT_MINIFY="$OPT_VAL" ;;
@@ -331,7 +384,7 @@ fi
 
 [[ -d "$BIN" ]] || mkdir "$BIN"
 
-if [[ "$OPT_MINIFY" != "none" ]] && ! command -v shfmt &>/dev/null; then
+if ! will_minify none && ! command -v shfmt &>/dev/null; then
 	printc "%{RED}Warning: cannot find shfmt. Unable to minify scripts.%{CLEAR}\n"
 	OPT_MINIFY=none
 fi
