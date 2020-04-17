@@ -275,9 +275,10 @@ pp_consolidate__do() {
 
 # Inlines constants:
 # EXECUTABLE_BAT
+# EXECUTABLE_GIT
 # PROGRAM_*
 pp_inline_constants() {
-	local constants=("EXECUTABLE_BAT" "PROGRAM")
+	local constants=("EXECUTABLE_BAT" "EXECUTABLE_GIT" "PROGRAM")
 
 	# Determine the PROGRAM_ constants.
 	local nf_constants="$( ( set -o posix ; set) | grep '^PROGRAM_' | cut -d'=' -f1)"

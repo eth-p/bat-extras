@@ -22,7 +22,10 @@ hook_version
 # -----------------------------------------------------------------------------
 COMMON_URL_GITHUB="https://github.com/%s.git"
 COMMON_URL_GITLAB="https://gitlab.com/%s.git"
-MODULES_FILE="$(bat --config-dir)/modules.txt"
+CONFIG_DIR="$(bat --config-dir)"
+SYNTAX_DIR="${CONFIG_DIR}/syntaxes"
+THEME_DIR="${CONFIG_DIR}/themes"
+MODULES_FILE="${CONFIG_DIR}/modules.txt"
 # -----------------------------------------------------------------------------
 # Options:
 # -----------------------------------------------------------------------------
@@ -52,6 +55,8 @@ done
 
 # Ensures that the modules file at $MODULES_FILE exists.
 # If it doesn't, this will print a friendly warning and exit with exit code 1.
+#
+# This will also make sure the syntaxes and themes directories exist.
 ensure_setup() {
 	if ! [[ -f "$MODULES_FILE" ]]; then
 		printc "%{YELLOW}The bat-modules modules file wasn't found.%{CLEAR}\n"
@@ -59,6 +64,9 @@ ensure_setup() {
 		printc "%{YELLOW}read the documentation at %{CLEAR}%s%{YELLOW} for more info.%{CLEAR}\n" "${PROGRAM_HOMEPAGE}"
 		exit 1
 	fi
+
+	mkdir -p "${SYNTAX_DIR}" &>/dev/null || true
+	mkdir -p "${THEME_DIR}" &>/dev/null || true
 }
 
 # Prints an error message that parsing
@@ -183,13 +191,50 @@ action:clear() {
 }
 
 action:update() {
+	CHANGES=false
+
 	dsl_on_command_commit() {
-		echo "$BM_SOURCE"
+		case "$BM_TYPE" in
+			syntax) cd "$SYNTAX_DIR" ;;
+			theme)  cd "$THEME_DIR"  ;;
+		esac
+
+		local hash
+		local name="$(parse_source_name "$BM_SOURCE")"
+		printc "%{BLUE}----- %s: %s -----%{CLEAR}\n" "$BM_TYPE" "$name"
+
+		# If it isn't cloned, clone it.
+		if ! [[ -d "$name" ]]; then
+			printc "%{YELLOW}Cloning...%{CLEAR}\n"
+			"$EXECUTABLE_GIT" clone "$BM_SOURCE" "$name"
+			CHANGES=true
+		fi
+
+		# If it is cloned, fetch/checkout.
+		printc "%{YELLOW}Updating...%{CLEAR}\n"
+		cd "$name"
+		hash="$("$EXECUTABLE_GIT" rev-parse HEAD)"
+		"$EXECUTABLE_GIT" fetch origin --quiet
+		"$EXECUTABLE_GIT" checkout "$BM_OPT_CHECKOUT" --quiet
+		hash_new="$("$EXECUTABLE_GIT" rev-parse HEAD)"
+
+		if [[ "$hash" != "$hash_new" ]]; then
+			printc "%{YELLOW}Updated to %s.%{CLEAR}\n" "$hash_new"
+			CHANGES=true
+		fi
 	}
 
 	# Parse the DSL.
 	ensure_setup
 	dsl_parse_file "$MODULES_FILE"
+
+	# If there are changes, update.
+	printc "%{BLUE}----- bat-modules -----%{CLEAR}\n" "$BM_TYPE" "$name"
+	printc "%{YELLOW}Done.%{CLEAR}\n"
+	if "$CHANGES"; then
+		printc "%{YELLOW}Rebuilding cache...%{CLEAR}\n"
+		"$EXECUTABLE_BAT" cache --build
+	fi
 }
 
 # -----------------------------------------------------------------------------
