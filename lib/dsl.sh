@@ -28,6 +28,10 @@ dsl_parse_file() {
 #     dsl_on_command_commit                          -- Called after commands and their options.
 #     dsl_on_option  "$option" "$arg1" "$arg2" ...   -- Called on option lines.
 #
+# Variables:
+#     DSL_LINE_NUMBER -- The line number being parsed at the time of a callback.
+#     DSL_COMMAND     -- The command being parsed at the time of a callback.
+#
 # Input:
 #     The DSL data to parse.
 dsl_parse() {
@@ -37,7 +41,11 @@ dsl_parse() {
 	local indent
 	local command
 
+	DSL_LINE_NUMBER=0
+	DSL_COMMAND=''
 	while IFS='' read -r line_raw; do
+		((DSL_LINE_NUMBER++)) || true
+
 		# Parse the indentation.
 		# If the indentation is greater than zero, it's considered an option.
 		[[ "$line_raw" =~ ^(	|[[:space:]]{2,}) ]]
@@ -50,11 +58,11 @@ dsl_parse() {
 
 			# Call the appropriate on_* function.
 			if [[ "${#indent}" -eq 0 ]]; then
-				if [[ -n "$command" ]]; then
+				if [[ -n "$DSL_COMMAND" ]]; then
 					dsl_on_command_commit
 				fi
 
-				command="${line_fields[0]}"
+				DSL_COMMAND="${line_fields[0]}"
 				dsl_on_command "${line_fields[@]}"
 			else
 				dsl_on_option "${line_fields[@]}"
@@ -66,7 +74,7 @@ dsl_parse() {
 		dsl_on_raw "$indent" "$line"
 	done
 
-	if [[ -n "$command" ]]; then
+	if [[ -n "$DSL_COMMAND" ]]; then
 		dsl_on_command_commit
 	fi
 }
