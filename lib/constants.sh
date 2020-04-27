@@ -7,6 +7,7 @@
 # -----------------------------------------------------------------------------
 EXECUTABLE_BAT="bat"
 EXECUTABLE_GIT="git"
+EXECUTABLE_DELTA="delta"
 PROGRAM="$(basename "$0" .sh)"
 PROGRAM_HOMEPAGE="https://github.com/eth-p/bat-extras"
 PROGRAM_COPYRIGHT="Copyright (C) 2019-2020 eth-p | MIT License"
