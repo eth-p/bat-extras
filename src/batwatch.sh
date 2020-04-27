@@ -10,6 +10,7 @@ LIB="$(cd "$(dirname "${BASH_SOURCE[0]}")" && cd "$(dirname "$(readlink "${BASH_
 source "${LIB}/constants.sh"
 source "${LIB}/opt.sh"
 source "${LIB}/opt_hooks.sh"
+source "${LIB}/opt_hook_width.sh"
 source "${LIB}/print.sh"
 source "${LIB}/pager.sh"
 # -----------------------------------------------------------------------------
@@ -18,6 +19,7 @@ source "${LIB}/pager.sh"
 hook_color
 hook_pager
 hook_version
+hook_width
 # -----------------------------------------------------------------------------
 # Watchers:
 # -----------------------------------------------------------------------------
@@ -35,7 +37,7 @@ watcher_entr_watch() {
 
 	entr "${ENTR_ARGS[@]}" \
 		"$EXECUTABLE_BAT" "${BAT_ARGS[@]}" \
-		--terminal-width="$TERM_WIDTH" \
+		--terminal-width="$OPT_TERMINAL_WIDTH" \
 		--paging=never \
 		"$@" \
 		< <(printf "%s\n" "$@")
@@ -98,7 +100,7 @@ watcher_poll_watch() {
 			fi
 
 			"$EXECUTABLE_BAT" "${BAT_ARGS[@]}" \
-				--terminal-width="$TERM_WIDTH" \
+				--terminal-width="$OPT_TERMINAL_WIDTH" \
 				--paging=never \
 				"${files[@]}"
 		fi
@@ -151,7 +153,6 @@ FILES=()
 FILES_HAS_DIRECTORY=false
 OPT_CLEAR=true
 OPT_WATCHER=""
-TERM_WIDTH="$(tput cols)"
 
 # Set options based on tty.
 if [[ -t 1 ]]; then
@@ -166,7 +167,6 @@ while shiftopt; do
 	--watcher)        shiftval; OPT_WATCHER="$OPT_VAL" ;;
 	--clear)                    OPT_CLEAR=true ;;
 	--no-clear)                 OPT_CLEAR=false ;;
-	--terminal-width) shiftval; TERM_WIDTH="$OPT_VAL" ;;
 
 	# bat/Pager options
 	-*) BAT_ARGS+=("$OPT=$OPT_VAL") ;;
