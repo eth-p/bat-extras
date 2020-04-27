@@ -30,6 +30,9 @@ Search through files or directories looking for matching regular expressions (or
 |       | `--no-highlight`           | Do not highlight matching lines.<br /><br />This is automatically enabled when `--context=0`. |
 |       | `--color`                  | Force color output.                                          |
 |       | `--no-color`               | Force disable color output.                                  |
+|       | `--paging=["never"|"always"]`| Enable/disable paging.                                     |
+|       | `--pager=[PAGER]`          | Specify the pager to use.                                    |
+|       | `--terminal-width=[COLS]`  | Generate output for the specified terminal width.            |
 
 
 
