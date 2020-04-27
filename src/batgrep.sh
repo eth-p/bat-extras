@@ -12,6 +12,7 @@ source "${LIB}/print.sh"
 source "${LIB}/pager.sh"
 source "${LIB}/opt.sh"
 source "${LIB}/opt_hooks.sh"
+source "${LIB}/opt_hook_width.sh"
 source "${LIB}/version.sh"
 # -----------------------------------------------------------------------------
 # Init:
@@ -19,6 +20,7 @@ source "${LIB}/version.sh"
 hook_color
 hook_pager
 hook_version
+hook_width
 # -----------------------------------------------------------------------------
 # Options:
 # -----------------------------------------------------------------------------
@@ -132,8 +134,7 @@ if [[ -z "$PATTERN" ]]; then
 fi
 
 # Generate separator.
-COLS="$(tput cols)"
-SEP="$(printc "%{DIM}%${COLS}s%{CLEAR}" | sed "s/ /─/g")"
+SEP="$(printc "%{DIM}%${OPT_TERMINAL_WIDTH}s%{CLEAR}" | sed "s/ /─/g")"
 
 # Append ripgrep and bat arguments.
 if [[ -n "$OPT_CASE_SENSITIVITY" ]]; then
@@ -205,7 +206,7 @@ main() {
 			"${LAST_LH[@]}" \
 			--style="${BAT_STYLE}${OPT_SNIP}" \
 			--paging=never \
-			--terminal-width="$COLS" \
+			--terminal-width="$OPT_TERMINAL_WIDTH" \
 			"$LAST_FILE"
 
 		# Print the separator.
