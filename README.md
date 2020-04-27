@@ -25,6 +25,12 @@ Watch for changes in one or more files, and print them with `bat`.
 
 
 
+### [`batdiff`](doc/batgrep.md)
+Diff a file against the current git index, or display the diff between two files.
+<u>Requirements:</u> `bat`, `delta` (optional)
+
+
+
 ### [`prettybat`](doc/prettybat.md)
 
 Pretty-print source code and highlight it with `bat`.
