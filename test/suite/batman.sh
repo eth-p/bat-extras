@@ -7,6 +7,6 @@ test:version() {
 	snapshot stdout
 	snapshot stderr
 
-	batman --version | head -n1 | cut -d' ' -f1
+	batman --version | awk 'FNR <= 1 { print $1 }'
 	batman --version | awk 'p{print} /^$/ { p=1 }'
 }

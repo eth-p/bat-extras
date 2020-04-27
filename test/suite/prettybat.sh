@@ -7,6 +7,6 @@ test:version() {
 	snapshot stdout
 	snapshot stderr
 
-	prettybat --version | head -n1 | cut -d' ' -f1
+	prettybat --version | awk 'FNR <= 1 { print $1 }'
 	prettybat --version | awk 'p{print} /^$/ { p=1 }'
 }
