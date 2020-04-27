@@ -27,9 +27,10 @@ FORMATTERS=("prettier" "rustfmt" "shfmt" "clangformat")
 
 formatter_prettier_supports() {
 	case "$1" in
-	.js | .jsx | \
+		.js | .jsx | \
 		.ts | .tsx | \
 		.css | .scss | .sass | \
+		.graphql | .gql | \
 		.html | \
 		.json | \
 		.md | \
@@ -113,6 +114,7 @@ map_language_to_extension() {
 	md | mdown | markdown)      ext=".md" ;;
 	yaml | yml)                 ext=".yml" ;;
 	rust | rs)                  ext=".rs" ;;
+	graphql | gql)              exit=".graphql" ;;
 	esac
 
 	echo "$ext"
