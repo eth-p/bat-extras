@@ -446,7 +446,7 @@ if "$OPT_VERIFY"; then
 				((SKIP++)) || true
 				;;
 		esac
-	done < <("${HERE}/test.sh" --compiled --porcelain)
+	done < <("${HERE}/test.sh" --compiled --porcelain --jobs=8)
 
 	# Print the overall result.
 	printf "\x1B[G\x1B[K%s" 1>&2
