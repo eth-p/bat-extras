@@ -29,7 +29,12 @@ while shiftopt; do
 		TEST_ENV_BIN_DIR="${HERE}/bin"
 		TEST_ENV_BIN_SUFFIX=""
 		;;
-	*) OPT_ARGV+=("$OPT") ;;
+	*)
+		if [[ "$OPT_VAL" ]]; then
+			OPT_ARGV+=("${OPT}=${OPT_VAL}")
+		else
+			OPT_ARGV+=("$OPT")
+		fi ;;
 	esac
 done
 
