@@ -23,5 +23,5 @@ hook_width() {
 	}
 
 	# Default terminal width.
-	OPT_TERMINAL_WIDTH="$(stty size | cut -d' ' -f 2)"
+	OPT_TERMINAL_WIDTH="$({ stty size 2>/dev/null || echo "22 80"; } | cut -d' ' -f 2)"
 }
