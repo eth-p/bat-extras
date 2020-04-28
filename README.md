@@ -49,7 +49,7 @@ Pretty-print source code and highlight it with `bat`.
 The scripts in this repository are designed to run as-is, provided that they aren't moved around.
 This means that you're free to just symlink `src/[script].sh` to your local bin folder.
 
-If you would rather have self-contained scripts that you can place and run anywhere, you can use the `build.sh` script to create (and optionally install) them.
+If you would rather have *faster*, self-contained scripts that you can place and run anywhere, you can use the `build.sh` script to create (and optionally install) them.
 
 &nbsp;
 
