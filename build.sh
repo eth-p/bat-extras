@@ -261,7 +261,7 @@ pp_consolidate__do() {
 				if will_minify lib; then
 					pp_strip_comments | pp_minify | pp_minify_unsafe
 				else
-					cat
+					pp_strip_copyright | pp_strip_separators
 				fi
 			} < <(pp_consolidate__do "$((depth + 1))" < "$script") | sed "s/^/${indent}/"
 			echo "${indent}# --- END LIBRARY FILE ---"
@@ -304,6 +304,16 @@ pp_inline_constants() {
 # Strips comments from a Bash source file.
 pp_strip_comments() {
 	sed '/^[[:space:]]*#.*$/d'
+}
+
+# Strips copyright comments from the start of a Bash source file.
+pp_strip_copyright() {
+	awk '/^#/ {if(!p){ next }} { p=1; print $0 }'
+}
+
+# Strips separator comments from the start of a Bash source file.
+pp_strip_separators() {
+	awk '/^#\s*-{5,}/ { next; } {print $0}'
 }
 
 # Minify a Bash source file.
