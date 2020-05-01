@@ -37,7 +37,13 @@ pager_version() {
 #     pager_exec echo hi
 pager_exec() {
 	if [[ -n "$1" ]]; then
-		"$@" | "${SCRIPT_PAGER_CMD[@]}"
+		if [[ -n "$SCRIPT_PAGER_CMD" ]]; then
+			"$@" | "${SCRIPT_PAGER_CMD[@]}" "${SCRIPT_PAGER_ARGS[@]}"
+			return $?
+		else
+			"$@"
+			return $?
+		fi
 	fi
 }
 
@@ -47,9 +53,16 @@ pager_exec() {
 #     bat | pager_display
 pager_display() {
 	if [[ -n "$SCRIPT_PAGER_CMD" ]]; then
-		"${SCRIPT_PAGER_CMD[@]}" "${SCRIPT_PAGER_ARGS[@]}"
+		if [[ -n "$SCRIPT_PAGER_CMD" ]]; then
+			"${SCRIPT_PAGER_CMD[@]}" "${SCRIPT_PAGER_ARGS[@]}"
+			return $?
+		else
+			"${SCRIPT_PAGER_CMD[@]}"
+			return $?
+		fi
 	else
 		cat
+		return $?
 	fi
 }
 
