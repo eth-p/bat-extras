@@ -274,14 +274,13 @@ pp_consolidate__do() {
 }
 
 # Inlines constants:
-# EXECUTABLE_BAT
-# EXECUTABLE_GIT
+# EXECUTABLE_*
 # PROGRAM_*
 pp_inline_constants() {
-	local constants=("EXECUTABLE_BAT" "EXECUTABLE_GIT" "PROGRAM")
+	local constants=("PROGRAM")
 
 	# Determine the PROGRAM_ constants.
-	local nf_constants="$( ( set -o posix ; set) | grep '^PROGRAM_' | cut -d'=' -f1)"
+	local nf_constants="$( ( set -o posix ; set) | grep '^\(PROGRAM_\|EXECUTABLE_\)' | cut -d'=' -f1)"
 	local line
 	while read -r line; do
 		constants+=("$line")
@@ -300,6 +299,7 @@ pp_inline_constants() {
 
 	sed "${constants_pattern}"
 }
+
 
 # Strips comments from a Bash source file.
 pp_strip_comments() {
