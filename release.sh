@@ -67,14 +67,6 @@ printc "%{YELLOW}Building scripts...%{CLEAR}\n"
 }
 
 # -----------------------------------------------------------------------------
-# Tag release.
-
-if ! "$OPT_SKIP_TAG"; then
-	printc "%{YELLOW}Tagging release...%{CLEAR}\n"
-	git tag "$OPT_TAG"
-fi
-
-# -----------------------------------------------------------------------------
 # Build package.
 
 printc "%{YELLOW}Packaging artifacts...%{CLEAR}\n"
@@ -105,6 +97,7 @@ case "$DATE_DAY" in
 esac
 DATE_STR="$(date +'%B') ${DATE_DAY}${DATE_SUFFIX}, $(date +'%Y')"
 
+
 # Get the script names.
 script_links=()
 script_names=()
@@ -114,8 +107,10 @@ for script in "$SRC"/*.sh; do
 	script_links+=("[\`${script_name}\`](https://github.com/eth-p/bat-extras/blob/${COMMIT}/doc/${script_name}.md)")
 done
 
+script_pattern="$(printf 's/\\(%s\\)/`\\1`/;' "${script_names[@]}")"
 SCRIPTS="$(printf "%s, " "${script_links[@]:0:$((${#script_links[@]}-1))}")"
 SCRIPTS="${SCRIPTS}and ${script_links[$((${#script_links[@]}-1))]}"
+
 
 # Get the changelog.
 CHANGELOG_DEV=''
@@ -128,7 +123,7 @@ if [[ -n "$OPT_SINCE" ]]; then
 		ref_message="$(git show -s --format=%s "$ref")"
 		ref="$(git rev-parse "${ref}~1")"
 
-		if [[ "$ref_message" =~ ^([a-z\-]+):[[:space:]]*(.*)$ ]]; then
+		if [[ "$ref_message" =~ ^([a-z-]+):[[:space:]]*(.*)$ ]]; then
 			affected_module="${BASH_REMATCH[1]}"
 
 			# Make module names consistent.
@@ -140,16 +135,8 @@ if [[ -n "$OPT_SINCE" ]]; then
 
 			# Switch to the correct changelog.
 			case "$affected_module" in
-				test|developer|ci) is_developer=true ;;
+				test|developer|ci|build) is_developer=true ;;
 			esac
-
-			# Edit the ref message if it's a script change.
-			for script_name in "${script_names[@]}"; do
-				if [[ "$affected_module" = "$script_name" ]]; then
-					ref_message="\`${affected_module}\`: ${BASH_REMATCH[2]}"
-					break
-				fi
-			done
 		fi
 
 		# Append to changelog.
@@ -160,6 +147,10 @@ if [[ -n "$OPT_SINCE" ]]; then
 		fi
 	done
 fi
+
+CHANGELOG="$(sed "$script_pattern" <<< "$CHANGELOG")"
+CHANGELOG_DEV="$(sed "$script_pattern" <<< "$CHANGELOG_DEV")"
+
 
 # Print the template.
 sed '/\\$/{N;s/\\\n//;s/\n//p;}' <<-EOF
