@@ -12,7 +12,8 @@ source "${LIB}/constants.sh"
 source "${LIB}/pager.sh"
 source "${LIB}/print.sh"
 source "${LIB}/opt.sh"
-source "${LIB}/opt_hooks.sh"
+source "${LIB}/opt_hook_color.sh"
+source "${LIB}/opt_hook_version.sh"
 # -----------------------------------------------------------------------------
 hook_color
 hook_version
