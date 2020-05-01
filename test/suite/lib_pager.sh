@@ -23,7 +23,7 @@ test:less_detection() {
 
 	(use_pager "less"             && expect_equal "$(pager_name)" "less")
 	(use_pager "less_but_renamed" && expect_equal "$(pager_name)" "less")
-	(use_pager "tput"             && expect_equal "$(pager_name)" "tput")
+	(use_pager "stty"             && expect_equal "$(pager_name)" "stty")
 }
 
 test:less_version() {

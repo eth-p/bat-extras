@@ -1,5 +1,4 @@
 #!/usr/bin/env bash
 case "$1" in
-cols) echo 80 ;;
-lines) echo 22 ;;
+size) echo "20 80" ;;
 esac
