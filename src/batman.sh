@@ -15,27 +15,27 @@ source "${LIB}/opt.sh"
 source "${LIB}/opt_hooks.sh"
 # -----------------------------------------------------------------------------
 hook_color
-hook_pager
 hook_version
 # -----------------------------------------------------------------------------
 MAN_ARGS=()
 BAT_ARGS=()
 
-while shiftopt; do MAN_ARGS+=("$OPT"); done
-if "$OPT_COLOR"; then
-	BAT_ARGS=("--color=always --decorations=always")
-else
-	BAT_ARGS=("--color=never --decorations=never")
-fi
-# -----------------------------------------------------------------------------
-export MANPAGER='sh -c "col -bx | '"$(printf "%q" "$EXECUTABLE_BAT")"' --language=man --style=grid '"${BAT_ARGS[*]}"'"'
-export MANROFFOPT='-c'
+while shiftopt; do
+	case "$OPT" in
+		--paging|--pager) shiftval; BAT_ARGS+=("${OPT}=${OPT_VAL}") ;;
+		*)                          MAN_ARGS+=("$OPT") ;;
+	esac
+done
 
-if [[ -n "${SCRIPT_PAGER_CMD}" ]]; then
-	export BAT_PAGER="$(printf "%q " "${SCRIPT_PAGER_CMD[@]}" "${SCRIPT_PAGER_ARGS[@]}")"
+if "$OPT_COLOR"; then
+	BAT_ARGS+=("--color=always" "--decorations=always")
 else
-	unset BAT_PAGER
+	BAT_ARGS+=("--color=never" "--decorations=never")
 fi
+
+# -----------------------------------------------------------------------------
+export MANPAGER='sh -c "col -bx | '"$(printf "%q" "$EXECUTABLE_BAT")"' --language=man --style=grid '$(printf "%q " "${BAT_ARGS[@]}")'"'
+export MANROFFOPT='-c'
 
 command man "${MAN_ARGS[@]}"
 exit $?
