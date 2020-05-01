@@ -10,6 +10,7 @@ DATE="$(date +%Y%m%d)"
 VERSION="$(<"${HERE}/version.txt")"
 VERSION_EXPECTED="$(date +%Y.%m.%d)"
 LIB="$HERE/lib"
+SRC="$HERE/src"
 source "${LIB}/print.sh"
 source "${LIB}/opt.sh"
 # -----------------------------------------------------------------------------
@@ -90,6 +91,7 @@ printc "%{YELLOW}Release description:%{CLEAR}\n"
 
 # Get the commit hash.
 COMMIT="$(git rev-parse HEAD)"
+COMMIT_URL="https://github.com/eth-p/bat-extras/tree/${COMMIT}"
 
 # Get the release date string.
 DATE_DAY="$(date +%e | sed 's/ //')"
@@ -103,22 +105,56 @@ case "$DATE_DAY" in
 esac
 DATE_STR="$(date +'%B') ${DATE_DAY}${DATE_SUFFIX}, $(date +'%Y')"
 
+# Get the script names.
+script_links=()
+script_names=()
+for script in "$SRC"/*.sh; do
+	script_name="$(basename "$script" .sh)"
+	script_names+=("$script_name")
+	script_links+=("[\`${script_name}\`](https://github.com/eth-p/bat-extras/blob/${COMMIT}/doc/${script_name}.md)")
+done
+
+SCRIPTS="$(printf "%s, " "${script_links[@]:0:$((${#script_links[@]}-1))}")"
+SCRIPTS="${SCRIPTS}and ${script_links[$((${#script_links[@]}-1))]}"
+
 # Get the changelog.
+CHANGELOG_DEV=''
 CHANGELOG=''
 if [[ -n "$OPT_SINCE" ]]; then
 	ref="$(git rev-parse HEAD)"
 	end="$(git rev-parse "$OPT_SINCE")"
 	while [[ "$ref" != "$end" ]]; do
+		is_developer=false
 		ref_message="$(git show -s --format=%s "$ref")"
 		ref="$(git rev-parse "${ref}~1")"
 
-		if [[ "$ref_message" =~ ^([a-z]):[[:space:]]*(.*)$ ]]; then
-			ref_message="\`${BASH_REMATCH[1]}\`: ${BASH_REMATCH[2]}"
+		if [[ "$ref_message" =~ ^([a-z\-]+):[[:space:]]*(.*)$ ]]; then
+			affected_module="${BASH_REMATCH[1]}"
+
+			# Make module names consistent.
+			case "$affected_module" in
+				dev|lib) affected_module="developer" ;;
+				tests) affected_module="test" ;;
+				doc) affected_module="docs" ;;
+			esac
+
+			# Switch to the correct changelog.
+			case "$affected_module" in
+				test|developer|ci) is_developer=true ;;
+			esac
+
+			# Edit the ref message if it's a script change.
+			for script_name in "${script_names[@]}"; do
+				if [[ "$affected_module" = "$script_name" ]]; then
+					ref_message="\`${affected_module}\`: ${BASH_REMATCH[2]}"
+					break
+				fi
+			done
 		fi
 
 		# Append to changelog.
-		if [[ -z "$CHANGELOG" ]]; then
-			CHANGELOG=" - ${ref_message}"
+		if "$is_developer"; then
+			CHANGELOG_DEV="$CHANGELOG_DEV"$'\n'" - ${ref_message}"
 		else
 			CHANGELOG="$CHANGELOG"$'\n'" - ${ref_message}"
 		fi
@@ -127,12 +163,7 @@ fi
 
 # Print the template.
 sed '/\\$/{N;s/\\\n//;s/\n//p;}' <<-EOF
-This contains the latest versions of \
-[\`batgrep\`](https://github.com/eth-p/bat-extras/blob/${COMMIT}/doc/batgrep.md), \
-[\`batman\`](https://github.com/eth-p/bat-extras/blob/${COMMIT}/doc/batman.md), \
-[\`batwatch\`](https://github.com/eth-p/bat-extras/blob/${COMMIT}/doc/batwatch.md), and \
-[\`prettybat\`](https://github.com/eth-p/bat-extras/blob/${COMMIT}/doc/prettybat.md) \
-as of commit $(git rev-parse --short HEAD) (${DATE_STR}).
+This contains the latest versions of $SCRIPTS as of commit [$(git rev-parse --short HEAD)]($COMMIT_URL) (${DATE_STR}).
 
 **This is provided as a convenience only.**
 I would still recommend following the installation instructions in \
@@ -140,4 +171,13 @@ I would still recommend following the installation instructions in \
 
 ### Changes
 $CHANGELOG
+
+### Developer
+<details>
+<div markdown="1">
+
+$CHANGELOG_DEV
+
+</div>
+</details>
 EOF
