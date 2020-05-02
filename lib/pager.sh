@@ -47,6 +47,24 @@ pager_exec() {
 	fi
 }
 
+# Displays the output of a command or function inside the pager (if it exists).
+#
+# Example:
+#     bat | pager_display
+pager_display() {
+	if [[ -n "$SCRIPT_PAGER_CMD" ]]; then
+		if [[ -n "$SCRIPT_PAGER_CMD" ]]; then
+			"${SCRIPT_PAGER_CMD[@]}" "${SCRIPT_PAGER_ARGS[@]}"
+			return $?
+		else
+			"${SCRIPT_PAGER_CMD[@]}"
+			return $?
+		fi
+	else
+		cat
+		return $?
+	fi
+}
 
 # -----------------------------------------------------------------------------
 
