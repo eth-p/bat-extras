@@ -92,7 +92,7 @@ dsl_parse() {
 # Output:
 #     A series of bash statemtents that write the fields into an array named "line_fields".
 dsl_parse_line() {
-	/usr/bin/awk '
+	awk '
 		{
 			print "line_fields=()"
 			n=0
