@@ -5,6 +5,7 @@
 # Repository: https://github.com/eth-p/bat-extras
 # Issues:     https://github.com/eth-p/bat-extras/issues
 # -----------------------------------------------------------------------------
+source "${LIB}/term.sh"
 
 # Option parser hook: --terminal-width support.
 # This will accept --terminal-width=number.
@@ -23,5 +24,5 @@ hook_width() {
 	}
 
 	# Default terminal width.
-	OPT_TERMINAL_WIDTH="$({ stty size 2>/dev/null || echo "22 80"; } | cut -d' ' -f 2)"
+	OPT_TERMINAL_WIDTH="$(term_width)"
 }
