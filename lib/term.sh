@@ -12,12 +12,12 @@
 #     The terminal width, or 80 if there's no TTY.
 #
 term_width() {
-	if ! [[ -t 0 ]]; then
-		echo "80"
-		return 0
-	fi
-
 	# shellcheck disable=SC2155
-	{ stty size 2>/dev/null || echo "22 80"; } | cut -d' ' -f2
+	local width="$({ stty size 2>/dev/null || echo "22 80"; } | cut -d ' ' -f2)"
+	if [[ "$width" -ne 0 ]]; then
+		echo "$width"
+	else
+		echo "80"
+	fi
 	return 0
 }
