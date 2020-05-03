@@ -18,10 +18,6 @@ term_width() {
 	fi
 
 	# shellcheck disable=SC2155
-	local width="$(stty size 2>/dev/null | cut -d' ' -f2)"
-	if [[ -z "$width" ]]; then
-		echo "80"
-	else
-		echo  "$width"
-	fi
+	{ stty size 2>/dev/null || echo "22 80"; } | cut -d' ' -f2
+	return 0
 }
