@@ -69,6 +69,9 @@ will_minify() {
 	any|"")
 		[[ "$OPT_MINIFY" != "none" ]]
 		return $? ;;
+	none)
+		! will_minify any
+		return $? ;;
 	esac
 	return 1
 }
