@@ -396,7 +396,7 @@ fi
 [[ -d "$BIN" ]] || mkdir "$BIN"
 
 if ! will_minify none && ! command -v shfmt &>/dev/null; then
-	printc "%{RED}Warning: cannot find shfmt. Unable to minify scripts.%{CLEAR}\n"
+	printc "%{RED}Warning: cannot find shfmt. Unable to minify scripts.%{CLEAR}\n" 1>&2
 	OPT_MINIFY=none
 fi
 
