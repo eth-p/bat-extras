@@ -4,7 +4,7 @@ HERE="$(cd "$(dirname "$0")" && pwd)"
 while read -d ':' -r dir; do
 	if [[ "$dir" == "$HERE" || -z "$dir" ]]; then continue; fi
 	if [[ -f "${dir}/bat" ]]; then
-		exec "${dir}/bat" "$@" --theme="Monokai Extended"
+		exec "${dir}/bat" "$@" --no-config --theme="Monokai Extended"
 	fi
 done <<<"$PATH:"
 
