@@ -2,8 +2,12 @@
 # Find the real bat.
 HERE="$(cd "$(dirname "$0")" && pwd)"
 while read -d ':' -r dir; do
-	if [[ "$dir" == "$HERE" ]]; then continue; fi
+	if [[ "$dir" == "$HERE" || -z "$dir" ]]; then continue; fi
 	if [[ -f "${dir}/bat" ]]; then
 		exec "${dir}/bat" "$@" --theme="Monokai Extended"
 	fi
-done <<<"$PATH"
+done <<<"$PATH:"
+
+# Print error and exit.
+echo "bat was not found on \$PATH" 1>&2
+exit 127
