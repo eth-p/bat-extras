@@ -365,7 +365,7 @@ OPT_VERIFY=true
 OPT_BANNER=true
 OPT_MINIFY="lib"
 OPT_PREFIX="/usr/local"
-OPT_BAT="bat"
+OPT_BAT="$(basename "$EXECUTABLE_BAT")"
 
 DOCS_URL="https://github.com/eth-p/bat-extras/blob/master/doc"
 DOCS_MAINTAINER="eth-p <eth-p@hidden.email>"
@@ -389,8 +389,8 @@ while shiftopt; do
 done
 
 if [[ "$OPT_BAT" != "bat" ]]; then
-	printc_msg "%{YELLOW}Building executable scripts with an alternate bat executable at %{CLEAR}%s%{YELLOW}.%{CLEAR}\n" "$OPT_BAT"
-	if ! command -v "$OPT_BAT"; then
+	printc_msg "%{YELLOW}Building executable scripts with an alternate bat executable %{CLEAR}%s%{YELLOW}.%{CLEAR}\n" "$OPT_BAT"
+	if ! command -v "$OPT_BAT" &>/dev/null; then
 		printc_err "%{YELLOW}WARNING: Bash cannot execute the specified file.\n"
 		printc_err "%{YELLOW}         The finished scripts may not run properly.%{CLEAR}\n"
 	fi
