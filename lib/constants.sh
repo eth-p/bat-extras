@@ -9,7 +9,7 @@ if [[ -z "$__LIB_CONSTANTS_INITIALIZED" ]]; then
 __LIB_CONSTANTS_INITIALIZED=true
 
 # Constants
-EXECUTABLE_BAT="bat"
+EXECUTABLE_BAT="$(command -v bat 2>/dev/null || command -v batcat 2>/dev/null || echo "bat")"
 EXECUTABLE_GIT="git"
 EXECUTABLE_DELTA="delta"
 PROGRAM="$(basename "$0" .sh)"
