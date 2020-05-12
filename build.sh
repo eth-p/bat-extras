@@ -14,6 +14,7 @@ source "${LIB}/opt.sh"
 source "${LIB}/constants.sh"
 # -----------------------------------------------------------------------------
 set -eo pipefail
+exec 3>&1
 
 # Runs the next build step.
 #
@@ -34,9 +35,21 @@ next() {
 # Prints a build step message.
 smsg() {
 	case "$2" in
-	"SKIP") printc "    %{YELLOW}      %{DIM}%s [skipped]%{CLEAR}\n" "$1" 1>&2 ;;
-	*)      printc "    %{YELLOW}      %s...%{CLEAR}\n" "$1" 1>&2 ;;
+	"SKIP") printc_msg "    %{YELLOW}      %{DIM}%s [skipped]%{CLEAR}\n" "$1" ;;
+	*)      printc_msg "    %{YELLOW}      %s...%{CLEAR}\n" "$1" ;;
 	esac
+}
+
+# Prints a message to STDOUT (via FD 3).
+# Works the same as printc.
+printc_msg() {
+	printc "$@" 1>&3
+}
+
+# Prints a message to STDERR.
+# Works the same as printc.
+printc_err() {
+	printc "$@" 1>&2
 }
 
 # Escapes a sed pattern.
@@ -369,28 +382,29 @@ while shiftopt; do
 	--minify)		        shiftval; OPT_MINIFY="$OPT_VAL" ;;
 
 	*)
-		printc "%{RED}%s: unknown option '%s'%{CLEAR}" "$PROGRAM" "$OPT"
+		printc_err "%{RED}%s: unknown option '%s'%{CLEAR}" "$PROGRAM" "$OPT"
 		exit 1
 		;;
 	esac
 done
 
 if [[ "$OPT_BAT" != "bat" ]]; then
-	printc "%{YELLOW}Building executable scripts with an alternate bat executable at %{CLEAR}%s%{YELLOW}.%{CLEAR}\n" "$OPT_BAT" 1>&2
+	printc_msg "%{YELLOW}Building executable scripts with an alternate bat executable at %{CLEAR}%s%{YELLOW}.%{CLEAR}\n" "$OPT_BAT"
 	if ! command -v "$OPT_BAT"; then
-		printc "%{YELLOW}WARNING: Bash cannot execute the specified file.\n" 1>&2
-		printc "%{YELLOW}         The finished scripts may not run properly.%{CLEAR}\n" 1>&2
+		printc_err "%{YELLOW}WARNING: Bash cannot execute the specified file.\n"
+		printc_err "%{YELLOW}         The finished scripts may not run properly.%{CLEAR}\n"
 	fi
 
+	# shellcheck disable=SC2034
 	EXECUTABLE_BAT="$OPT_BAT"
-	printc "\n" 1>&2
+	printc_msg "\n"
 fi
 
 if [[ "$OPT_INSTALL" = true ]]; then
-	printc "%{YELLOW}Installing to %{MAGENTA}%s%{YELLOW}.%{CLEAR}\n" "$OPT_PREFIX" 1>&2
+	printc_msg "%{YELLOW}Installing to %{MAGENTA}%s%{YELLOW}.%{CLEAR}\n" "$OPT_PREFIX"
 else
-	printc "%{YELLOW}This will not install the script.%{CLEAR}\n" 1>&2
-	printc "%{YELLOW}Use %{BLUE}--install%{YELLOW} for a global install.%{CLEAR}\n\n" 1>&2
+	printc_msg "%{YELLOW}This will not install the script.%{CLEAR}\n"
+	printc_msg "%{YELLOW}Use %{BLUE}--install%{YELLOW} for a global install.%{CLEAR}\n\n"
 fi
 
 # -----------------------------------------------------------------------------
@@ -399,7 +413,7 @@ fi
 [[ -d "$BIN" ]] || mkdir "$BIN"
 
 if ! will_minify none && ! command -v shfmt &>/dev/null; then
-	printc "%{RED}Warning: cannot find shfmt. Unable to minify scripts.%{CLEAR}\n" 1>&2
+	printc_err "%{RED}Warning: cannot find shfmt. Unable to minify scripts.%{CLEAR}\n"
 	OPT_MINIFY=none
 fi
 
@@ -408,7 +422,7 @@ fi
 
 SOURCES=()
 
-printc "%{YELLOW}Preparing scripts...%{CLEAR}\n" 1>&2
+printc_msg "%{YELLOW}Preparing scripts...%{CLEAR}\n"
 for file in "$SRC"/*.sh; do
 	SOURCES+=("$file")
 done
@@ -416,7 +430,7 @@ done
 # -----------------------------------------------------------------------------
 # Build files.
 
-printc "%{YELLOW}Building scripts...%{CLEAR}\n" 1>&2
+printc_msg "%{YELLOW}Building scripts...%{CLEAR}\n"
 file_i=0
 file_n="${#SOURCES[@]}"
 for file in "${SOURCES[@]}"; do
@@ -426,7 +440,7 @@ for file in "${SOURCES[@]}"; do
 	PROGRAM="$filename"
 	PROGRAM_VERSION="$(<"${HERE}/version.txt")"
 
-	printc "    %{YELLOW}[%s/%s] %{MAGENTA}%s%{CLEAR}\n" "$file_i" "$file_n" "$file" 1>&2
+	printc_msg "    %{YELLOW}[%s/%s] %{MAGENTA}%s%{CLEAR}\n" "$file_i" "$file_n" "$file"
 	step_read "$file" |
 		next step_preprocess |
 		next step_minify |
@@ -440,7 +454,7 @@ done
 # Verify files by running the tests.
 
 if "$OPT_VERIFY"; then
-	printc "\n%{YELLOW}Verifying scripts...%{CLEAR}\n" 1>&2
+	printc_msg "\n%{YELLOW}Verifying scripts...%{CLEAR}\n"
 
 	# Run the tests.
 	FAIL=0
@@ -448,10 +462,10 @@ if "$OPT_VERIFY"; then
 	while read -r action data1 data2 splat; do
 		[[ "$action" == "result" ]] || continue
 
-		printf "\x1B[G\x1B[K%s" "$data1" 1>&2
+		printc_err "\x1B[G\x1B[K%s" "$data1"
 		case "$data2" in
 			fail)
-				printf " failed.\n" 1>&2
+				printc_err " failed.\n"
 				((FAIL++)) || true
 				;;
 
@@ -462,18 +476,18 @@ if "$OPT_VERIFY"; then
 	done < <("${HERE}/test.sh" --compiled --porcelain --jobs=8)
 
 	# Print the overall result.
-	printf "\x1B[G\x1B[K%s" 1>&2
+	printc_msg "\x1B[G\x1B[K"
 
 	if [[ "$FAIL" -ne 0 ]]; then
-		printc "%{RED}One or more tests failed.\n" 1>&2
-		printc "Run ./test.sh for more detailed information.%{CLEAR}\n" 1>&2
+		printc_err "%{RED}One or more tests failed.\n"
+		printc_err "Run ./test.sh for more detailed information.%{CLEAR}\n"
 		exit 1
 	fi
 
 	if [[ "$SKIP" -gt 0 ]]; then
-		printc "%{CYAN}One or more tests were skipped.\n" 1>&2
-		printc "Run ./test.sh for more detailed information.%{CLEAR}\n" 1>&2
+		printc_err "%{CYAN}One or more tests were skipped.\n"
+		printc_err "Run ./test.sh for more detailed information.%{CLEAR}\n"
 	fi
 
-	printc "%{YELLOW}Verified successfully.%{CLEAR}\n" 1>&2
+	printc_msg "%{YELLOW}Verified successfully.%{CLEAR}\n"
 fi
