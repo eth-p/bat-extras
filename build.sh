@@ -462,10 +462,10 @@ if "$OPT_VERIFY"; then
 	while read -r action data1 data2 splat; do
 		[[ "$action" == "result" ]] || continue
 
-		printc_err "\x1B[G\x1B[K%s" "$data1"
+		printc_msg "\x1B[G\x1B[K%s" "$data1"
 		case "$data2" in
 			fail)
-				printc_err " failed.\n"
+				printc_err "\x1B[G\x1B[K%s failed.\n" "$data1"
 				((FAIL++)) || true
 				;;
 
@@ -479,8 +479,9 @@ if "$OPT_VERIFY"; then
 	printc_msg "\x1B[G\x1B[K"
 
 	if [[ "$FAIL" -ne 0 ]]; then
-		printc_err "%{RED}One or more tests failed.\n"
-		printc_err "Run ./test.sh for more detailed information.%{CLEAR}\n"
+		printc_err "%{RED}%s\n" "One or more tests failed."
+		printc_msg "\x1B[A\x1B[G\x1B[K%{RED}%s\n" "One or more tests failed."
+		printc_err "%{RED}%s%{CLEAR}\n" "Run ./test.sh for more detailed information."
 		exit 1
 	fi
 
