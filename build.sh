@@ -461,8 +461,6 @@ if "$OPT_VERIFY"; then
 	SKIP=0
 	while read -r action data1 data2 splat; do
 		[[ "$action" == "result" ]] || continue
-
-		printc_msg "\x1B[G\x1B[K%s" "$data1"
 		case "$data2" in
 			fail)
 				printc_err "\x1B[G\x1B[K%s failed.\n" "$data1"
@@ -470,7 +468,12 @@ if "$OPT_VERIFY"; then
 				;;
 
 			skip)
+				printc_msg "\x1B[G\x1B[K%s skipped.\n" "$data1"
 				((SKIP++)) || true
+				;;
+
+			*)
+				printc_msg "\x1B[G\x1B[K%s" "$data1"
 				;;
 		esac
 	done < <("${HERE}/test.sh" --compiled --porcelain --jobs=8)
