@@ -46,10 +46,15 @@ jobs:
         steps:
             - setup
             - checkout
+            - run:
+                  name: "Build Manuals"
+                  command: ./build.sh --no-verify --manuals
             - build:
                   minify: "all"
             - store_artifacts:
                   path: bin
+            - store_artifacts:
+                  path: man
 
     test:
         executor: linux_alpine
