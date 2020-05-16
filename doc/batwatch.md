@@ -2,7 +2,7 @@
 
 Watch for changes in one or more files, and print them with `bat`.
 
-
+Please note this watches filesystem files, and not command output like `watch(1)`.
 
 
 

@@ -16,15 +16,15 @@ This script supports using [delta](https://github.com/dandavison/delta) as an al
 
 ## Options
 
-| Short | Long                      | Description                                                  |
-| ----- | ------------------------- | ------------------------------------------------------------ |
-| `-C`  | `--context=[LINES]`       | The number of lines to show before and after the differing lines. |
-|       | `--delta`                 | Display diffs using `delta`.                                 |
-|       | `--color`                 | Force color output.                                          |
-|       | `--no-color`              | Force disable color output.                                  |
-|       | `--paging=["never"/"always"]` | Enable/disable paging.                                    |
-|       | `--pager=[PAGER]`         | Specify the pager to use.                                   |
-|       | `--terminal-width=[COLS]` | Generate output for the specified terminal width.            |
+| Short | Long                          | Description                                                  |
+| ----- | ----------------------------- | ------------------------------------------------------------ |
+| `-C`  | `--context=[LINES]`           | The number of lines to show before and after the differing lines. |
+|       | `--delta`                     | Display diffs using `delta`.                                 |
+|       | `--color`                     | Force color output.                                          |
+|       | `--no-color`                  | Force disable color output.                                  |
+|       | `--paging=["never"/"always"]` | Enable/disable paging.                                       |
+|       | `--pager=[PAGER]`             | Specify the pager to use.                                    |
+|       | `--terminal-width=[COLS]`     | Generate output for the specified terminal width.            |
 
 
 
