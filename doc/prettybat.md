@@ -6,15 +6,14 @@ The only thing better than syntax highlighting? Syntax highlighting *and* code f
 
 
 
-## Command Line
+## Usage
 
-**Synopsis:**
-
-- `prettybat [OPTIONS] [PATH...] `
+`prettybat [OPTIONS] [PATH...]`
 
 
 
-**Options:**
+## Options
+
 Every option is passed through to `bat`.
 See `man bat` for more information.
 
@@ -58,4 +57,3 @@ This script is a part of the `bat-extras` suite of scripts. You can find install
 
 If you find an issue or have a feature suggestion, make a pull request or issue through GitHub!
 Contributions are always welcome.
-

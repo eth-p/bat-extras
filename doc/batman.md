@@ -6,28 +6,18 @@ Gone are the days of losing your place while reading through monotone manual pag
 
 
 
-## Command Line
+## Usage
 
-**Synopsis:**
-
-- `batman [SECTION] [ENTRY] `
+`batman [SECTION] [ENTRY]`
 
 
 
-**Environment:**
+## Environment
 
 | Variable   | Description                                                  |
 | ---------- | ------------------------------------------------------------ |
 | `MANPAGER` | Changes the pager used for `batman`. This is treated like `BAT_PAGER`, but only affects this command. |
 
-
-
-
-
-
-## Caveats
-
-None so far.
 
 
 

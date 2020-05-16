@@ -7,16 +7,14 @@ This script supports using [delta](https://github.com/dandavison/delta) as an al
 
 
 
-## Command Line
+## Usage
 
-**Synopsis:**
-
-- `batdiff [OPTIONS] FILE`
-- `batdiff [OPTIONS] FILE OTHER_FILE`
+`batdiff [OPTIONS] FILE`
+`batdiff [OPTIONS] FILE OTHER_FILE`
 
 
 
-**Options:**
+## Options
 
 | Short | Long                      | Description                                                  |
 | ----- | ------------------------- | ------------------------------------------------------------ |

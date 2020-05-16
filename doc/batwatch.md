@@ -6,15 +6,13 @@ Watch for changes in one or more files, and print them with `bat`.
 
 
 
-## Command Line
+## Usage
 
-**Synopsis:**
-
-- `batwatch [OPTIONS] FILE... `
+`batwatch [OPTIONS] FILE...`
 
 
 
-**Options:**
+## Options
 
 | Short | Long                  | Description                                                  |
 | ----- | --------------------- | ------------------------------------------------------------ |
@@ -24,9 +22,6 @@ Watch for changes in one or more files, and print them with `bat`.
 |       | `--color`             | Force color output.                                          |
 |       | `--no-color`          | Force disable color output.                                  |
 
-
-
-**Options (Passthrough)**:
 All remaining options are passed through to bat.
 
 
@@ -46,11 +41,6 @@ There is also a fallback `poll` watcher available.
 
 This script is a part of the `bat-extras` suite of scripts. You can find install instructions [here](../README.md#installation).
 
-
-
-## Caveats
-
-None so far.
 
 
 
