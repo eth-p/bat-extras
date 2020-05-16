@@ -10,3 +10,4 @@
 /.circleci/.config.yml
 .download
 bin
+man

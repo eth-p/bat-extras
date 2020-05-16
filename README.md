@@ -86,6 +86,14 @@ If you only want to install a single script, you can run the build process and c
 
 
 
+**Manuals:** (EXPERIMENTAL)
+
+You can specify `--manuals` to have the build script generate a `man` page for each of the markdown documentation files.
+This is an experimental feature that uses a non-compliant Markdown "parser" written in Bash, and there is no guarantee
+as for the quality of the generated manual pages.
+
+
+
 **Alternate Executable:**
 
 Depending on the distribution, bat may have been renamed to avoid package conflicts.

@@ -8,6 +8,8 @@
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 BIN="$HERE/bin"
 SRC="$HERE/src"
+MAN="$HERE/man"
+MAN_SRC="$HERE/doc"
 LIB="$HERE/lib"
 source "${LIB}/print.sh"
 source "${LIB}/opt.sh"
@@ -363,6 +365,7 @@ OPT_INSTALL=false
 OPT_COMPRESS=false
 OPT_VERIFY=true
 OPT_BANNER=true
+OPT_MANUALS=false
 OPT_MINIFY="lib"
 OPT_PREFIX="/usr/local"
 OPT_BAT="$(basename "$EXECUTABLE_BAT")"
@@ -375,6 +378,7 @@ while shiftopt; do
 	case "$OPT" in
 	--install)                        OPT_INSTALL=true ;;
 	--compress)                       OPT_COMPRESS=true ;;
+	--manuals)                        OPT_MANUALS=true ;;
 	--no-verify)                      OPT_VERIFY=false ;;
 	--no-banner)                      OPT_BANNER=false ;;
 	--prefix)               shiftval; OPT_PREFIX="$OPT_VAL" ;;
@@ -426,6 +430,30 @@ printc_msg "%{YELLOW}Preparing scripts...%{CLEAR}\n"
 for file in "$SRC"/*.sh; do
 	SOURCES+=("$file")
 done
+
+# -----------------------------------------------------------------------------
+# Build manuals.
+
+if "$OPT_MANUALS"; then
+	source "${HERE}/mdroff.sh"
+	if ! [[ -d "$MAN" ]]; then
+		mkdir -p "$MAN"
+	fi
+	
+	printc_msg "%{YELLOW}Building manuals...%{CLEAR}\n"
+	for source in "${SOURCES[@]}"; do
+		name="$(basename "$source" .sh)"
+		doc="${MAN_SRC}/${name}.md"
+		docout="${MAN}/${name}.1"
+		if ! [[ -f "$doc" ]]; then
+			continue
+		fi
+		
+		printc_msg "    %{YELLOW}      %{MAGENTA}%s%{CLEAR}\n" "$(basename "$docout")"
+		(mdroff < "$doc" > "${MAN}/${name}.1")
+	done
+	printc_msg "\n"
+fi
 
 # -----------------------------------------------------------------------------
 # Build files.
