@@ -19,7 +19,7 @@ PROGRAM_VERSION="$({
 	TOP="$(dirname "$(dirname "${BASH_SOURCE[0]}")")"
 	printf "%s" "$(cat "${TOP}/version.txt" 2>/dev/null || echo "unknown")"
 	if [[ -e "${TOP}/.git" ]]; then
-		printf "%s-git (%s)" "" "$(git -C "${TOP}" rev-parse --short HEAD)"
+		printf "%s-git (%s)" "" "$("${EXECUTABLE_GIT}" -C "${TOP}" rev-parse --short HEAD)"
 	fi
 })"
 
