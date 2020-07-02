@@ -114,7 +114,7 @@ map_language_to_extension() {
 	md | mdown | markdown)      ext=".md" ;;
 	yaml | yml)                 ext=".yml" ;;
 	rust | rs)                  ext=".rs" ;;
-	graphql | gql)              exit=".graphql" ;;
+	graphql | gql)              ext=".graphql" ;;
 	esac
 
 	echo "$ext"
