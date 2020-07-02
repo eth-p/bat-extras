@@ -1,0 +1,1 @@
+Usage: batwatch [--watcher entr|poll][--[no-]clear] <file> [<file> ...]
