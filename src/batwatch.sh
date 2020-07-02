@@ -18,10 +18,25 @@ source "${LIB}/pager.sh"
 # -----------------------------------------------------------------------------
 # Init:
 # -----------------------------------------------------------------------------
+# Option parser hook: --help support.
+# This will accept -h or --help, which prints the usage information and exits.
+hook_help() {
+	SHIFTOPT_HOOKS+=("__shiftopt_hook__help")
+	__shiftopt_hook__help() {
+		if [[ "$OPT" = "--help" ]] || [[ "$OPT" = "-h" ]]; then
+      echo 'Usage: batwatch [--watcher entr|poll][--[no-]clear] <file> [<file> ...]'
+			exit 0
+		fi
+
+		return 1
+	}
+}
+
 hook_color
 hook_pager
 hook_version
 hook_width
+hook_help
 # -----------------------------------------------------------------------------
 # Watchers:
 # -----------------------------------------------------------------------------
@@ -60,19 +75,26 @@ determine_stat_variant() {
 		return 0
 	fi
 
-	# Try GNU stat.
-	if stat -c '%z' "$0" &>/dev/null; then
-		POLL_STAT_COMMAND=(stat -c '%z')
-		POLL_STAT_VARIANT='gnu'
-		return 0
-	fi
+  local varient name cmd ts
 
-	# Try BSD stat.
-	if stat -f '%m' "$0" &>/dev/null; then
-		POLL_STAT_COMMAND=(stat -f '%m')
-		POLL_STAT_VARIANT='bsd'
-		return 0
-	fi
+  for varient in "gnu -c %z" "bsd -f %m"; do
+    name="${varient%% *}" cmd="stat ${varient#* }"
+
+    # keep the results of the stash command
+    if read -r ts <               \
+      <( ${cmd} "$0" 2>/dev/null ); then
+
+      # verify that the value is an epoch timetamp
+      # before proceeding
+      if [[ "${ts}" =~ ^[0-9]+$ ]]; then
+
+        POLL_STAT_COMMAND=( ${cmd} )
+        POLL_STAT_VARIANT="$name"
+        return 0
+
+      fi
+    fi
+  done
 
 	return 1
 }
@@ -139,7 +161,7 @@ determine_watcher() {
 	local watcher
 	for watcher in "${WATCHERS[@]}"; do
 		if "watcher_${watcher}_supported"; then
-			echo "$watcher"
+			OPT_WATCHER="$watcher"
 			return 0
 		fi
 	done
@@ -153,6 +175,7 @@ determine_watcher() {
 BAT_ARGS=()
 FILES=()
 FILES_HAS_DIRECTORY=false
+OPT_HELP=false
 OPT_CLEAR=true
 OPT_WATCHER=""
 
@@ -169,6 +192,7 @@ while shiftopt; do
 	--watcher)        shiftval; OPT_WATCHER="$OPT_VAL" ;;
 	--clear)                    OPT_CLEAR=true ;;
 	--no-clear)                 OPT_CLEAR=false ;;
+  -h|--help)                  OPT_HELP=true ;;
 
 	# bat/Pager options
 	-*) BAT_ARGS+=("$OPT=$OPT_VAL") ;;
@@ -209,7 +233,7 @@ fi
 # -----------------------------------------------------------------------------
 # Determine the watcher.
 if [[ -z "$OPT_WATCHER" ]]; then
-	if ! OPT_WATCHER="$(determine_watcher)"; then
+	if ! determine_watcher; then
 		print_error "Your system does not have any supported watchers."
 		printc "Please read the documentation at %{BLUE}%s%{CLEAR} for more details.\n" "$PROGRAM_HOMEPAGE" 1>&2
 		exit 2
@@ -228,8 +252,8 @@ fi
 
 # Run the main function.
 main() {
-	"watcher_${OPT_WATCHER}_watch" "${FILES[@]}"
-	return $?
+ 	"watcher_${OPT_WATCHER}_watch" "${FILES[@]}"
+ 	return $?
 }
 
 pager_exec main
