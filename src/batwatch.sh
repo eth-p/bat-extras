@@ -78,17 +78,17 @@ determine_stat_variant() {
   local varient name cmd ts
 
   for varient in "gnu -c %Z" "bsd -f %m"; do
-    name="${varient%% *}" cmd="stat ${varient#* }"
+    read -r name flags <<< "$varient"
 
-    # keep the results of the stash command
+    # save the results of the stat command
     if read -r ts <               \
-      <( ${cmd} "$0" 2>/dev/null ); then
+      <( stat ${flags} "$0" 2>/dev/null ); then
 
       # verify that the value is an epoch timetamp
       # before proceeding
       if [[ "${ts}" =~ ^[0-9]+$ ]]; then
 
-        POLL_STAT_COMMAND=( ${cmd} )
+        POLL_STAT_COMMAND=( stat ${flags} )
         POLL_STAT_VARIANT="$name"
         return 0
 
