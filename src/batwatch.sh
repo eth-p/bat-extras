@@ -52,7 +52,7 @@ watcher_entr_watch() {
 		ENTR_ARGS+=('-c')
 	fi
 
-	entr "${ENTR_ARGS[@]}" \
+	pager_exec entr "${ENTR_ARGS[@]}" \
 		"$EXECUTABLE_BAT" "${BAT_ARGS[@]}" \
 		--terminal-width="$OPT_TERMINAL_WIDTH" \
 		--paging=never \
@@ -77,7 +77,7 @@ determine_stat_variant() {
 
   local varient name cmd ts
 
-  for varient in "gnu -c %z" "bsd -f %m"; do
+  for varient in "gnu -c %Z" "bsd -f %m"; do
     name="${varient%% *}" cmd="stat ${varient#* }"
 
     # keep the results of the stash command
@@ -123,10 +123,11 @@ watcher_poll_watch() {
 				clear
 			fi
 
-			"$EXECUTABLE_BAT" "${BAT_ARGS[@]}" \
+			pager_exec "$EXECUTABLE_BAT" "${BAT_ARGS[@]}" \
 				--terminal-width="$OPT_TERMINAL_WIDTH" \
 				--paging=never \
 				"${files[@]}"
+
 		fi
 
 		local i=0
@@ -141,7 +142,13 @@ watcher_poll_watch() {
 			((i++))
 		done
 
-		sleep 1
+    read -r -t 1 input
+
+    if [[ "$input" =~ [q|Q] ]]; then
+      exit
+    fi
+
+    input=
 	done
 
 	"${POLL_STAT_COMMAND[@]}" "$@"
@@ -256,5 +263,5 @@ main() {
  	return $?
 }
 
-pager_exec main
+main
 exit $?
