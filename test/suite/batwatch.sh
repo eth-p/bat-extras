@@ -22,11 +22,10 @@ test:help() {
   batwatch --help | grep -q 'Usage'
 }
 
-test:watcher() {
-	description "Test 'batwatch <file>'"
-  fail "No longer fails silently due to incorrect flag to stat."
+test:displayed() {
+	description "Test 'batwatch <file>': <file> should be displayed'"
+  snapshot stdout
 
-  # Refactored to get here, but when it passes it will loop forever.
-
-  assert batwatch $0
+  batwatch --no-clear --watcher poll file.sh <<< "q"
+  batwatch --watcher poll file.sh <<< "q" | grep -q "Hello"
 }
