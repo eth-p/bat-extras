@@ -142,7 +142,7 @@ dsl_parse_line() {
 
 				# Escape the parsed value.
 				sub(/"/, "\\\"", buffer)
-				sub(/\$/, "\\\$", buffer)
+				sub(/\$/, "\\$", buffer)
 
 				# Print the parsed value.
 				print sprintf("line_fields[%s]=\"%s\"", n, buffer)

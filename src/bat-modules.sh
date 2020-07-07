@@ -35,10 +35,11 @@ ACTION="help"
 while shiftopt; do
 	case "$OPT" in
 
-		--help)   ACTION="help" ;;
-		--update) ACTION="update" ;;
-		--clear)  ACTION="clear" ;;
-		--setup)  ACTION="setup" ;;
+		--help)         ACTION="help" ;;
+		--update)       ACTION="update" ;;
+		--clear)        ACTION="clear" ;;
+		--setup)        ACTION="setup" ;;
+		--modules-file) ACTION="show_file" ;;
 
 		# ???
 		-*) {
@@ -161,6 +162,10 @@ parse_source_name() {
 # Actions:
 # -----------------------------------------------------------------------------
 
+action:show_file() {
+	printf "%s\n" "$MODULES_FILE"
+}
+
 action:setup() {
 	if ! [[ -f "$MODULES_FILE" ]]; then
 cat > "$MODULES_FILE" <<-EOF
@@ -180,8 +185,10 @@ EOF
 action:help() {
 	{
 		printc "%{YELLOW}%s help:%{CLEAR}\n" "$PROGRAM"
-		printc "  --clear   -- Clear the cached themes and syntaxes.\n"
-		printc "  --update  -- Update themes and syntaxes.\n"
+		printc "  --clear         -- Clear the cached themes and syntaxes.\n"
+		printc "  --update        -- Update themes and syntaxes.\n"
+		printc "  --setup         -- Edit the bat-modules modules.txt file.\n"
+		printc "  --modules-file  -- Show the bat-modules modules.txt file.\n"
 	} 1>&2
 }
 
