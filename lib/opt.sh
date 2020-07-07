@@ -69,6 +69,12 @@ shiftval() {
 	if [[ -n "${OPT_VAL+x}" ]]; then
 		return 0
 	fi
+	
+	# If it's a short flag followed by a number, use the number.
+	if [[ "$OPT" =~ ^-[[:alpha:]][[:digit:]]{1,}$ ]]; then
+		OPT_VAL="${OPT:2}"
+		return
+	fi
 
 	OPT_VAL="${_ARGV[$_ARGV_INDEX]}"
 	((_ARGV_INDEX++))

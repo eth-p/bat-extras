@@ -5,9 +5,12 @@ setup() {
 		pos2 \
 		--flag1 \
 		-v3=for_val3 \
-		-v4 for_val4 \
+		-v4 \
+		-v55 \
+		-vn for_val4 \
 		--flag2
 
+	source "${LIB}/print.sh"
 	source "${LIB}/opt.sh"
 }
 
@@ -60,11 +63,40 @@ test:long_value_explicit() {
 	fail 'Failed to find option.'
 }
 
+test:short_value_implicit_number() {
+	description "Parse short options in '-k0' syntax."
+
+	while shiftopt; do
+		if [[ "$OPT" = "-v4" ]]; then
+			shiftval
+			assert_opt_value '4'
+			return
+		fi
+	done
+
+	fail 'Failed to find option.'
+}
+
+
+test:short_value_implicit_number2() {
+	description "Parse short options in '-k0' syntax."
+
+	while shiftopt; do
+		if [[ "$OPT" = "-v55" ]]; then
+			shiftval
+			assert_opt_value '55'
+			return
+		fi
+	done
+
+	fail 'Failed to find option.'
+}
+
 test:short_value_implicit() {
 	description "Parse short options in '-k value' syntax."
 
 	while shiftopt; do
-		if [[ "$OPT" = "-v4" ]]; then
+		if [[ "$OPT" = "-vn" ]]; then
 			shiftval
 			assert_opt_value 'for_val4'
 			return
