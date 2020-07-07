@@ -24,7 +24,7 @@ hook_help() {
 	SHIFTOPT_HOOKS+=("__shiftopt_hook__help")
 	__shiftopt_hook__help() {
 		if [[ "$OPT" = "--help" ]] || [[ "$OPT" = "-h" ]]; then
-      echo 'Usage: batwatch [--watcher entr|poll][--[no-]clear] <file> [<file> ...]'
+			echo 'Usage: batwatch [--watcher entr|poll][--[no-]clear] <file> [<file> ...]'
 			exit 0
 		fi
 
@@ -75,26 +75,22 @@ determine_stat_variant() {
 		return 0
 	fi
 
-  local varient name cmd ts
+	local variant name flags ts
+	for variant in "gnu -c %Z" "bsd -f %m"; do
+    	read -r name flags <<< "$variant"
 
-  for varient in "gnu -c %Z" "bsd -f %m"; do
-    read -r name flags <<< "$varient"
-
-    # save the results of the stat command
-    if read -r ts <               \
-      <( stat ${flags} "$0" 2>/dev/null ); then
-
-      # verify that the value is an epoch timetamp
-      # before proceeding
-      if [[ "${ts}" =~ ^[0-9]+$ ]]; then
-
-        POLL_STAT_COMMAND=( stat ${flags} )
-        POLL_STAT_VARIANT="$name"
-        return 0
-
-      fi
-    fi
-  done
+		# save the results of the stat command
+		if read -r ts < <(stat ${flags} "$0" 2>/dev/null); then
+	
+			# verify that the value is an epoch timestamp
+			# before proceeding
+			if [[ "${ts}" =~ ^[0-9]+$ ]]; then
+				POLL_STAT_COMMAND=(stat ${flags})
+				POLL_STAT_VARIANT="$name"
+				return 0
+			fi
+		fi
+	done
 
 	return 1
 }
@@ -130,6 +126,7 @@ watcher_poll_watch() {
 
 		fi
 
+		# Check if the file has been modified.
 		local i=0
 		for file in "${files[@]}"; do
 			time="$("${POLL_STAT_COMMAND[@]}" "$file")"
@@ -142,13 +139,12 @@ watcher_poll_watch() {
 			((i++))
 		done
 
-    read -r -t 1 input
-
-    if [[ "$input" =~ [q|Q] ]]; then
-      exit
-    fi
-
-    input=
+		# Wait for "q" to exit, or check again after 1 second.
+		local input
+		read -r -t 1 input
+		if [[ "$input" =~ [q|Q] ]]; then
+			exit
+		fi
 	done
 
 	"${POLL_STAT_COMMAND[@]}" "$@"
@@ -199,7 +195,6 @@ while shiftopt; do
 	--watcher)        shiftval; OPT_WATCHER="$OPT_VAL" ;;
 	--clear)                    OPT_CLEAR=true ;;
 	--no-clear)                 OPT_CLEAR=false ;;
-  -h|--help)                  OPT_HELP=true ;;
 
 	# bat/Pager options
 	-*) BAT_ARGS+=("$OPT=$OPT_VAL") ;;
