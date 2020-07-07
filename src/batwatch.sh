@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # -----------------------------------------------------------------------------
-# bat-extras | Copyright (C) 2019 eth-p | MIT License
+# bat-extras | Copyright (C) 2019-2020 eth-p | MIT License
 #
 # Repository: https://github.com/eth-p/bat-extras
 # Issues:     https://github.com/eth-p/bat-extras/issues
@@ -10,6 +10,7 @@ LIB="$(cd "$(dirname "${BASH_SOURCE[0]}")" && cd "$(dirname "$(readlink "${BASH_
 source "${LIB}/constants.sh"
 source "${LIB}/opt.sh"
 source "${LIB}/opt_hook_color.sh"
+source "${LIB}/opt_hook_help.sh"
 source "${LIB}/opt_hook_pager.sh"
 source "${LIB}/opt_hook_version.sh"
 source "${LIB}/opt_hook_width.sh"
@@ -18,25 +19,17 @@ source "${LIB}/pager.sh"
 # -----------------------------------------------------------------------------
 # Init:
 # -----------------------------------------------------------------------------
-# Option parser hook: --help support.
-# This will accept -h or --help, which prints the usage information and exits.
-hook_help() {
-	SHIFTOPT_HOOKS+=("__shiftopt_hook__help")
-	__shiftopt_hook__help() {
-		if [[ "$OPT" = "--help" ]] || [[ "$OPT" = "-h" ]]; then
-			echo 'Usage: batwatch [--watcher entr|poll][--[no-]clear] <file> [<file> ...]'
-			exit 0
-		fi
-
-		return 1
-	}
-}
-
 hook_color
 hook_pager
 hook_version
 hook_width
 hook_help
+# -----------------------------------------------------------------------------
+# Help:
+# -----------------------------------------------------------------------------
+show_help() {
+	echo 'Usage: batwatch [--watcher entr|poll][--[no-]clear] <file> [<file> ...]'
+}
 # -----------------------------------------------------------------------------
 # Watchers:
 # -----------------------------------------------------------------------------
@@ -48,7 +41,7 @@ WATCHERS=("entr" "poll")
 watcher_entr_watch() {
 	ENTR_ARGS=()
 
-	if [[ "$OPT_CLEAR" = "true" ]]; then
+	if [[ "$OPT_CLEAR" == "true" ]]; then
 		ENTR_ARGS+=('-c')
 	fi
 
@@ -61,7 +54,7 @@ watcher_entr_watch() {
 }
 
 watcher_entr_supported() {
-	command -v entr &>/dev/null
+	command -v entr &> /dev/null
 	return $?
 }
 
@@ -77,11 +70,11 @@ determine_stat_variant() {
 
 	local variant name flags ts
 	for variant in "gnu -c %Z" "bsd -f %m"; do
-    	read -r name flags <<< "$variant"
+		read    -r name flags <<< "$variant"
 
 		# save the results of the stat command
-		if read -r ts < <(stat ${flags} "$0" 2>/dev/null); then
-	
+		if read -r ts < <(stat ${flags} "$0" 2> /dev/null); then
+
 			# verify that the value is an epoch timestamp
 			# before proceeding
 			if [[ "${ts}" =~ ^[0-9]+$ ]]; then
@@ -115,7 +108,7 @@ watcher_poll_watch() {
 		if "$modified"; then
 			modified=false
 
-			if [[ "$OPT_CLEAR" = "true" ]]; then
+			if [[ "$OPT_CLEAR" == "true" ]]; then
 				clear
 			fi
 
@@ -191,18 +184,21 @@ fi
 while shiftopt; do
 	case "$OPT" in
 
-	# Script options
-	--watcher)        shiftval; OPT_WATCHER="$OPT_VAL" ;;
-	--clear)                    OPT_CLEAR=true ;;
-	--no-clear)                 OPT_CLEAR=false ;;
+		# Script options
+		--watcher)
+			shiftval
+			OPT_WATCHER="$OPT_VAL"
+			;;
+		--clear)                   OPT_CLEAR=true ;;
+		--no-clear)                OPT_CLEAR=false ;;
 
-	# bat/Pager options
-	-*) BAT_ARGS+=("$OPT=$OPT_VAL") ;;
+		# bat/Pager options
+		-*) BAT_ARGS+=("$OPT=$OPT_VAL") ;;
 
-	# Files
-	*) {
-		FILES+=("$OPT")
-	} ;;
+		# Files
+		*) {
+			FILES+=("$OPT")
+		} ;;
 
 	esac
 done
@@ -241,12 +237,12 @@ if [[ -z "$OPT_WATCHER" ]]; then
 		exit 2
 	fi
 else
-	if ! type "watcher_${OPT_WATCHER}_supported" &>/dev/null; then
+	if ! type "watcher_${OPT_WATCHER}_supported" &> /dev/null; then
 		print_error "Unknown watcher: '%s'" "$OPT_WATCHER"
 		exit 1
 	fi
 
-	if ! "watcher_${OPT_WATCHER}_supported" &>/dev/null; then
+	if ! "watcher_${OPT_WATCHER}_supported" &> /dev/null; then
 		print_error "Unsupported watcher: '%s'" "$OPT_WATCHER"
 		exit 1
 	fi
@@ -254,8 +250,8 @@ fi
 
 # Run the main function.
 main() {
- 	"watcher_${OPT_WATCHER}_watch" "${FILES[@]}"
- 	return $?
+	"watcher_${OPT_WATCHER}_watch"  "${FILES[@]}"
+	return  $?
 }
 
 main
