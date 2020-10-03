@@ -42,9 +42,8 @@ See `man bat` for more information.
 
 ## Caveats
 
-- The header displayed by bat will show `STDIN` instead of the filename.
+- The header displayed by bat will show `STDIN` instead of the filename (`bat 0.13` or older).
 - The git changes sidebar will not work with files that have been formatted.
-
 
 
 ## Installation
