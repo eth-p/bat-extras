@@ -216,7 +216,7 @@ main() {
 	}
 
 	# shellcheck disable=SC2034
-	while IFS=':' read -r file line column; do
+	while IFS=':' read -r file line column text; do
 		((FOUND++))
 
 		if [[ "$LAST_FILE" != "$file" ]]; then
@@ -233,7 +233,7 @@ main() {
 
 		LAST_LR+=("--line-range=${line_start}:${line_end}")
 		[[ "$OPT_HIGHLIGHT" = "true" ]] && LAST_LH+=("--highlight-line=${line}")
-	done < <(rg --with-filename --vimgrep "${RG_ARGS[@]}" --sort path "$PATTERN" "${FILES[@]}")
+	done < <(rg --with-filename --vimgrep "${RG_ARGS[@]}" --context=0 --no-context-separator --sort path "$PATTERN" "${FILES[@]}")
 	do_print
 
 	# Exit.
