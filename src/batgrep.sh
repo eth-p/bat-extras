@@ -45,6 +45,46 @@ if version_compare "$(bat_version)" -gt "0.12"; then
 	OPT_SNIP=",snip"
 fi
 
+# Parse RIPGREP_CONFIG_PATH.
+if [[ -n "$RIPGREP_CONFIG_PATH" && -e "$RIPGREP_CONFIG_PATH" ]]; then
+	# shellcheck disable=SC2013
+	for arg in $(cat "$RIPGREP_CONFIG_PATH"); do
+		case "$arg" in
+			--context=*)
+				val="${arg:10}"
+				OPT_CONTEXT_BEFORE="$val"
+				OPT_CONTEXT_AFTER="$val"
+				;;
+
+			--before-context=*)
+				val="${arg:17}"
+				OPT_CONTEXT_BEFORE="$val"
+				;;
+
+			--after-context=*)
+				val="${arg:16}"
+				OPT_CONTEXT_AFTER="$val"
+				;;
+
+			-C*)
+				val="${arg:2}"
+				OPT_CONTEXT_BEFORE="$val"
+				OPT_CONTEXT_AFTER="$val"
+				;;
+
+			-B*)
+				val="${arg:2}"
+				OPT_CONTEXT_BEFORE="$val"
+				;;
+
+			-A*)
+				val="${arg:2}"
+				OPT_CONTEXT_AFTER="$val"
+				;;
+		esac
+	done
+fi
+
 # Parse arguments.
 while shiftopt; do
 	case "$OPT" in
