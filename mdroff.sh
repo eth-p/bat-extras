@@ -61,6 +61,10 @@ mdroff:emit:attr() {
 	if "$MDROFF_ATTR_EMPHASIS"; then
 		printf '\\fI'
 	fi
+	
+	if "$MDROFF_ATTR_CODE"; then
+		printf '\\fI'
+	fi
 }
 
 mdroff:emit:link() {
@@ -124,6 +128,7 @@ mdroff:emit() {
 mdroff:parseln() {
 	MDROFF_ATTR_STRONG=false
 	MDROFF_ATTR_EMPHASIS=false
+	MDROFF_ATTR_CODE=false
 	
 	local buffer="$1"
 	local before
@@ -131,7 +136,7 @@ mdroff:parseln() {
 	local pos
 	
 	while [[ "${#buffer}" -gt 0 ]]; do
-		[[ "$buffer" =~ \*{1,3}|\[([^\]]+)\]\(([^\)]+)\) ]] || {
+		[[ "$buffer" =~ \*{1,3}|\`|\[([^\]]+)\]\(([^\)]+)\) ]] || {
 			printf "%s\n" "$buffer"
 			return
 		}
@@ -173,6 +178,16 @@ mdroff:parseln() {
 				mdroff:emit attr
 				;;
 
+			'`')
+				if "$MDROFF_ATTR_CODE"; then
+					MDROFF_ATTR_CODE=false
+				else
+					MDROFF_ATTR_CODE=true
+				fi
+				mdroff:emit attr
+				;;
+				
+
 			'['*)
 				mdroff:emit link "${BASH_REMATCH[1]}" "${BASH_REMATCH[2]}"
 		esac
@@ -184,6 +199,7 @@ mdroff() {
 	MDROFF_HEADING=''
 	MDROFF_ATTR_STRONG=false
 	MDROFF_ATTR_EMPHASIS=false
+	MDROFF_ATTR_CODE=false
 	MDROFF_IN_TABLE=false
 	MDROFF_PARAGRAPH=false
 	MDROFF_TABLE_HEADER=()
