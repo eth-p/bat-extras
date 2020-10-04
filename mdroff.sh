@@ -125,6 +125,10 @@ mdroff:emit() {
 	"mdroff:emit:${type}" "$data" "${@:3}"
 }
 
+mdroff:trim() {
+	sed 's/^[[:space:]]*//; s/[[:space:]]*$//' <<< "$1"
+}
+
 mdroff:parseln() {
 	MDROFF_ATTR_STRONG=false
 	MDROFF_ATTR_EMPHASIS=false
@@ -137,7 +141,7 @@ mdroff:parseln() {
 	
 	while [[ "${#buffer}" -gt 0 ]]; do
 		[[ "$buffer" =~ \*{1,3}|\`|\[([^\]]+)\]\(([^\)]+)\) ]] || {
-			printf "%s\n" "$buffer"
+			printf "%s\n" "$(mdroff:trim "$buffer")"
 			return
 		}
 		
@@ -250,7 +254,7 @@ mdroff() {
 			# shellcheck disable=SC2206
 			IFS='|' raw_cells=($line)
 			for table_cell in "${raw_cells[@]}"; do
-				cells+=("$(sed 's/^[[:space:]]*//; s/[[:space:]]*$//' <<< "$table_cell")")
+				cells+=("$(mdroff:trim "$table_cell")")
 			done
 			
 			if [[ "${cells[0]}" =~ ^[[:space:]]*-+[[:space:]]*$ ]]; then
