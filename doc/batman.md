@@ -8,7 +8,7 @@ Gone are the days of losing your place while reading through monotone manual pag
 
 ## Usage
 
-`batman [SECTION] [ENTRY]`
+    batman [SECTION] [ENTRY]
 
 
 

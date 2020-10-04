@@ -8,7 +8,7 @@ The only thing better than syntax highlighting? Syntax highlighting *and* code f
 
 ## Usage
 
-`prettybat [OPTIONS] [PATH...]`
+    prettybat [OPTIONS] [PATH...]
 
 
 

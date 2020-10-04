@@ -9,8 +9,8 @@ This script supports using [delta](https://github.com/dandavison/delta) as an al
 
 ## Usage
 
-`batdiff [OPTIONS] FILE`
-`batdiff [OPTIONS] FILE OTHER_FILE`
+    batdiff [OPTIONS] FILE
+    batdiff [OPTIONS] FILE OTHER_FILE
 
 
 

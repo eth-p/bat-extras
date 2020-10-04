@@ -8,7 +8,7 @@ Search through files or directories looking for matching regular expressions (or
 
 ## Usage
 
-`batgrep [OPTIONS] PATTERN [PATH...]`
+    batgrep [OPTIONS] PATTERN [PATH...]
 
 
 

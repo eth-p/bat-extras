@@ -8,7 +8,7 @@ Please note this watches filesystem files, and not command output like `watch(1)
 
 ## Usage
 
-`batwatch [OPTIONS] FILE...`
+    batwatch [OPTIONS] FILE...
 
 
 
