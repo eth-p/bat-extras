@@ -81,5 +81,6 @@ printc_init "[DEFINE]" <<END
 	MAGENTA	\x1B[35m
 	CYAN	\x1B[36m
 
+	DEFAULT \x1B[39m
 	DIM		\x1B[2m
 END
