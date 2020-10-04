@@ -5,12 +5,16 @@
 # Repository: https://github.com/eth-p/bat-extras
 # Issues:     https://github.com/eth-p/bat-extras/issues
 # -----------------------------------------------------------------------------
+# shellcheck disable=SC2021
+# shellcheck disable=SC2155
 
 printf_msg() {
+	# shellcheck disable=SC2059
 	printf "$@" 1>&2
 }
 
 printf_err() {
+	# shellcheck disable=SC2059
 	printf "$@" 1>&2
 }
 
@@ -63,25 +67,42 @@ mdroff:emit:link() {
 	printf "%s" "$1"
 }
 
-mdroff:emit:table_heading() {
-	printf '.P\n\\fB'
-	printf '%s ' "$@"
-	printf '\\fR\n'
+
+# shellcheck disable=SC2034
+mdroff:emit:table_start() {
+	printf ".TS\n"
+	printf "tab(|) box;\n"
 	
-	# Emit separator.
-	printf '.br\n'
-	local cell
-	for cell in "$@"; do
-		printf "%$(wc -c <<< "$cell")s" '' | tr ' ' '-'
-		printf " "
-	done
-	printf "\n"
+	# Print Header Alignment
+	local temp
+	for temp in "$@"; do printf "| cB "; done
+	printf "|\n"
+	
+	# Print Separator
+	for temp in "$@"; do printf "| _ "; done
+	printf "|\n"
+	
+	# Print Column Alignment
+	local cols=("$@")
+	printf "| "
+	printf "%s0 |1 " "${cols:0:$((${#@}-1))}"
+	printf "%s " "${cols[$((${#@}-1))]}"
+	printf "|.\n"
+}
+
+mdroff:emit:table_end() {
+	printf ".TE\n\n"
+}
+
+mdroff:emit:table_heading() {
+	local heading="$(printf "| %s " "$@")"
+	printf "%s\n" "${heading:1}"
+	printf ".SP\n"
 }
 
 mdroff:emit:table_row() {
-	printf '.br\n'
-	printf '%s ' "$@"
-	printf '\n'
+	local row="$(printf "| %s " "$@")"
+	printf "%s\n" "${row:1}"
 }
 
 mdroff:emit() {
@@ -165,6 +186,7 @@ mdroff() {
 	MDROFF_ATTR_EMPHASIS=false
 	MDROFF_IN_TABLE=false
 	MDROFF_PARAGRAPH=false
+	MDROFF_TABLE_HEADER=()
 	
 	local line
 	local empty=0
@@ -175,7 +197,12 @@ mdroff() {
 		# Empty
 		if [[ "$line" =~ ^[[:space:]]*$ ]]; then
 			((empty_continue++)) || true
+			if "$MDROFF_IN_TABLE"; then
+				mdroff:emit table_end	
+			fi
+			
 			MDROFF_PARAGRAPH=true
+			MDROFF_TABLE_HEADER=()
 			MDROFF_IN_TABLE=false
 			continue
 		fi
@@ -198,20 +225,55 @@ mdroff() {
 		
 		# Tables (Partially Supported)
 		if [[ "$line" =~ ^[[:space:]]*\| ]]; then
+			local raw_cells=()
 			local cells=()
+			local table_cell
+			
 			line="$(sed 's/^[[:space:]]*|//; s/|[[:space:]]*$//' <<< "$line")"
 			
 			# shellcheck disable=SC2206
-			IFS='|' cells=($line)
+			IFS='|' raw_cells=($line)
+			for table_cell in "${raw_cells[@]}"; do
+				cells+=("$(sed 's/^[[:space:]]*//; s/[[:space:]]*$//' <<< "$table_cell")")
+			done
 			
 			if [[ "${cells[0]}" =~ ^[[:space:]]*-+[[:space:]]*$ ]]; then
+				# Calculate the column alignments.
+				local table_alignments=()
+				local table_cell
+				
+				for table_cell in "${cells[@]}"; do
+					case "$table_cell" in
+						:-*:)
+							table_alignments+=('c')
+							;;
+						:-*)
+							table_alignments+=('l')
+							;;
+						*-:)
+							table_alignments+=('r')
+							;;
+						*)
+							table_alignments+=('l') # Unknown, but let's assume left.
+					esac
+				done
+				
+				# Emit the table start and table header.
+				mdroff:emit table_start "${table_alignments[@]}"
+				mdroff:emit table_heading "${MDROFF_TABLE_HEADER[@]}"
+				MDROFF_TABLE_HEADER=()
 				continue
 			fi
 			
 			if ! "$MDROFF_IN_TABLE"; then
 				MDROFF_IN_TABLE=true
-				mdroff:emit table_heading "${cells[@]}"
+				MDROFF_TABLE_HEADER=("${cells[@]}")
 			else
+				if [[ "${#MDROFF_TABLE_HEADER[@]}" -ne 0 ]]; then
+					mdroff:emit table_heading "${MDROFF_TABLE_HEADER[@]}"
+					MDROFF_TABLE_HEADER=()	
+				fi
+				
 				mdroff:emit table_row "${cells[@]}"
 			fi
 		
