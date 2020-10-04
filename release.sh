@@ -19,8 +19,10 @@ source "${LIB}/opt.sh"
 # Options.
 OPT_ARTIFACT="bat-extras-${DATE}.zip"
 OPT_SINCE=
+OPT_BAD_IDEA=false
 OPT_BIN_DIR="$HERE/bin"
 OPT_DOC_DIR="$HERE/doc"
+OPT_MAN_DIR="$HERE/man"
 
 while shiftopt; do
 	case "$OPT" in
@@ -33,6 +35,10 @@ while shiftopt; do
 			fi
 			;;
 
+		--badidea)
+			OPT_BAD_IDEA=true
+			;;
+
 		*)
 			printc "%{RED}%s: unknown option '%s'%{CLEAR}" "$PROGRAM" "$OPT"
 			exit 1
@@ -42,7 +48,7 @@ done
 
 # -----------------------------------------------------------------------------
 # Verify the version matches today's date.
-if [[ "$VERSION" != "$VERSION_EXPECTED" ]]; then
+if [[ "$VERSION" != "$VERSION_EXPECTED" ]] && ! "$OPT_BAD_IDEA"; then
 	printc "%{RED}The expected version does not match %{DEFAULT}version.txt%{RED}!%{CLEAR}\n"
 	printc "%{RED}Expected: %{YELLOW}%s%{CLEAR}\n" "$VERSION_EXPECTED"
 	printc "%{RED}Actual:   %{YELLOW}%s%{CLEAR}\n" "$VERSION"
@@ -52,11 +58,10 @@ fi
 # -----------------------------------------------------------------------------
 # Build files.
 
-# Clean the old bin files.
-# Make sure it's not trying to delete /bin first, though.
-if [[ "$OPT_BIN_DIR" != "/bin" ]]; then
-	rm -rf "$OPT_BIN_DIR"
-fi
+# Clean the old files.
+# Make sure it's not trying to delete /bin or /man first, though.
+if [[ "$OPT_BIN_DIR" != "/bin" ]]; then rm -rf "$OPT_BIN_DIR"; fi
+if [[ "$OPT_MAN_DIR" != "/man" ]]; then rm -rf "$OPT_MAN_DIR"; fi
 
 # Generate the new bin files.
 printc "%{YELLOW}Building scripts...%{CLEAR}\n"
@@ -76,6 +81,10 @@ printc "%{YELLOW}Packaging artifacts...%{CLEAR}\n"
 	zip -r "$OPT_ARTIFACT" "$(basename "$OPT_BIN_DIR")"
 	cd "$(dirname "$OPT_DOC_DIR")"
 	zip -ru "$OPT_ARTIFACT" "$(basename "$OPT_DOC_DIR")"
+	if [[ -d "$OPT_MAN_DIR" ]]; then
+		cd "$(dirname "$OPT_MAN_DIR")"
+		zip -ru "$OPT_ARTIFACT" "$(basename "$OPT_MAN_DIR")"
+	fi
 )
 
 printc "%{YELLOW}Package created as %{BLUE}%s%{YELLOW}.%{CLEAR}\n" "$OPT_ARTIFACT"
@@ -130,7 +139,7 @@ if [[ -n "$OPT_SINCE" ]]; then
 
 			# Make module names consistent.
 			case "$affected_module" in
-				dev | lib) affected_module="developer" ;;
+				dev | lib | mdroff) affected_module="developer" ;;
 				tests) affected_module="test" ;;
 				doc) affected_module="docs" ;;
 			esac
