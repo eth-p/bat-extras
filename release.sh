@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # -----------------------------------------------------------------------------
-# bat-extras | Copyright (C) 2019 eth-p | MIT License
+# bat-extras | Copyright (C) 2019-2020 eth-p | MIT License
 #
 # Repository: https://github.com/eth-p/bat-extras
 # Issues:     https://github.com/eth-p/bat-extras/issues
@@ -43,7 +43,7 @@ done
 # -----------------------------------------------------------------------------
 # Verify the version matches today's date.
 if [[ "$VERSION" != "$VERSION_EXPECTED" ]]; then
-	printc "%{RED}The expected version does not match %{WHITE}version.txt%{RED}!%{CLEAR}\n"
+	printc "%{RED}The expected version does not match %{DEFAULT}version.txt%{RED}!%{CLEAR}\n"
 	printc "%{RED}Expected: %{YELLOW}%s%{CLEAR}\n" "$VERSION_EXPECTED"
 	printc "%{RED}Actual:   %{YELLOW}%s%{CLEAR}\n" "$VERSION"
 	exit 1
@@ -60,7 +60,7 @@ fi
 
 # Generate the new bin files.
 printc "%{YELLOW}Building scripts...%{CLEAR}\n"
-"$HERE/build.sh" --minify=all &>/dev/null || {
+"$HERE/build.sh" --minify=all --alternate-executable='bat' &>/dev/null || {
 	printc "%{RED}FAILED TO BUILD SCRIPTS.%{CLEAR}\n"
 	printc "%{RED}CAN NOT PROCEED WITH RELEASE.%{CLEAR}\n"
 	exit 1
