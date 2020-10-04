@@ -366,6 +366,7 @@ OPT_COMPRESS=false
 OPT_VERIFY=true
 OPT_BANNER=true
 OPT_MANUALS=false
+OPT_INLINE=true
 OPT_MINIFY="lib"
 OPT_PREFIX="/usr/local"
 OPT_BAT="$(basename "$EXECUTABLE_BAT")"
@@ -381,6 +382,7 @@ while shiftopt; do
 	--manuals)                        OPT_MANUALS=true ;;
 	--no-verify)                      OPT_VERIFY=false ;;
 	--no-banner)                      OPT_BANNER=false ;;
+	--no-inline)                      OPT_INLINE=false ;;
 	--prefix)               shiftval; OPT_PREFIX="$OPT_VAL" ;;
 	--alternate-executable) shiftval; OPT_BAT="$OPT_VAL" ;;
 	--minify)		        shiftval; OPT_MINIFY="$OPT_VAL" ;;
@@ -409,6 +411,13 @@ if [[ "$OPT_INSTALL" = true ]]; then
 else
 	printc_msg "%{YELLOW}This will not install the script.%{CLEAR}\n"
 	printc_msg "%{YELLOW}Use %{BLUE}--install%{YELLOW} for a global install.%{CLEAR}\n\n"
+fi
+
+if [[ "$OPT_INLINE" = false ]]; then
+	# Prevent full executable paths from being inlined.
+	while read -r exec; do
+		declare "$exec=$(basename "${!exec}")"
+	done < <(set | grep '^EXECUTABLE' | cut -d'=' -f1)
 fi
 
 # -----------------------------------------------------------------------------
