@@ -7,7 +7,7 @@
 # -----------------------------------------------------------------------------
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 DATE="$(date +%Y%m%d)"
-VERSION="$(<"${HERE}/version.txt")"
+VERSION="$(< "${HERE}/version.txt")"
 VERSION_EXPECTED="$(date +%Y.%m.%d)"
 LIB="$HERE/lib"
 SRC="$HERE/src"
@@ -24,19 +24,19 @@ OPT_DOC_DIR="$HERE/doc"
 
 while shiftopt; do
 	case "$OPT" in
-	--since)
-		shiftval
-		OPT_SINCE="$OPT_VAL"
-		if ! git rev-parse "$OPT_SINCE" &>/dev/null; then
-			printc "%{RED}%s: unknown commit or tag for '%s'\n" "$PROGRAM" "$OPT"
-			exit 1
-		fi
-		;;
+		--since)
+			shiftval
+			OPT_SINCE="$OPT_VAL"
+			if ! git rev-parse "$OPT_SINCE" &> /dev/null; then
+				printc "%{RED}%s: unknown commit or tag for '%s'\n" "$PROGRAM" "$OPT"
+				exit 1
+			fi
+			;;
 
-	*)
-		printc "%{RED}%s: unknown option '%s'%{CLEAR}" "$PROGRAM" "$OPT"
-		exit 1
-		;;
+		*)
+			printc "%{RED}%s: unknown option '%s'%{CLEAR}" "$PROGRAM" "$OPT"
+			exit 1
+			;;
 	esac
 done
 
@@ -60,7 +60,7 @@ fi
 
 # Generate the new bin files.
 printc "%{YELLOW}Building scripts...%{CLEAR}\n"
-"$HERE/build.sh" --minify=all --alternate-executable='bat' &>/dev/null || {
+"$HERE/build.sh" --minify=all --alternate-executable='bat' --no-inline &>/dev/null || {
 	printc "%{RED}FAILED TO BUILD SCRIPTS.%{CLEAR}\n"
 	printc "%{RED}CAN NOT PROCEED WITH RELEASE.%{CLEAR}\n"
 	exit 1
@@ -70,9 +70,13 @@ printc "%{YELLOW}Building scripts...%{CLEAR}\n"
 # Build package.
 
 printc "%{YELLOW}Packaging artifacts...%{CLEAR}\n"
-zip -r "$OPT_ARTIFACT" \
-	"$OPT_BIN_DIR" \
-	"$OPT_DOC_DIR"
+(
+	rm "$OPT_ARTIFACT"
+	cd "$(dirname "$OPT_BIN_DIR")"
+	zip -r "$OPT_ARTIFACT" "$(basename "$OPT_BIN_DIR")"
+	cd "$(dirname "$OPT_DOC_DIR")"
+	zip -ru "$OPT_ARTIFACT" "$(basename "$OPT_DOC_DIR")"
+)
 
 printc "%{YELLOW}Package created as %{BLUE}%s%{YELLOW}.%{CLEAR}\n" "$OPT_ARTIFACT"
 
@@ -89,14 +93,13 @@ COMMIT_URL="https://github.com/eth-p/bat-extras/tree/${COMMIT}"
 DATE_DAY="$(date +%e | sed 's/ //')"
 DATE_SUFFIX=""
 case "$DATE_DAY" in
-	11|12|13) DATE_SUFFIX="th" ;;
+	11 | 12 | 13) DATE_SUFFIX="th" ;;
 	*1) DATE_SUFFIX="st" ;;
 	*2) DATE_SUFFIX="nd" ;;
 	*3) DATE_SUFFIX="rd" ;;
 	*)  DATE_SUFFIX="th" ;;
 esac
 DATE_STR="$(date +'%B') ${DATE_DAY}${DATE_SUFFIX}, $(date +'%Y')"
-
 
 # Get the script names.
 script_links=()
@@ -108,9 +111,8 @@ for script in "$SRC"/*.sh; do
 done
 
 script_pattern="$(printf 's/\\(%s\\)/`\\1`/;' "${script_names[@]}")"
-SCRIPTS="$(printf "%s, " "${script_links[@]:0:$((${#script_links[@]}-1))}")"
-SCRIPTS="${SCRIPTS}and ${script_links[$((${#script_links[@]}-1))]}"
-
+SCRIPTS="$(printf "%s, " "${script_links[@]:0:$((${#script_links[@]} - 1))}")"
+SCRIPTS="${SCRIPTS}and ${script_links[$((${#script_links[@]} - 1))]}"
 
 # Get the changelog.
 CHANGELOG_DEV=''
@@ -128,14 +130,14 @@ if [[ -n "$OPT_SINCE" ]]; then
 
 			# Make module names consistent.
 			case "$affected_module" in
-				dev|lib) affected_module="developer" ;;
+				dev | lib) affected_module="developer" ;;
 				tests) affected_module="test" ;;
 				doc) affected_module="docs" ;;
 			esac
 
 			# Switch to the correct changelog.
 			case "$affected_module" in
-				test|developer|ci|build) is_developer=true ;;
+				test | developer | ci | build) is_developer=true ;;
 			esac
 		fi
 
@@ -151,24 +153,23 @@ fi
 CHANGELOG="$(sed "$script_pattern" <<< "$CHANGELOG")"
 CHANGELOG_DEV="$(sed "$script_pattern" <<< "$CHANGELOG_DEV")"
 
-
 # Print the template.
-sed '/\\$/{N;s/\\\n//;s/\n//p;}' <<-EOF
-This contains the latest versions of $SCRIPTS as of commit [$(git rev-parse --short HEAD)]($COMMIT_URL) (${DATE_STR}).
-
-**This is provided as a convenience only.**
-I would still recommend following the installation instructions in \
-[the README](https://github.com/eth-p/bat-extras#installation-) for the most up-to-date versions.
-
-### Changes
-$CHANGELOG
-
-### Developer
-<details>
-<div markdown="1">
-
-$CHANGELOG_DEV
-
-</div>
-</details>
+sed '/\\$/{N;s/\\\n//;s/\n//p;}' <<- EOF
+	This contains the latest versions of $SCRIPTS as of commit [$(git rev-parse --short HEAD)]($COMMIT_URL) (${DATE_STR}).
+	
+	**This is provided as a convenience only.**
+	I would still recommend following the installation instructions in \
+	[the README](https://github.com/eth-p/bat-extras#installation-) for the most up-to-date versions.
+	
+	### Changes
+	$CHANGELOG
+	
+	### Developer
+	<details>
+	<div markdown="1">
+	
+	$CHANGELOG_DEV
+	
+	</div>
+	</details>
 EOF
