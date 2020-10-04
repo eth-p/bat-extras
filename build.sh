@@ -365,7 +365,7 @@ OPT_INSTALL=false
 OPT_COMPRESS=false
 OPT_VERIFY=true
 OPT_BANNER=true
-OPT_MANUALS=false
+OPT_MANUALS=true
 OPT_INLINE=true
 OPT_MINIFY="lib"
 OPT_PREFIX="/usr/local"
@@ -380,6 +380,7 @@ while shiftopt; do
 	--install)                        OPT_INSTALL=true ;;
 	--compress)                       OPT_COMPRESS=true ;;
 	--manuals)                        OPT_MANUALS=true ;;
+	--no-manuals)                     OPT_MANUALS=false ;;
 	--no-verify)                      OPT_VERIFY=false ;;
 	--no-banner)                      OPT_BANNER=false ;;
 	--no-inline)                      OPT_INLINE=false ;;
