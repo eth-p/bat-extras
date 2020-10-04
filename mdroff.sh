@@ -101,6 +101,12 @@ mdroff:emit:table_end() {
 mdroff:emit:table_heading() {
 	local heading="$(printf "| %s " "$@")"
 	printf "%s\n" "${heading:1}"
+	
+	# Prevent tbl warning.
+	for temp in "${@:2}"; do printf "|"; done
+	printf "\n"
+	
+	# Start table data.
 	printf ".SP\n"
 }
 
