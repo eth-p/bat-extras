@@ -1,10 +1,12 @@
 #!/usr/bin/env bash
+exec 3<&0
+
 # Find the real bat.
 HERE="$(cd "$(dirname "$0")" && pwd)"
 while read -d ':' -r dir; do
 	if [[ "$dir" == "$HERE" || -z "$dir" ]]; then continue; fi
 	if [[ -f "${dir}/bat" ]]; then
-		exec "${dir}/bat" "$@" --no-config --theme="Monokai Extended"
+		exec "${dir}/bat" "$@" --no-config --theme="Monokai Extended" <&3
 	fi
 done <<<"$PATH:"
 
