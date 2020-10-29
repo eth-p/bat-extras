@@ -234,6 +234,36 @@ main() {
 	LAST_LR=()
 	LAST_LH=()
 	LAST_FILE=''
+	READ_FROM_STDIN=false
+	
+	# If we found no files being provided and STDIN to not be attached to a tty,
+	# we capture STDIN to a variable. This variable will later be written to
+	# the STDIN file descriptors of both ripgrep and bat.
+	if ! [[ -t 0 ]] && [[ "${#FILES[@]}" -eq 0 ]]; then
+		READ_FROM_STDIN=true
+		IFS='' STDIN_DATA="$(cat)"
+	fi
+	
+	do_ripgrep_search() {
+		local COMMON_RG_ARGS=(
+			--with-filename \
+			--vimgrep \
+			"${RG_ARGS[@]}" \
+			--context=0 \
+			--no-context-separator \
+			--sort path \
+			"$PATTERN" \
+			"${FILES[@]}" \
+		)
+		
+		if "$READ_FROM_STDIN"; then
+			rg "${COMMON_RG_ARGS[@]}" <<< "$STDIN_DATA"
+			return $?
+		else
+			rg "${COMMON_RG_ARGS[@]}"
+			return $?
+		fi
+	}
 
 	do_print() {
 		[[ -z "$LAST_FILE" ]] && return 0
@@ -254,13 +284,26 @@ main() {
 		# Print the separator.
 		echo "$SEP"
 	}
+	
+	do_print_from_file_or_stdin() {
+		if [[ "$LAST_FILE" = "<stdin>" ]]; then
+			# If the file is from STDIN, we provide the STDIN
+			# contents to bat and tell it to read from STDIN.
+			LAST_FILE="-"
+			do_print <<< "$STDIN_DATA"
+			return $?
+		else
+			do_print
+			return $?	
+		fi
+	}
 
 	# shellcheck disable=SC2034
 	while IFS=':' read -r file line column text; do
 		((FOUND++))
 
 		if [[ "$LAST_FILE" != "$file" ]]; then
-			do_print
+			do_print_from_file_or_stdin
 			LAST_FILE="$file"
 			LAST_LR=()
 			LAST_LH=()
@@ -273,8 +316,8 @@ main() {
 
 		LAST_LR+=("--line-range=${line_start}:${line_end}")
 		[[ "$OPT_HIGHLIGHT" = "true" ]] && LAST_LH+=("--highlight-line=${line}")
-	done < <(rg --with-filename --vimgrep "${RG_ARGS[@]}" --context=0 --no-context-separator --sort path "$PATTERN" "${FILES[@]}")
-	do_print
+	done < <(do_ripgrep_search)
+	do_print_from_file_or_stdin
 
 	# Exit.
 	if [[ "$FOUND" -eq 0 ]]; then
