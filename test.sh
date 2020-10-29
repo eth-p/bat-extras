@@ -23,6 +23,7 @@ export TEST_SHIM_PATH="${HERE}/test/shim"
 export SNAPSHOT_DIR="${HERE}/test/snapshot"
 
 OPT_ARGV=()
+SHIFTOPT_SHORT_OPTIONS="PASS"
 while shiftopt; do
 	case "$OPT" in
 	--compiled)
