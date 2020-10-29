@@ -1,11 +1,16 @@
 #!/usr/bin/env bash
 # -----------------------------------------------------------------------------
-# bat-extras | Copyright (C) 2019 eth-p | MIT License
+# bat-extras | Copyright (C) 2019-2020 eth-p | MIT License
 #
 # Repository: https://github.com/eth-p/bat-extras
 # Issues:     https://github.com/eth-p/bat-extras/issues
 # -----------------------------------------------------------------------------
 source "${LIB}/constants.sh"
+
+# An array of functions to call before returning from `shiftopt`.
+#
+# If one of these functions returns a successful exit code, the
+# option will be transparently skipped instead of handled.
 SHIFTOPT_HOOKS=()
 
 # Sets the internal _ARGV, _ARGV_INDEX, and _ARGV_LAST variables used when
@@ -14,6 +19,12 @@ setargs() {
 	_ARGV=("$@")
 	_ARGV_LAST="$((${#_ARGV[@]} - 1))"
 	_ARGV_INDEX=0
+}
+
+# Resets the internal _ARGV* variables to the original script arguments.
+# This is the equivalent of storing the top-level $@ and using setargs with it.
+resetargs() {
+	setargs "${_ARGV_ORIGINAL[@]}"
 }
 
 # Gets the next option passed to the script.
@@ -88,3 +99,4 @@ shiftval() {
 
 # -----------------------------------------------------------------------------
 setargs "$@"
+_ARGV_ORIGINAL=("$@")

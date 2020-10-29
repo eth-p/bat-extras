@@ -14,6 +14,10 @@ setup() {
 	source "${LIB}/opt.sh"
 }
 
+assert_opt_name() {
+	assert [ "$OPT" = "$1" ]
+}
+
 assert_opt_value() {
 	assert [ "$OPT_VAL" = "$1" ]
 }
@@ -21,6 +25,7 @@ assert_opt_value() {
 assert_opt_valueless() {
 	assert [ -z "$OPT_VAL" ]
 }
+
 
 test:long() {
 	description "Parse long options."
@@ -117,4 +122,50 @@ test:short_value_explicit() {
 	done
 
 	fail 'Failed to find option.'
+}
+
+test:hook() {
+	description "Option hooks."
+	
+	SHIFTOPT_HOOKS=("example_hook")
+	
+	found=false
+	example_hook() {
+		if [[ "$OPT" = "pos1" ]]; then
+			found=true
+			return 0
+		fi
+		return 1
+	}
+
+	while shiftopt; do
+		if [[ "$OPT" = "pos1" ]]; then
+			fail "Option was not filtered by hook."
+		fi
+	done
+	
+	if ! "$found"; then
+		fail "Option was not found by hook."
+	fi
+}
+
+test:fn_setargs() {
+	description "Function setargs."
+
+	setargs "--setarg=true"
+	shiftopt || true
+	shiftval
+	
+	assert_opt_name "--setarg"
+	assert_opt_value "true"
+}
+
+test:fn_resetargs() {
+	description "Function resetargs."
+
+	setargs "--setarg=true"
+	resetargs
+	shiftopt || true
+	
+	assert_opt_name "pos1"
 }
