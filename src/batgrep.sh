@@ -94,9 +94,9 @@ while shiftopt; do
 	-s | --case-sensitive)           OPT_CASE_SENSITIVITY="--case-sensitive" ;;
 	-S | --smart-case)               OPT_CASE_SENSITIVITY="--smart-case" ;;
 
-	-A* | --after-context)  shiftval; OPT_CONTEXT_AFTER="$OPT_VAL" ;;
-	-B* | --before-context) shiftval; OPT_CONTEXT_BEFORE="$OPT_VAL" ;;
-	-C* | --context)
+	-A | --after-context)  shiftval; OPT_CONTEXT_AFTER="$OPT_VAL" ;;
+	-B | --before-context) shiftval; OPT_CONTEXT_BEFORE="$OPT_VAL" ;;
+	-C | --context)
 		shiftval
 		OPT_CONTEXT_BEFORE="$OPT_VAL"
 		OPT_CONTEXT_AFTER="$OPT_VAL"
@@ -249,7 +249,7 @@ main() {
 			--with-filename \
 			--vimgrep \
 			"${RG_ARGS[@]}" \
-			--context=0 \
+			--context 0 \
 			--no-context-separator \
 			--sort path \
 			"$PATTERN" \

@@ -1,14 +1,13 @@
 setup() {
-	set - pos1 \
-		--val1 for_val1 \
-		--val2=for_val2 \
-		pos2 \
-		--flag1 \
-		-v3=for_val3 \
-		-v4 \
-		-v55 \
-		-vn for_val4 \
-		--flag2
+	set - --long-implicit implicit_value \
+	      --long-explicit=explicit_value \
+	      -i implicit \
+	      -x=explicit \
+	      -I1 group_implicit \
+	      -X2=group_explicit \
+	      positional_1 \
+	      positional_2 \
+	      --after-positional
 
 	source "${LIB}/print.sh"
 	source "${LIB}/opt.sh"
@@ -31,7 +30,7 @@ test:long() {
 	description "Parse long options."
 
 	while shiftopt; do
-		if [[ "$OPT" = "--flag1" ]]; then
+		if [[ "$OPT" = "--long-implicit" ]]; then
 			assert_opt_valueless
 			return
 		fi
@@ -40,13 +39,13 @@ test:long() {
 	fail 'Failed to find option.'
 }
 
-test:long_value_implicit() {
+test:long_implicit() {
 	description "Parse long options in '--long value' syntax."
 
 	while shiftopt; do
-		if [[ "$OPT" = "--val1" ]]; then
+		if [[ "$OPT" = "--long-implicit" ]]; then
 			shiftval
-			assert_opt_value 'for_val1'
+			assert_opt_value 'implicit_value'
 			return
 		fi
 	done
@@ -54,13 +53,14 @@ test:long_value_implicit() {
 	fail 'Failed to find option.'
 }
 
-test:long_value_explicit() {
+test:long_explicit() {
 	description "Parse long options in '--long=value' syntax."
 
 	while shiftopt; do
-		if [[ "$OPT" = "--val2" ]]; then
+		if [[ "$OPT" = "--long-explicit" ]]; then
+			assert_opt_value 'explicit_value'
 			shiftval
-			assert_opt_value 'for_val2'
+			assert_opt_value 'explicit_value'
 			return
 		fi
 	done
@@ -68,13 +68,12 @@ test:long_value_explicit() {
 	fail 'Failed to find option.'
 }
 
-test:short_value_implicit_number() {
-	description "Parse short options in '-k0' syntax."
+test:short_default() {
+	description "Parse short options in '-k' syntax."
 
 	while shiftopt; do
-		if [[ "$OPT" = "-v4" ]]; then
-			shiftval
-			assert_opt_value '4'
+		if [[ "$OPT" = "-i" ]]; then
+			assert_opt_valueless
 			return
 		fi
 	done
@@ -82,14 +81,13 @@ test:short_value_implicit_number() {
 	fail 'Failed to find option.'
 }
 
-
-test:short_value_implicit_number2() {
-	description "Parse short options in '-k0' syntax."
+test:short() {
+	description "Parse short options in '-k val' syntax."
 
 	while shiftopt; do
-		if [[ "$OPT" = "-v55" ]]; then
-			shiftval
-			assert_opt_value '55'
+		if [[ "$OPT" = "-i" ]]; then
+			shiftopt
+			assert_opt_valueless
 			return
 		fi
 	done
@@ -97,13 +95,13 @@ test:short_value_implicit_number2() {
 	fail 'Failed to find option.'
 }
 
-test:short_value_implicit() {
+test:short_implicit() {
 	description "Parse short options in '-k value' syntax."
 
 	while shiftopt; do
-		if [[ "$OPT" = "-vn" ]]; then
+		if [[ "$OPT" = "-i" ]]; then
 			shiftval
-			assert_opt_value 'for_val4'
+			assert_opt_value 'implicit'
 			return
 		fi
 	done
@@ -111,17 +109,247 @@ test:short_value_implicit() {
 	fail 'Failed to find option.'
 }
 
-test:short_value_explicit() {
+test:short_explicit() {
 	description "Parse short options in '-k=value' syntax."
 
 	while shiftopt; do
-		if [[ "$OPT" =~ ^-v3 ]]; then
-			assert_equal "$OPT" "-v3=for_val3"
+		if [[ "$OPT" = "-x" ]]; then
+			assert_opt_value 'explicit'
+			shiftval
+			assert_opt_value 'explicit'
 			return
 		fi
 	done
 
 	fail 'Failed to find option.'
+}
+
+test:short_default_mode() {
+	description "Ensure the default mode for '-abc' is VALUE."
+	assert_equal "$SHIFTOPT_SHORT_OPTIONS" "VALUE"
+}
+
+test:short_split_none() {
+	description "Parse short options in '-abc' syntax with SPLIT mode."
+	SHIFTOPT_SHORT_OPTIONS="SPLIT"
+
+	local found=0
+	while shiftopt; do
+		case "$OPT" in
+			"-I"|"-1")
+				assert_opt_valueless
+				((found++)) || true
+				;;
+		esac
+	done
+
+	assert_equal "$found" 2
+}
+	
+test:short_split_implicit() {
+	description "Parse short options in '-abc val' syntax with SPLIT mode."
+	SHIFTOPT_SHORT_OPTIONS="SPLIT"
+
+	local found=0
+	while shiftopt; do
+		case "$OPT" in
+			"-I"|"-1")
+				assert_opt_valueless
+				shiftval 
+				assert_opt_value "group_implicit" 
+				((found++)) || true
+				;;
+		esac
+	done
+
+	assert_equal "$found" 2
+}
+	
+test:short_split_explicit() {
+	description "Parse short options in '-abc=val' syntax with SPLIT mode."
+	SHIFTOPT_SHORT_OPTIONS="SPLIT"
+
+	local found=0
+	while shiftopt; do
+		case "$OPT" in
+			"-X"|"-2")
+				assert_opt_value "group_explicit"
+				((found++)) || true
+				;;
+		esac
+	done
+
+	assert_equal "$found" 2
+}
+
+test:short_pass_none() {
+	description "Parse short options in '-abc' syntax with PASS mode."
+	SHIFTOPT_SHORT_OPTIONS="PASS"
+
+	local found=0
+	while shiftopt; do
+		case "$OPT" in
+			"-I"|"-1") fail "Short group -I1 was split." ;;
+			"-I1")
+				assert_opt_valueless
+				((found++)) || true
+				;;
+		esac
+	done
+
+	assert_equal "$found" 1
+}
+	
+test:short_pass_implicit() {
+	description "Parse short options in '-abc val' syntax with PASS mode."
+	SHIFTOPT_SHORT_OPTIONS="PASS"
+
+	local found=0
+	while shiftopt; do
+		case "$OPT" in
+			"-I"|"-1") fail "Short group -I1 was split." ;;
+			"-I1")
+				assert_opt_valueless
+				shiftval 
+				assert_opt_value "group_implicit" 
+				((found++)) || true
+				;;
+		esac
+	done
+
+	assert_equal "$found" 1
+}
+	
+test:short_pass_explicit() {
+	description "Parse short options in '-abc=val' syntax with PASS mode."
+	SHIFTOPT_SHORT_OPTIONS="PASS"
+
+	local found=0
+	while shiftopt; do
+		case "$OPT" in
+			"-X"|"-2") fail "Short group -X2 was split." ;;
+			"-X2")
+				assert_opt_value "group_explicit"
+				((found++)) || true
+				;;
+		esac
+	done
+
+	assert_equal "$found" 1
+}
+
+test:short_conv_none() {
+	description "Parse short options in '-abc' syntax with CONV mode."
+	SHIFTOPT_SHORT_OPTIONS="CONV"
+
+	local found=0
+	while shiftopt; do
+		case "$OPT" in
+			"-I"|"-1") fail "Short group -I1 was split." ;;
+			"-I1") fail "Short group -I1 was not converted." ;;
+			"--I1")
+				assert_opt_valueless
+				((found++)) || true
+				;;
+		esac
+	done
+
+	assert_equal "$found" 1
+}
+	
+test:short_conv_implicit() {
+	description "Parse short options in '-abc val' syntax with CONV mode."
+	SHIFTOPT_SHORT_OPTIONS="CONV"
+
+	local found=0
+	while shiftopt; do
+		case "$OPT" in
+			"-I"|"-1") fail "Short group -I1 was split." ;;
+			"-I1") fail "Short group -I1 was not converted." ;;
+			"--I1")
+				assert_opt_valueless
+				shiftval 
+				assert_opt_value "group_implicit" 
+				((found++)) || true
+				;;
+		esac
+	done
+
+	assert_equal "$found" 1
+}
+	
+test:short_conv_explicit() {
+	description "Parse short options in '-abc=val' syntax with CONV mode."
+	SHIFTOPT_SHORT_OPTIONS="CONV"
+
+	local found=0
+	while shiftopt; do
+		case "$OPT" in
+			"-X"|"-2") fail "Short group -X2 was split." ;;
+			"-X2") fail "Short group -X2 was not converted." ;;
+			"--X2")
+				assert_opt_value "group_explicit"
+				((found++)) || true
+				;;
+		esac
+	done
+
+	assert_equal "$found" 1
+}
+
+test:short_value_none() {
+	description "Parse short options in '-abc' syntax with VALUE mode."
+	SHIFTOPT_SHORT_OPTIONS="VALUE"
+
+	local found=0
+	while shiftopt; do
+		case "$OPT" in
+			"-I1") fail "Short group -I1 was not truncated." ;;
+			"-I")
+				assert_opt_value "1"
+				((found++)) || true
+				;;
+		esac
+	done
+
+	assert_equal "$found" 1
+}
+	
+test:short_value_implicit() {
+	description "Parse short options in '-abc val' syntax with VALUE mode."
+	SHIFTOPT_SHORT_OPTIONS="VALUE"
+
+	local found=0
+	while shiftopt; do
+		case "$OPT" in
+			"-I1") fail "Short group -I1 was not truncated." ;;
+			"-I")
+				shiftval 
+				assert_opt_value "1" 
+				((found++)) || true
+				;;
+		esac
+	done
+
+	assert_equal "$found" 1
+}
+	
+test:short_value_explicit() {
+	description "Parse short options in '-abc=val' syntax with VALUE mode."
+	SHIFTOPT_SHORT_OPTIONS="VALUE"
+
+	local found=0
+	while shiftopt; do
+		case "$OPT" in
+			"-X2") fail "Short group -X2 was not truncated." ;;
+			"-X")
+				assert_opt_value "2=group_explicit"
+				((found++)) || true
+				;;
+		esac
+	done
+
+	assert_equal "$found" 1
 }
 
 test:hook() {
@@ -131,7 +359,7 @@ test:hook() {
 	
 	found=false
 	example_hook() {
-		if [[ "$OPT" = "pos1" ]]; then
+		if [[ "$OPT" = "--long-implicit" ]]; then
 			found=true
 			return 0
 		fi
@@ -139,7 +367,7 @@ test:hook() {
 	}
 
 	while shiftopt; do
-		if [[ "$OPT" = "pos1" ]]; then
+		if [[ "$OPT" = "--long-implicit" ]]; then
 			fail "Option was not filtered by hook."
 		fi
 	done
@@ -167,5 +395,5 @@ test:fn_resetargs() {
 	resetargs
 	shiftopt || true
 	
-	assert_opt_name "pos1"
+	assert_opt_name "--long-implicit"
 }
