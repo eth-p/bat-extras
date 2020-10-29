@@ -8,10 +8,13 @@
 if [[ -z "$__LIB_CONSTANTS_INITIALIZED" ]]; then
 __LIB_CONSTANTS_INITIALIZED=true
 
-# Constants
+# Constants: Executables
 EXECUTABLE_BAT="$(command -v bat 2>/dev/null || command -v batcat 2>/dev/null || echo "bat")"
 EXECUTABLE_GIT="git"
 EXECUTABLE_DELTA="delta"
+EXECUTABLE_RIPGREP="rg"
+
+# Constants: Program
 PROGRAM="$(basename "$0" .sh)"
 PROGRAM_HOMEPAGE="https://github.com/eth-p/bat-extras"
 PROGRAM_COPYRIGHT="Copyright (C) 2019-2020 eth-p | MIT License"

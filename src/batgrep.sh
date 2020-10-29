@@ -257,10 +257,10 @@ main() {
 		)
 		
 		if "$READ_FROM_STDIN"; then
-			rg "${COMMON_RG_ARGS[@]}" <<< "$STDIN_DATA"
+			"$EXECUTABLE_RIPGREP" "${COMMON_RG_ARGS[@]}" <<< "$STDIN_DATA"
 			return $?
 		else
-			rg "${COMMON_RG_ARGS[@]}"
+			"$EXECUTABLE_RIPGREP" "${COMMON_RG_ARGS[@]}"
 			return $?
 		fi
 	}
