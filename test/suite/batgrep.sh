@@ -92,3 +92,13 @@ test:option_context() {
 
 	batgrep -C 0 '\$' file.txt
 }
+
+test:search_from_stdin() {
+	description "Should be able to search through stdin."
+	snapshot stdout
+	snapshot stderr
+
+	require_rg
+
+	cat file.txt | batgrep "^ca"
+}
