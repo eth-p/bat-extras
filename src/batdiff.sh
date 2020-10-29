@@ -141,16 +141,15 @@ fi
 # Validation:
 # -----------------------------------------------------------------------------
 
-# Handle no files.
-if [[ "${#FILES[@]}" -eq 0 ]] && ! "$OPT_ALL_CHANGES"; then
-	print_error "no files provided"
-	exit 1
-fi
-
 # Handle too many files.
 if [[ "${#FILES[@]}" -gt 2 ]]; then
 	print_error "too many files provided"
 	exit 1
+fi
+
+# Handle deprecated --all.
+if "$OPT_ALL_CHANGES"; then
+	print_warning "argument --all is deprecated. Use '%s' instead" "$0"
 fi
 
 
@@ -158,7 +157,7 @@ fi
 # Main:
 # -----------------------------------------------------------------------------
 main() {
-	if "$OPT_ALL_CHANGES"; then
+	if [[ "${#FILES[@]}" -eq 0 ]] || "$OPT_ALL_CHANGES"; then
 		local file
 		while read -r file; do
 			if [[ -f "$file" ]]; then
