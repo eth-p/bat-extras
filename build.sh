@@ -424,11 +424,18 @@ fi
 # -----------------------------------------------------------------------------
 # Check for resources.
 
-[[ -d "$BIN" ]] || mkdir "$BIN"
-
 if ! will_minify none && ! command -v shfmt &>/dev/null; then
 	printc_err "%{RED}Warning: cannot find shfmt. Unable to minify scripts.%{CLEAR}\n"
 	OPT_MINIFY=none
+fi
+
+# -----------------------------------------------------------------------------
+# Check target directories exist.
+
+[[ -d "$BIN" ]] || mkdir -p "$BIN"
+
+if "$OPT_INSTALL"; then
+	[[ -d "${OPT_PREFIX}/bin" ]] || mkdir -p "${OPT_PREFIX}/bin"
 fi
 
 # -----------------------------------------------------------------------------
