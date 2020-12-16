@@ -35,6 +35,7 @@ See `man bat` for more information.
 | C                    | [ClangFormat](https://clang.llvm.org/docs/ClangFormat.html) |
 | C++                  | [ClangFormat](https://clang.llvm.org/docs/ClangFormat.html) |
 | Objective-C          | [ClangFormat](https://clang.llvm.org/docs/ClangFormat.html) |
+| Python               | [black](https://black.readthedocs.io/)                      |
 
 
 
