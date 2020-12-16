@@ -21,7 +21,7 @@ hook_version
 # Formatters:
 # -----------------------------------------------------------------------------
 
-FORMATTERS=("prettier" "rustfmt" "shfmt" "clangformat")
+FORMATTERS=("prettier" "rustfmt" "shfmt" "clangformat" "black")
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -90,6 +90,26 @@ formatter_shfmt_process() {
 	return $?
 }
 
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+formatter_black_supports() {
+	case "$1" in
+		.py | \
+		.py3 | \
+		.pyw | \
+		.pyi)
+		return 0
+		;;
+	esac
+
+	return 1
+}
+
+formatter_black_process() {
+	black --code "$(cat -)"
+	return $?
+}
+
 # -----------------------------------------------------------------------------
 # Functions:
 # -----------------------------------------------------------------------------
@@ -115,6 +135,7 @@ map_language_to_extension() {
 	yaml | yml)                 ext=".yml" ;;
 	rust | rs)                  ext=".rs" ;;
 	graphql | gql)              ext=".graphql" ;;
+	python | py)                ext=".py" ;;
 	esac
 
 	echo "$ext"
