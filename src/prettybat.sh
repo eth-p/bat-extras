@@ -13,6 +13,7 @@ source "${LIB}/opt_hook_version.sh"
 source "${LIB}/str.sh"
 source "${LIB}/print.sh"
 source "${LIB}/version.sh"
+source "${LIB}/check.sh"
 # -----------------------------------------------------------------------------
 # Init:
 # -----------------------------------------------------------------------------
@@ -178,6 +179,10 @@ process_file() {
 	local fext="$ext"
 	local lang="${ext:1}"
 	local formatter
+	
+	# Check that the file exists, and is a file.
+	check_exists  "$file" || return 1
+	check_is_file "$file" || return 1
 
 	# Determine the formatter.
 	if [[ -n "$OPT_LANGUAGE" ]]; then
