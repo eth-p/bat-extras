@@ -26,6 +26,7 @@
 #     $BATPIPE_VIEWERS      -- An array of loaded file viewers.
 #     $BATPIPE_ENABLE_COLOR -- Whether color is supported. (`true`|`false`)
 #     $BATPIPE_INSIDE_LESS  -- Whether batpipe is inside less. (`true`|`false`)
+#     $TERM_WIDTH           -- The terminal width. (only supported in `less`)
 #
 #     batpipe_header [pattern] [...]    -- Print a viewer header line.
 #     batpipe_subheader [pattern] [...] -- Print a viewer subheader line.
@@ -42,6 +43,9 @@ source "${LIB}/str.sh"
 source "${LIB}/print.sh"
 source "${LIB}/path.sh"
 source "${LIB}/proc.sh"
+source "${LIB}/opt.sh"
+source "${LIB}/version.sh"
+source "${LIB}/term.sh"
 # -----------------------------------------------------------------------------
 # Usage/Install:
 # -----------------------------------------------------------------------------
@@ -86,11 +90,16 @@ fi
 # -----------------------------------------------------------------------------
 # Init:
 # -----------------------------------------------------------------------------
+BATPIPE_INSIDE_LESS=false
+BATPIPE_INSIDE_BAT=false
+TERM_WIDTH="$(term_width)"
 
+bat_if_not_bat() { bat "$@"; return $?; }
 if [[ "$(basename -- "$(parent_executable "$(parent_executable_pid)"|cut -f1 -d' ')")" == less ]]; then
 	BATPIPE_INSIDE_LESS=true
-else
-	BATPIPE_INSIDE_LESS=false
+elif [[ "$(basename -- "$(parent_executable|cut -f1 -d' ')")" == "$(basename -- "$EXECUTABLE_BAT")" ]]; then
+	BATPIPE_INSIDE_BAT=true
+	bat_if_not_bat() { cat; }
 fi
 
 # -----------------------------------------------------------------------------
@@ -109,7 +118,7 @@ viewer_ls_supports() {
 viewer_ls_process() {
 	local dir="$(strip_trailing_slashes "$1")"
 	batpipe_header "Viewing contents of directory: %{PATH}%s" "$dir"
-	ls -lA "$1"
+	ls -lA "$1" 2>&1
 	return $?
 }
 
@@ -127,8 +136,7 @@ viewer_tar_supports() {
 
 viewer_tar_process() {
 	if [[ -n "$2" ]]; then
-		batpipe_header "Archived file: %{SUBPATH}%s%{PATH}/%s" "$1" "$2"
-		tar -xf "$1" -O "$2" 2>&1
+		tar -xf "$1" -O "$2" 2>&1 | bat_if_not_bat --file-name="$1/$2" 
 	else
 		batpipe_header    "Viewing contents of archive: %{PATH}%s" "$1"
 		batpipe_subheader "To view files within the archive, add the file path after the archive."
@@ -157,6 +165,64 @@ batpipe_header() {
 batpipe_subheader() {
 	local pattern="${1//%{C\}/%{C\}%{SUBHEADER\}}"
 	printc "%{SUBHEADER}==> $pattern%{C}\n" "${@:2}"
+}
+
+bat() {
+	# Conditionally enable forwarding of certain arguments.
+	if [[ -z "$__BAT_VERSION" ]]; then
+		__BAT_VERSION="$(bat_version)"
+		
+		__bat_forward_arg_file_name() { :; }
+		
+		if version_compare "$__BAT_VERSION" -ge "0.14"; then
+			__bat_forward_arg_file_name() {
+				__bat_forward_args+=("--file-name" "$1")
+			}
+		fi
+	fi
+	
+	# Parse arguments intended for bat.
+	__bat_batpipe_args=()
+	__bat_forward_args=()
+	setargs "$@"
+	while shiftopt; do
+		case "$OPT" in
+			--file-name) shiftval; __bat_forward_arg_file_name "$OPT_VAL";;
+
+			# Disallowed forwarding.
+			--paging)            shiftval;;
+			--decorations)       shiftval;;
+			--style)             shiftval;;
+			--terminal-width)    shiftval;;
+			--plain|-p|-pp|-ppp) :;;
+
+			# Forward remaining.
+			-*) {
+				__bat_forward_args+=("$OPT")
+				if [[ -n "$OPT_VAL" ]]; then
+					__bat_forward_args+=("$OPT_VAL")
+				fi
+			};;
+
+			*) __bat_forward_args+=("$OPT");;
+		esac
+	done
+	
+	# Insert batpipe arguments.
+	if "$BATPIPE_INSIDE_LESS"; then
+		__bat_batpipe_args+=(--decorations=always)
+		__bat_batpipe_args+=(--terminal-width="$TERM_WIDTH")
+		if "$BATPIPE_ENABLE_COLOR"; then
+			__bat_batpipe_args+=(--color=always)
+		fi
+	fi
+	
+	if "$BATPIPE_INSIDE_BAT"; then
+		__bat_batpipe_args+=(--decorations=never --color=never)
+	fi
+	
+	# Execute the real bat.
+	command "$EXECUTABLE_BAT" --paging=never "${__bat_batpipe_args[@]}" "${__bat_forward_args[@]}"
 }
 
 # -----------------------------------------------------------------------------
