@@ -31,15 +31,15 @@ mdroff:emit:h2() {
 }
 
 mdroff:emit:h3() {
-	echo "$1"
+	printf '.SS "%s"\n' "$1"
 }
 
 mdroff:emit:h4() {
-	echo "$1"
+	printf '.SS "%s"\n' "$1"
 }
 
 mdroff:emit:h5() {
-	echo "$1"
+	printf '.SS "%s"\n' "$1"
 }
 
 mdroff:emit:line() {
