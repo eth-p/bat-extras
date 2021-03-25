@@ -39,7 +39,7 @@ External viewers are be added to batpipe by creating bash scripts inside the `~/
 
 Viewers must define two functions and append the viewer's name to the `$BATPIPE_VIEWERS` array.
 
- - `viewer_${viewer}_supports [file_path] [file_basename]`
+ - `viewer_${viewer}_supports [file_basename] [file_path] [inner_file_path]`
  - `viewer_${viewer}_process [file_path] [inner_file_path]`
 
 The `viewer_${viewer}_supports` function is called to determine if the external viewer is capable of viewing the provided file. If this function returns successfully, the corresponding `process` function will be called.  

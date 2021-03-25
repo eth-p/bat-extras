@@ -16,7 +16,7 @@
 #      Viewers must define two functions and append the viewer's name to the
 #      `BATPIPE_VIEWERS` array.
 #
-#      - viewer_${viewer}_supports [file_path] [file_basename]
+#      - viewer_${viewer}_supports [file_basename] [file_path] [inner_file_path]
 #        If this returns 0, the viewer's process function will be used.
 #
 #      - viewer_${viewer}_process  [file_path] [inner_file_path]
@@ -114,7 +114,7 @@ BATPIPE_VIEWERS=("ls" "tar" "unzip")
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 viewer_ls_supports() {
-	[[ -d "$1" ]]
+	[[ -d "$2" ]]
 	return $?
 }
 
@@ -130,7 +130,7 @@ viewer_ls_process() {
 viewer_tar_supports() {
 	command -v "tar" &> /dev/null || return 1
 
-	case "$2" in
+	case "$1" in
 		*.tar | *.tar.*) return 0 ;;
 	esac
 
@@ -153,7 +153,7 @@ viewer_tar_process() {
 viewer_unzip_supports() {
 	command -v "unzip" &> /dev/null || return 1
 
-	case "$2" in
+	case "$1" in
 		*.zip) return 0 ;;
 	esac
 
@@ -161,7 +161,7 @@ viewer_unzip_supports() {
 }
 
 viewer_unzip_process() {
-	if [[ -n "$2" ]]; then
+	if [[ -n "$1" ]]; then
 		unzip -p "$1" "$2" | bat_if_not_bat --file-name="$1/$2" 
 	else
 		batpipe_header    "Viewing contents of archive: %{PATH}%s" "$1"
@@ -324,7 +324,7 @@ fi
 
 # Try opening the file with the first viewer that supports it.
 for viewer in "${BATPIPE_VIEWERS[@]}"; do
-	if "viewer_${viewer}_supports" "$__TARGET_FILE" "$__TARGET_BASENAME" 1>&2; then
+	if "viewer_${viewer}_supports" "$__TARGET_BASENAME" "$__TARGET_FILE" "$__TARGET_INSIDE" 1>&2; then
 		"viewer_${viewer}_process" "$__TARGET_FILE" "$__TARGET_INSIDE"
 		exit $?
 	fi
