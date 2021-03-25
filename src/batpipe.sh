@@ -161,7 +161,7 @@ viewer_unzip_supports() {
 }
 
 viewer_unzip_process() {
-	if [[ -n "$1" ]]; then
+	if [[ -n "$2" ]]; then
 		unzip -p "$1" "$2" | bat_if_not_bat --file-name="$1/$2" 
 	else
 		batpipe_header    "Viewing contents of archive: %{PATH}%s" "$1"
