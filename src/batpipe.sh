@@ -32,7 +32,7 @@
 #     batpipe_subheader [pattern] [...] -- Print a viewer subheader line.
 #
 #     bat                   -- Use `bat` for highlighting.
-#     bat_if_not_bat [...]  -- Use `bat` for highlighting (only supported in `less`).
+#     bat_if_not_bat [...]  -- Use `bat` for highlighting (when running from `less`).
 #
 #     strip_trailing_slashes [path]     -- Strips trailing slashes from a path.
 #
@@ -97,12 +97,12 @@ BATPIPE_INSIDE_LESS=false
 BATPIPE_INSIDE_BAT=false
 TERM_WIDTH="$(term_width)"
 
-bat_if_not_bat() { bat "$@"; return $?; }
+bat_if_not_bat() { cat; }
 if [[ "$(basename -- "$(parent_executable "$(parent_executable_pid)"|cut -f1 -d' ')")" == less ]]; then
 	BATPIPE_INSIDE_LESS=true
+	bat_if_not_bat() { bat "$@"; return $?; }
 elif [[ "$(basename -- "$(parent_executable|cut -f1 -d' ')")" == "$(basename -- "$EXECUTABLE_BAT")" ]]; then
 	BATPIPE_INSIDE_BAT=true
-	bat_if_not_bat() { cat; }
 fi
 
 # -----------------------------------------------------------------------------
@@ -139,7 +139,7 @@ viewer_tar_supports() {
 
 viewer_tar_process() {
 	if [[ -n "$2" ]]; then
-		tar -xf "$1" -O "$2" 2>&1 | bat_if_not_bat --file-name="$1/$2" 
+		tar -xf "$1" -O "$2" | bat_if_not_bat --file-name="$1/$2" 
 	else
 		batpipe_header    "Viewing contents of archive: %{PATH}%s" "$1"
 		batpipe_subheader "To view files within the archive, add the file path after the archive."
@@ -308,4 +308,5 @@ for viewer in "${BATPIPE_VIEWERS[@]}"; do
 done
 
 # No supported viewer. Just pass it through.
+cat 
 exit 1
