@@ -1,0 +1,231 @@
+#!/usr/bin/env bash
+# -----------------------------------------------------------------------------
+# bat-extras | Copyright (C) 2021 eth-p | MIT License
+#
+# Repository: https://github.com/eth-p/bat-extras
+# Issues:     https://github.com/eth-p/bat-extras/issues
+# -----------------------------------------------------------------------------
+#
+# EXTERNAL VIEWERS FOR BATPIPE:
+#
+#     External viewers can be added to batpipe by creating bash scripts
+#     inside the `~/.config/batpipe/viewers.d/` directory.
+#
+# CREATING A VIEWER:
+#
+#      Viewers must define two functions and append the viewer's name to the
+#      `BATPIPE_VIEWERS` array.
+#
+#      - viewer_${viewer}_supports [file_path] [file_basename]
+#        If this returns 0, the viewer's process function will be used.
+#
+#      - viewer_${viewer}_process  [file_path] [inner_file_path]
+#
+# VIEWER API:
+#
+#     $BATPIPE_VIEWERS      -- An array of loaded file viewers.
+#     $BATPIPE_ENABLE_COLOR -- Whether color is supported. (`true`|`false`)
+#     $BATPIPE_INSIDE_LESS  -- Whether batpipe is inside less. (`true`|`false`)
+#
+#     batpipe_header [pattern] [...]    -- Print a viewer header line.
+#     batpipe_subheader [pattern] [...] -- Print a viewer subheader line.
+#
+#     strip_trailing_slashes [path]     -- Strips trailing slashes from a path.
+#
+# -----------------------------------------------------------------------------
+# shellcheck disable=SC1090 disable=SC2155
+SELF="$(cd "$(dirname "${BASH_SOURCE[0]}")" && cd "$(dirname "$(readlink "${BASH_SOURCE[0]}" || echo ".")")" && pwd)/$(basename "${BASH_SOURCE[0]}")"
+LIB="$(cd "$(dirname "${BASH_SOURCE[0]}")" && cd "$(dirname "$(readlink "${BASH_SOURCE[0]}" || echo ".")")/../lib" && pwd)"
+source "${LIB}/constants.sh"
+source "${LIB}/dirs.sh"
+source "${LIB}/str.sh"
+source "${LIB}/print.sh"
+source "${LIB}/path.sh"
+source "${LIB}/proc.sh"
+# -----------------------------------------------------------------------------
+# Usage/Install:
+# -----------------------------------------------------------------------------
+
+if [[ "$#" -eq 0 ]]; then
+	# If writing to a terminal, display instructions and help.
+	if [[ -t 1 ]]; then
+		printc "%{DIM}# %s, %s.\n# %s\n# %s\n# %s\n# \n# %s%{CLEAR}\n" \
+			"$PROGRAM" \
+			"a bat-based preprocessor for less and bat" \
+			"Version: $PROGRAM_VERSION" \
+			"Homepage: $PROGRAM_HOMEPAGE" \
+			"$PROGRAM_COPYRIGHT" \
+			"To use $PROGRAM, eval the output of this command in your shell init script."
+	fi
+
+	# Detect the shell.
+	#
+	# This will directly check if the parent is fish, since there's a
+	# good chance that `bash` or `sh` will be invoking fish.
+	if [[ "$(basename -- "$(parent_executable | cut -f1 -d' ')")" == "fish" ]]; then
+		detected_shell="fish"
+	else
+		detected_shell="$(parent_shell)"
+	fi
+
+	# Print the commands required to add `batpipe` to the environment variables.
+	case "$(basename -- "${detected_shell:bash}")" in
+		fish) # Fish
+			printc '%{YELLOW}set -x %{CLEAR}LESSOPEN %{CYAN}"|%q %%s"%{CLEAR};\n' "$SELF"
+			printc '%{YELLOW}set -e %{CLEAR}LESSCLOSE;\n'
+			;;
+		*) # Bash-like
+			printc '%{YELLOW}LESSOPEN=%{CYAN}"|%s %%s"%{CLEAR};\n' "$SELF"
+			printc '%{YELLOW}export%{CLEAR} LESSOPEN\n' "$SELF"
+			printc '%{YELLOW}unset%{CLEAR} LESSCLOSE;\n'
+			;;
+	esac
+	exit 0
+fi
+
+# -----------------------------------------------------------------------------
+# Init:
+# -----------------------------------------------------------------------------
+
+if [[ "$(basename -- "$(parent_executable "$(parent_executable_pid)"|cut -f1 -d' ')")" == less ]]; then
+	BATPIPE_INSIDE_LESS=true
+else
+	BATPIPE_INSIDE_LESS=false
+fi
+
+# -----------------------------------------------------------------------------
+# Viewers:
+# -----------------------------------------------------------------------------
+
+BATPIPE_VIEWERS=("ls" "tar")
+
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+viewer_ls_supports() {
+	[[ -d "$1" ]]
+	return $?
+}
+
+viewer_ls_process() {
+	local dir="$(strip_trailing_slashes "$1")"
+	batpipe_header "Viewing contents of directory: %{PATH}%s" "$dir"
+	ls -lA "$1"
+	return $?
+}
+
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+viewer_tar_supports() {
+	command -v "tar" &> /dev/null || return 1
+
+	case "$2" in
+		*.tar | *.tar.*) return 0 ;;
+	esac
+
+	return 1
+}
+
+viewer_tar_process() {
+	if [[ -n "$2" ]]; then
+		batpipe_header "Archived file: %{SUBPATH}%s%{PATH}/%s" "$1" "$2"
+		tar -xf "$1" -O "$2" 2>&1
+	else
+		batpipe_header    "Viewing contents of archive: %{PATH}%s" "$1"
+		batpipe_subheader "To view files within the archive, add the file path after the archive."
+		tar -tvf "$1"
+		return $?
+	fi
+}
+
+# -----------------------------------------------------------------------------
+# Functions:
+# -----------------------------------------------------------------------------
+
+# Print a header for batpipe messages.
+# Arguments:
+#     1   -- The printc formatting string.
+#     ... -- The printc formatting arguments.
+batpipe_header() {
+	local pattern="${1//%{C\}/%{C\}%{HEADER\}}"
+	printc "%{HEADER}==> $pattern%{C}\n" "${@:2}"
+}
+
+# Print a subheader for batpipe messages.
+# Arguments:
+#     1   -- The printc formatting string.
+#     ... -- The printc formatting arguments.
+batpipe_subheader() {
+	local pattern="${1//%{C\}/%{C\}%{SUBHEADER\}}"
+	printc "%{SUBHEADER}==> $pattern%{C}\n" "${@:2}"
+}
+
+# -----------------------------------------------------------------------------
+# Colors:
+# -----------------------------------------------------------------------------
+
+printc_init "[DEFINE]" << END
+	C			\x1B[0m
+	SUBPATH		\x1B[2;35m
+	PATH		\x1B[0;35m
+	HEADER		\x1B[0;36m
+	SUBHEADER	\x1B[2;36m
+END
+
+# Enable color output if:
+# - Parent is not less OR BATPIPE=color; AND
+# - NO_COLOR is not defined.
+#
+# shellcheck disable=SC2034
+if [[ "$BATPIPE_INSIDE_LESS" == "false" || "$BATPIPE" == "color" ]] && [[ -z "${NO_COLOR+x}" ]]; then
+	BATPIPE_ENABLE_COLOR=true
+	printc_init true
+else
+	BATPIPE_ENABLE_COLOR=false
+	printc_init false
+fi
+
+# -----------------------------------------------------------------------------
+# Main:
+# -----------------------------------------------------------------------------
+
+__CONFIG_DIR="$(config_dir batpipe)"
+__TARGET_INSIDE=""
+__TARGET_FILE="$(strip_trailing_slashes "$1")"
+
+# Determine the target file by walking upwards from the specified path.
+# This allows inner paths of archives to be used.
+while ! [[ -e "$__TARGET_FILE" ]]; do
+	__TARGET_INSIDE="$(basename -- "${__TARGET_FILE}")/${__TARGET_INSIDE}"
+	__TARGET_FILE="$(dirname "${__TARGET_FILE}")"
+done
+
+# Remove trailing slash of the inner target path.
+__TARGET_INSIDE="$(strip_trailing_slashes "$__TARGET_INSIDE")"
+__TARGET_BASENAME="$(basename -- "$__TARGET_FILE")"
+
+# Stop bat from calling this recursively.
+unset LESSOPEN
+unset LESSCLOSE
+
+# Load external viewers.
+if [[ -d "${__CONFIG_DIR}/viewers.d" ]]; then
+	unset LIB
+	unset SELF
+
+	shopt -o nullglob
+	for viewer_script in "${__CONFIG_DIR}/viewers.d"/*; do
+		source "${viewer_script}"
+	done
+	shopt -u nullglob
+fi
+
+# Try opening the file with the first viewer that supports it.
+for viewer in "${BATPIPE_VIEWERS[@]}"; do
+	if "viewer_${viewer}_supports" "$__TARGET_FILE" "$__TARGET_BASENAME" 1>&2; then
+		"viewer_${viewer}_process" "$__TARGET_FILE" "$__TARGET_INSIDE"
+		exit $?
+	fi
+done
+
+# No supported viewer. Just pass it through.
+exit 1
