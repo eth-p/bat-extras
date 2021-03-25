@@ -109,7 +109,7 @@ fi
 # Viewers:
 # -----------------------------------------------------------------------------
 
-BATPIPE_VIEWERS=("ls" "tar")
+BATPIPE_VIEWERS=("ls" "tar" "unzip")
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -144,6 +144,29 @@ viewer_tar_process() {
 		batpipe_header    "Viewing contents of archive: %{PATH}%s" "$1"
 		batpipe_subheader "To view files within the archive, add the file path after the archive."
 		tar -tvf "$1"
+		return $?
+	fi
+}
+
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+viewer_unzip_supports() {
+	command -v "unzip" &> /dev/null || return 1
+
+	case "$2" in
+		*.zip) return 0 ;;
+	esac
+
+	return 1
+}
+
+viewer_unzip_process() {
+	if [[ -n "$2" ]]; then
+		unzip -p "$1" "$2" | bat_if_not_bat --file-name="$1/$2" 
+	else
+		batpipe_header    "Viewing contents of archive: %{PATH}%s" "$1"
+		batpipe_subheader "To view files within the archive, add the file path after the archive."
+		unzip -l "$1"
 		return $?
 	fi
 }
@@ -308,5 +331,4 @@ for viewer in "${BATPIPE_VIEWERS[@]}"; do
 done
 
 # No supported viewer. Just pass it through.
-cat 
 exit 1
