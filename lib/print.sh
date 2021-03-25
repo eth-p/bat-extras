@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # -----------------------------------------------------------------------------
-# bat-extras | Copyright (C) 2019 eth-p | MIT License
+# bat-extras | Copyright (C) 2021 eth-p | MIT License
 #
 # Repository: https://github.com/eth-p/bat-extras
 # Issues:     https://github.com/eth-p/bat-extras/issues
@@ -44,7 +44,7 @@ printc_init() {
 			_PRINTC_PATTERN_ANSI="${_PRINTC_PATTERN_ANSI}s/%{${name}}/${ansi}/g;"
 		done
 
-		if [ -t 1 ]; then
+		if [[ -t 1 && -z "${NO_COLOR+x}" ]]; then
 			_PRINTC_PATTERN="$_PRINTC_PATTERN_ANSI"
 		else
 			_PRINTC_PATTERN="$_PRINTC_PATTERN_PLAIN"
