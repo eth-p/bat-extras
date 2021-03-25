@@ -109,7 +109,26 @@ fi
 # Viewers:
 # -----------------------------------------------------------------------------
 
-BATPIPE_VIEWERS=("ls" "tar" "unzip" "gunzip" "xz")
+BATPIPE_VIEWERS=("exa" "ls" "tar" "unzip" "gunzip" "xz")
+
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+viewer_exa_supports() {
+	[[ -d "$2" ]] || return 1
+	command -v "exa" &> /dev/null || return 1
+	return 0
+}
+
+viewer_exa_process() {
+	local dir="$(strip_trailing_slashes "$1")"
+	batpipe_header "Viewing contents of directory: %{PATH}%s" "$dir"
+	if "$BATPIPE_ENABLE_COLOR"; then
+		exa -la --color=always "$1" 2>&1
+	else
+		exa -la --color=never "$1" 2>&1
+	fi
+	return $?
+}
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
