@@ -27,6 +27,7 @@ Like [lesspipe](https://github.com/wofr06/lesspipe), `batpipe` is designed to wo
 | `*.tar`, `*.tar.gz`  | `tar`                       |
 | `*.zip`, `*.jar`     | `unzip`                     |
 | `*.gz`               | `gunzip`                    |
+| `*.xz`               | `xz`                        |
 
 
 ## External Viewers

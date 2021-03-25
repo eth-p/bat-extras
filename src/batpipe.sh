@@ -109,7 +109,7 @@ fi
 # Viewers:
 # -----------------------------------------------------------------------------
 
-BATPIPE_VIEWERS=("ls" "tar" "unzip" "gunzip")
+BATPIPE_VIEWERS=("ls" "tar" "unzip" "gunzip" "xz")
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -186,6 +186,24 @@ viewer_gunzip_supports() {
 
 viewer_gunzip_process() {
 	gunzip -k -c "$1"
+	return $?
+}
+
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+viewer_xz_supports() {
+	command -v "xz" &> /dev/null || return 1
+	[[ -z "$3" ]] || return 1
+
+	case "$2" in
+		*.xz) return 0 ;;
+	esac
+
+	return 1
+}
+
+viewer_xz_process() {
+	xz --decompress -k -c "$1"
 	return $?
 }
 
