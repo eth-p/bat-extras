@@ -18,6 +18,12 @@ Read system manual pages (`man`) using `bat` as the manual page formatter.
 
 
 
+### [`batpipe`](doc/batpipe.md)
+
+A `less` (and soon `bat`) preprocessor for viewing more types of files in the terminal.
+
+
+
 ### [`batwatch`](doc/batwatch.md)
 
 Watch for changes in one or more files, and print them with `bat`.
