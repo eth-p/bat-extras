@@ -31,6 +31,9 @@
 #     batpipe_header [pattern] [...]    -- Print a viewer header line.
 #     batpipe_subheader [pattern] [...] -- Print a viewer subheader line.
 #
+#     bat                   -- Use `bat` for highlighting.
+#     bat_if_not_bat [...]  -- Use `bat` for highlighting (only supported in `less`).
+#
 #     strip_trailing_slashes [path]     -- Strips trailing slashes from a path.
 #
 # -----------------------------------------------------------------------------
@@ -262,8 +265,19 @@ __TARGET_FILE="$(strip_trailing_slashes "$1")"
 # This allows inner paths of archives to be used.
 while ! [[ -e "$__TARGET_FILE" ]]; do
 	__TARGET_INSIDE="$(basename -- "${__TARGET_FILE}")/${__TARGET_INSIDE}"
-	__TARGET_FILE="$(dirname "${__TARGET_FILE}")"
+	__TARGET_FILE="$(dirname -- "${__TARGET_FILE}")"
 done
+
+# If the target file isn't actually a file, then the inner path should be appended.
+if ! [[ -f "$__TARGET_FILE" ]]; then
+	__TARGET_FILE="${__TARGET_FILE}/${__TARGET_INSIDE}"
+	__TARGET_INSIDE=""
+fi
+
+# If an inner path exists or the target file isn't a directory, the target file should not have trailing slashes.
+if [[ -n "$__TARGET_INSIDE" ]] || ! [[ -d "$__TARGET_FILE" ]]; then
+	__TARGET_FILE="$(strip_trailing_slashes "$__TARGET_FILE")"	
+fi
 
 # Remove trailing slash of the inner target path.
 __TARGET_INSIDE="$(strip_trailing_slashes "$__TARGET_INSIDE")"
