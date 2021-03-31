@@ -11,3 +11,7 @@
 .download
 bin
 man
+
+# Side-Effects
+/test/data/.config/fish
+/test/data/.local/share/fish
