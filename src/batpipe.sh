@@ -370,7 +370,7 @@ if [[ -d "${__CONFIG_DIR}/viewers.d" ]]; then
 	unset LIB
 	unset SELF
 
-	shopt -o nullglob
+	shopt -s nullglob
 	for viewer_script in "${__CONFIG_DIR}/viewers.d"/*; do
 		source "${viewer_script}"
 	done
