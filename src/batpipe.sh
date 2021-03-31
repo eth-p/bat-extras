@@ -97,12 +97,12 @@ BATPIPE_INSIDE_LESS=false
 BATPIPE_INSIDE_BAT=false
 TERM_WIDTH="$(term_width)"
 
-bat_if_not_bat() { cat; }
+bat_if_not_bat() { bat "$@"; return $?; }
 if [[ "$(basename -- "$(parent_executable "$(parent_executable_pid)"|cut -f1 -d' ')")" == less ]]; then
 	BATPIPE_INSIDE_LESS=true
-	bat_if_not_bat() { bat "$@"; return $?; }
 elif [[ "$(basename -- "$(parent_executable|cut -f1 -d' ')")" == "$(basename -- "$EXECUTABLE_BAT")" ]]; then
 	BATPIPE_INSIDE_BAT=true
+	bat_if_not_bat() { cat "$@"; }
 fi
 
 # -----------------------------------------------------------------------------
@@ -385,5 +385,12 @@ for viewer in "${BATPIPE_VIEWERS[@]}"; do
 	fi
 done
 
-# No supported viewer. Just pass it through.
-exit 1
+# No supported viewer. Just pass it through (if using bat).
+if [[ "$BATPIPE_INSIDE_BAT" = true ]]; then
+	exit 1
+fi
+
+# No supported viewer... highlight it using bat.
+if [[ -f "$1" ]]; then
+	bat_if_not_bat "$1"
+fi
