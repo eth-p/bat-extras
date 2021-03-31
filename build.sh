@@ -370,6 +370,7 @@ OPT_INLINE=true
 OPT_MINIFY="lib"
 OPT_PREFIX="/usr/local"
 OPT_BAT="$(basename "$EXECUTABLE_BAT")"
+BUILD_FILTER=()
 
 DOCS_URL="https://github.com/eth-p/bat-extras/blob/master/doc"
 DOCS_MAINTAINER="eth-p <eth-p@hidden.email>"
@@ -389,8 +390,12 @@ while shiftopt; do
 	--minify)		        shiftval; OPT_MINIFY="$OPT_VAL" ;;
 
 	*)
-		printc_err "%{RED}%s: unknown option '%s'%{CLEAR}" "$PROGRAM" "$OPT"
-		exit 1
+		if ! [[ -f "${SRC}/${OPT}.sh" ]]; then
+			printc_err "%{RED}%s: unknown option '%s'%{CLEAR}" "$PROGRAM" "$OPT"
+			exit 1
+		fi
+		
+		BUILD_FILTER+=("$OPT")
 		;;
 	esac
 done
@@ -445,8 +450,31 @@ SOURCES=()
 
 printc_msg "%{YELLOW}Preparing scripts...%{CLEAR}\n"
 for file in "$SRC"/*.sh; do
-	SOURCES+=("$file")
+	file_bin="$(basename -- "$file" ".sh")"
+	buildable=false
+	
+	if ! "$buildable" && [[ "${#BUILD_FILTER[@]}" -eq 0 ]]; then
+		buildable=true
+	elif ! "$buildable"; then
+		for buildable_file in "${BUILD_FILTER[@]}"; do
+			if [[ "$buildable_file" = "$file_bin" ]]; then
+				buildable=true
+				break	
+			fi
+		done
+	fi
+	
+	# If that one is allowed to build, add it to the sources list.
+	if "$buildable"; then
+		SOURCES+=("$file")
+	else
+		printc_msg "          %{YELLOW}Skipping %{MAGENTA}%s%{CLEAR}\n" "$(basename "$file_bin")"
+	fi
 done
+
+if [[ "${#BUILD_FILTER[@]}" -gt 0 ]]; then
+	printf "\n"	
+fi
 
 # -----------------------------------------------------------------------------
 # Build manuals.
