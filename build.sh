@@ -379,7 +379,7 @@ while shiftopt; do
 	case "$OPT" in
 	--install)                        OPT_INSTALL=true ;;
 	--compress)                       OPT_COMPRESS=true ;;
-	--manuals)                        OPT_MANUALS=true ;;
+	--manuals)                        OPT_MANUALS="${OPT_VAL:-true}" ;;
 	--no-manuals)                     OPT_MANUALS=false ;;
 	--no-verify)                      OPT_VERIFY=false ;;
 	--no-banner)                      OPT_BANNER=false ;;
@@ -451,7 +451,7 @@ done
 # -----------------------------------------------------------------------------
 # Build manuals.
 
-if "$OPT_MANUALS"; then
+if [[ "$OPT_MANUALS" = "true" ]]; then
 	source "${HERE}/mdroff.sh"
 	if ! [[ -d "$MAN" ]]; then
 		mkdir -p "$MAN"
