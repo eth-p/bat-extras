@@ -35,10 +35,13 @@ commands:
             minify:
                 type: string
                 default: "lib"
+            manuals:
+                type: string
+                default: "false"
         steps:
             - run:
                   name: "Build"
-                  command: ./build.sh --minify=<<parameters.minify>> --no-verify
+                  command: ./build.sh --minify=<<parameters.minify>> --manuals=<<parameters.manuals>> --no-verify
 
 jobs:
     build:
@@ -46,11 +49,12 @@ jobs:
         steps:
             - setup
             - checkout
-            - run:
-                  name: "Build Manuals"
-                  command: ./build.sh --no-verify --manuals
             - build:
                   minify: "all"
+                  manuals: "true"
+            - build:
+                  minify: "all"
+                  manuals: "true"
             - store_artifacts:
                   path: bin
             - store_artifacts:
