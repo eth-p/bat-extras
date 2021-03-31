@@ -529,7 +529,7 @@ if "$OPT_VERIFY"; then
 	if [[ "$FAIL" -ne 0 ]]; then
 		printc_err "%{RED}%s\n" "One or more tests failed."
 		printc_msg "\x1B[A\x1B[G\x1B[K%{RED}%s\n" "One or more tests failed."
-		printc_err "%{RED}%s%{CLEAR}\n" "Run ./test.sh for more detailed information."
+		printc_err "%{RED}%s%{CLEAR}\n" "Run './test.sh --failed' for more detailed information."
 		exit 1
 	fi
 
