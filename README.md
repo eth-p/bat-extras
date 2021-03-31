@@ -46,7 +46,12 @@ Pretty-print source code and highlight it with `bat`.
 
 ## Installation via Package Manager
 
-**Homebrew:** `brew install eth-p/software/bat-extras`
+### Homebrew
+
+All of the `bat-extras` scripts can be installed with `brew install eth-p/software/bat-extras`.
+
+If you would only like to install one of the scripts, you can use `brew install eth-p/software/bat-extras-[SCRIPT]` to install it.
+
 
 &nbsp;
 
