@@ -24,7 +24,7 @@ commands:
                   command: apk add git openssh bash python3 diffutils ca-certificates curl shfmt
             - run:
                   name: "Setup: Install test packages."
-                  command: apk add util-linux coreutils
+                  command: apk add util-linux coreutils fish
             - run:
                   name: "Setup: Install runtime packages."
                   command: apk add bat ripgrep ncurses
