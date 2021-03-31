@@ -21,7 +21,7 @@ commands:
                   command: apk update
             - run:
                   name: "Setup: Install build packages."
-                  command: apk add git openssh bash python2 diffutils ca-certificates curl shfmt
+                  command: apk add git openssh bash python3 diffutils ca-certificates curl shfmt
             - run:
                   name: "Setup: Install test packages."
                   command: apk add util-linux coreutils
