@@ -8,9 +8,8 @@
 
 # Project
 /.circleci/.config.yml
-.download
-bin
-man
+/bin
+/man
 
 # Side-Effects
 /test/data/.config/fish
