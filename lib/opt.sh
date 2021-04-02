@@ -50,12 +50,17 @@ setargs() {
 # Gets all the remaining unparsed arguments and saves them to a variable.
 #
 # Arguments:
-#     $1  -- The variable to save the args to.
+#     "-a" -- Append the arguments to the variable instead of replacing it.
+#     $1   -- The variable to save the args to.
 # 
 # Example:
 #     getargs remaining_args
 getargs() {
-	eval "$1=($(printf '%q ' "${_ARGV[@]:$_ARGV_INDEX}"))"
+	if [[ "$1" = "-a" || "$1" = "--append" ]]; then
+		eval "$2=(\"\${$2[@]}\" $(printf '%q ' "${_ARGV[@]:$_ARGV_INDEX}"))"
+	else
+		eval "$1=($(printf '%q ' "${_ARGV[@]:$_ARGV_INDEX}"))"
+	fi
 }
 
 # Resets the internal _ARGV* variables to the original script arguments.

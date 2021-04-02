@@ -415,3 +415,18 @@ test:fn_getargs() {
 	shiftopt
 	assert_opt_name "three" 
 }
+
+test:fn_getargs_append() {
+	description "Function getargs -a."
+
+	setargs "--two=three" "four"
+	
+	args=(zero one)
+	getargs -a args
+	
+	assert_equal 4 "${#args[@]}"
+	assert_equal "zero" "${args[0]}"
+	assert_equal "one" "${args[1]}"
+	assert_equal "--two=three" "${args[2]}"
+	assert_equal "four" "${args[3]}"	
+}
