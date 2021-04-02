@@ -420,13 +420,24 @@ test:fn_getargs_append() {
 	description "Function getargs -a."
 
 	setargs "--two=three" "four"
-	
+
 	args=(zero one)
 	getargs -a args
-	
+
 	assert_equal 4 "${#args[@]}"
 	assert_equal "zero" "${args[0]}"
 	assert_equal "one" "${args[1]}"
 	assert_equal "--two=three" "${args[2]}"
-	assert_equal "four" "${args[3]}"	
+	assert_equal "four" "${args[3]}"
+
+	# Ensure it doesn't append empty strings.
+	args=()
+	setargs "zero" "one"
+	getargs -a args
+	assert_equal 2 "${#args[@]}"	
+	
+	args=(zero one)
+	setargs
+	getargs -a args
+	assert_equal 2 "${#args[@]}"	
 }
