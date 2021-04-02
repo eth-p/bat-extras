@@ -397,3 +397,21 @@ test:fn_resetargs() {
 	
 	assert_opt_name "--long-implicit"
 }
+
+# shellcheck disable=SC2154
+test:fn_getargs() {
+	description "Function getargs."
+
+	setargs "--one=two" "three" "--four"
+	shiftopt
+	
+	getargs args
+	
+	assert_equal 2 "${#args[@]}"
+	assert_equal "three" "${args[0]}"
+	assert_equal "--four" "${args[1]}"
+	
+	# Ensure getargs doesn't remove remaining arguments.
+	shiftopt
+	assert_opt_name "three" 
+}

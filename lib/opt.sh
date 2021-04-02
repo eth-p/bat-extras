@@ -47,6 +47,17 @@ setargs() {
 	_ARGV_SUBINDEX=1
 }
 
+# Gets all the remaining unparsed arguments and saves them to a variable.
+#
+# Arguments:
+#     $1  -- The variable to save the args to.
+# 
+# Example:
+#     getargs remaining_args
+getargs() {
+	eval "$1=($(printf '%q ' "${_ARGV[@]:$_ARGV_INDEX}"))"
+}
+
 # Resets the internal _ARGV* variables to the original script arguments.
 # This is the equivalent of storing the top-level $@ and using setargs with it.
 resetargs() {
