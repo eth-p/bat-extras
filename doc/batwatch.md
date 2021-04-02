@@ -1,8 +1,6 @@
 # bat-extras: batwatch
 
-Watch for changes in one or more files, and print them with `bat`.
-
-Please note this watches filesystem files, and not command output like `watch(1)`.
+Watch for changes in files or command output, and print them with `bat`.
 
 
 
@@ -10,17 +8,22 @@ Please note this watches filesystem files, and not command output like `watch(1)
 
     batwatch [OPTIONS] FILE...
 
+    batwatch [OPTIONS] --command COMMAND [ARG...]
+
 
 
 ## Options
 
-| Short | Long                  | Description                                                  |
-| ----- | --------------------- | ------------------------------------------------------------ |
-|       | `--watcher=[watcher]` | Use a specific program to watch for file changes. See [below](#watchers) for more details. |
-|       | `--clear`             | Clear the screen before printing the files.<br />This is enabled by default. |
-|       | `--no-clear`          | Do not clear the screen before printing the files.           |
-|       | `--color`             | Force color output.                                          |
-|       | `--no-color`          | Force disable color output.                                  |
+| Short | Long                   | Description                                                  |
+| ----- | ---------------------- | ------------------------------------------------------------ |
+|       | `--command`\|`-x`      | Execute a command on an interval. |
+|       | `--file`\|`-f`         | Watch a file for changes. |
+|       | `--watcher=[watcher]`  | Use a specific program to watch for file changes. See [below](#watchers) for more details. |
+|       | `--interval=[seconds]` | The interval for executing commands. |
+|       | `--clear`              | Clear the screen before printing the files.<br />This is enabled by default. |
+|       | `--no-clear`           | Do not clear the screen before printing the files.           |
+|       | `--color`              | Force color output.                                          |
+|       | `--no-color`           | Force disable color output.                                  |
 
 All remaining options are passed through to bat.
 
