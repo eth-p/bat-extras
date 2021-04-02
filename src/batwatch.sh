@@ -15,6 +15,7 @@ source "${LIB}/opt_hook_version.sh"
 source "${LIB}/opt_hook_width.sh"
 source "${LIB}/print.sh"
 source "${LIB}/pager.sh"
+source "${LIB}/version.sh"
 # -----------------------------------------------------------------------------
 # Init:
 # -----------------------------------------------------------------------------
@@ -275,6 +276,13 @@ if [[ "$OPT_MODE" = "file" ]]; then
 		return  $?
 	}
 else
+	
+	# Set bat's header to show the command.
+	BAT_VERSION="$(bat_version)"
+	if version_compare "$BAT_VERSION" -ge "0.14"; then
+		BAT_ARGS+=(--file-name="${FILES[*]}")
+	fi
+
 	main() {
 		while true; do
 			clear
