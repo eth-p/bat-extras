@@ -11,7 +11,6 @@ source "${LIB}/constants.sh"
 source "${LIB}/opt.sh"
 source "${LIB}/opt_hook_color.sh"
 source "${LIB}/opt_hook_help.sh"
-source "${LIB}/opt_hook_pager.sh"
 source "${LIB}/opt_hook_version.sh"
 source "${LIB}/opt_hook_width.sh"
 source "${LIB}/print.sh"
@@ -20,7 +19,6 @@ source "${LIB}/pager.sh"
 # Init:
 # -----------------------------------------------------------------------------
 hook_color
-hook_pager
 hook_version
 hook_width
 hook_help
@@ -46,7 +44,7 @@ watcher_entr_watch() {
 		ENTR_ARGS+=('-c')
 	fi
 
-	pager_exec entr "${ENTR_ARGS[@]}" \
+	entr "${ENTR_ARGS[@]}" \
 		"$EXECUTABLE_BAT" "${BAT_ARGS[@]}" \
 		--terminal-width="$OPT_TERMINAL_WIDTH" \
 		--paging=never \
@@ -109,7 +107,7 @@ watcher_poll_watch() {
 		if "$modified"; then
 			modified=false
 			clear
-			pager_exec "$EXECUTABLE_BAT" "${BAT_ARGS[@]}" \
+			"$EXECUTABLE_BAT" "${BAT_ARGS[@]}" \
 				--terminal-width="$OPT_TERMINAL_WIDTH" \
 				--paging=never \
 				"${files[@]}"
@@ -165,7 +163,7 @@ determine_watcher() {
 # -----------------------------------------------------------------------------
 # Options:
 # -----------------------------------------------------------------------------
-BAT_ARGS=()
+BAT_ARGS=(--paging=never)
 FILES=()
 FILES_HAS_DIRECTORY=false
 OPT_MODE=file
@@ -280,7 +278,7 @@ else
 	main() {
 		while true; do
 			clear
-			"${FILES[@]}" 2>&1 | bat
+			"${FILES[@]}" 2>&1 | "$EXECUTABLE_BAT" "${BAT_ARGS[@]}"
 			sleep "${OPT_INTERVAL}" || exit 1
 		done
 	}
