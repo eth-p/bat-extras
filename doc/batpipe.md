@@ -2,8 +2,6 @@
 
 A `less` (and `bat`) preprocessor for viewing more types of files in the terminal.
 
-The only thing better than syntax highlighting? Syntax highlighting *and* code formatting. This script combines the best of both worlds by using [various formatters](#Languages) to format source files before using `bat` to highlight them.
-
 
 
 ## Usage
