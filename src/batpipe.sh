@@ -81,8 +81,8 @@ if [[ "$#" -eq 0 ]]; then
 			printc '%{YELLOW}set -e %{CLEAR}LESSCLOSE;\n'
 			;;
 		*) # Bash-like
-			printc '%{YELLOW}LESSOPEN=%{CYAN}"|%s %%s"%{CLEAR};\n' "$SELF"
-			printc '%{YELLOW}export%{CLEAR} LESSOPEN\n' "$SELF"
+			printc '%{MAGENTA}LESSOPEN%{YELLOW}=%{CYAN}"|%s %%s"%{CLEAR};\n' "$SELF"
+			printc '%{YELLOW}export%{CLEAR} LESSOPEN;\n' "$SELF"
 			printc '%{YELLOW}unset%{CLEAR} LESSCLOSE;\n'
 			;;
 	esac
