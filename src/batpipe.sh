@@ -201,7 +201,7 @@ viewer_gunzip_supports() {
 }
 
 viewer_gunzip_process() {
-	gunzip -k -c "$1"
+	gunzip -k -c "$1" | bat --file-name="$1"
 	return $?
 }
 
@@ -219,7 +219,7 @@ viewer_xz_supports() {
 }
 
 viewer_xz_process() {
-	xz --decompress -k -c "$1"
+	xz --decompress -k -c "$1" | bat --file-name="$1"
 	return $?
 }
 
