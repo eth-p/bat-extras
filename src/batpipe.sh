@@ -31,8 +31,7 @@
 #     batpipe_header [pattern] [...]    -- Print a viewer header line.
 #     batpipe_subheader [pattern] [...] -- Print a viewer subheader line.
 #
-#     bat                   -- Use `bat` for highlighting.
-#     bat_if_not_bat [...]  -- Use `bat` for highlighting (when running from `less`).
+#     bat                   -- Use `bat` for highlighting. If running inside `bat`, does nothing.
 #
 #     strip_trailing_slashes [path]     -- Strips trailing slashes from a path.
 #
@@ -97,12 +96,10 @@ BATPIPE_INSIDE_LESS=false
 BATPIPE_INSIDE_BAT=false
 TERM_WIDTH="$(term_width)"
 
-bat_if_not_bat() { bat "$@"; return $?; }
-if [[ "$(basename -- "$(parent_executable "$(parent_executable_pid)"|cut -f1 -d' ')")" == less ]]; then
+if [[ "$(basename -- "$(parent_executable "$(parent_executable_pid)" | cut -f1 -d' ')")" == less ]]; then
 	BATPIPE_INSIDE_LESS=true
-elif [[ "$(basename -- "$(parent_executable|cut -f1 -d' ')")" == "$(basename -- "$EXECUTABLE_BAT")" ]]; then
+elif [[ "$(basename -- "$(parent_executable | cut -f1 -d' ')")" == "$(basename -- "$EXECUTABLE_BAT")" ]]; then
 	BATPIPE_INSIDE_BAT=true
-	bat_if_not_bat() { cat "$@"; }
 fi
 
 # -----------------------------------------------------------------------------
@@ -158,7 +155,7 @@ viewer_tar_supports() {
 
 viewer_tar_process() {
 	if [[ -n "$2" ]]; then
-		tar -xf "$1" -O "$2" | bat_if_not_bat --file-name="$1/$2" 
+		tar -xf "$1" -O "$2" | bat --file-name="$1/$2"
 	else
 		batpipe_header    "Viewing contents of archive: %{PATH}%s" "$1"
 		batpipe_subheader "To view files within the archive, add the file path after the archive."
@@ -181,7 +178,7 @@ viewer_unzip_supports() {
 
 viewer_unzip_process() {
 	if [[ -n "$2" ]]; then
-		unzip -p "$1" "$2" | bat_if_not_bat --file-name="$1/$2" 
+		unzip -p "$1" "$2" | bat --file-name="$1/$2"
 	else
 		batpipe_header    "Viewing contents of archive: %{PATH}%s" "$1"
 		batpipe_subheader "To view files within the archive, add the file path after the archive."
@@ -248,34 +245,42 @@ batpipe_subheader() {
 	printc "%{SUBHEADER}==> $pattern%{C}\n" "${@:2}"
 }
 
+# Executes `bat` (or `cat`, if already running from within `bat`).
+# Supports the `--file-name` argument if the bat version is new enough.
+#
+# NOTE: The `--key=value` option syntax is required for full compatibility.
 bat() {
 	# Conditionally enable forwarding of certain arguments.
 	if [[ -z "$__BAT_VERSION" ]]; then
 		__BAT_VERSION="$(bat_version)"
-		
+
 		__bat_forward_arg_file_name() { :; }
-		
+
 		if version_compare "$__BAT_VERSION" -ge "0.14"; then
 			__bat_forward_arg_file_name() {
 				__bat_forward_args+=("--file-name" "$1")
 			}
 		fi
 	fi
-	
+
 	# Parse arguments intended for bat.
 	__bat_batpipe_args=()
 	__bat_forward_args=()
+	__bat_files=()
 	setargs "$@"
 	while shiftopt; do
 		case "$OPT" in
-			--file-name) shiftval; __bat_forward_arg_file_name "$OPT_VAL";;
+			--file-name)
+				shiftval
+				__bat_forward_arg_file_name                       "$OPT_VAL"
+				;;
 
 			# Disallowed forwarding.
-			--paging)            shiftval;;
-			--decorations)       shiftval;;
-			--style)             shiftval;;
-			--terminal-width)    shiftval;;
-			--plain|-p|-pp|-ppp) :;;
+			--paging)            shiftval ;;
+			--decorations)       shiftval ;;
+			--style)             shiftval ;;
+			--terminal-width)    shiftval ;;
+			--plain | -p | -pp | -ppp) : ;;
 
 			# Forward remaining.
 			-*) {
@@ -283,25 +288,34 @@ bat() {
 				if [[ -n "$OPT_VAL" ]]; then
 					__bat_forward_args+=("$OPT_VAL")
 				fi
-			};;
+			} ;;
 
-			*) __bat_forward_args+=("$OPT");;
+			*) {
+				__bat_forward_args+=("$OPT")
+				__bat_files=("$OPT")
+			} ;;
 		esac
 	done
-	
+
 	# Insert batpipe arguments.
 	if "$BATPIPE_INSIDE_LESS"; then
 		__bat_batpipe_args+=(--decorations=always)
 		__bat_batpipe_args+=(--terminal-width="$TERM_WIDTH")
 		if "$BATPIPE_ENABLE_COLOR"; then
 			__bat_batpipe_args+=(--color=always)
+		else
+			__bat_batpipe_args+=(--color=never)
 		fi
 	fi
-	
+
 	if "$BATPIPE_INSIDE_BAT"; then
-		__bat_batpipe_args+=(--decorations=never --color=never)
+		if [[ "${#__bat_files[@]}" -eq 0 ]]; then
+			cat 
+		else
+			cat "${__bat_files[@]}"
+		fi
 	fi
-	
+
 	# Execute the real bat.
 	command "$EXECUTABLE_BAT" --paging=never "${__bat_batpipe_args[@]}" "${__bat_forward_args[@]}"
 }
@@ -354,7 +368,7 @@ fi
 
 # If an inner path exists or the target file isn't a directory, the target file should not have trailing slashes.
 if [[ -n "$__TARGET_INSIDE" ]] || ! [[ -d "$__TARGET_FILE" ]]; then
-	__TARGET_FILE="$(strip_trailing_slashes "$__TARGET_FILE")"	
+	__TARGET_FILE="$(strip_trailing_slashes "$__TARGET_FILE")"
 fi
 
 # Remove trailing slash of the inner target path.
@@ -386,11 +400,11 @@ for viewer in "${BATPIPE_VIEWERS[@]}"; do
 done
 
 # No supported viewer. Just pass it through (if using bat).
-if [[ "$BATPIPE_INSIDE_BAT" = true ]]; then
+if [[ "$BATPIPE_INSIDE_BAT" == true ]]; then
 	exit 1
 fi
 
 # No supported viewer... highlight it using bat.
 if [[ -f "$1" ]]; then
-	bat_if_not_bat "$1"
+	bat "$1"
 fi
