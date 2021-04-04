@@ -81,9 +81,28 @@ if [[ "$#" -eq 0 ]]; then
 			printc '%{YELLOW}set -e %{CLEAR}LESSCLOSE;\n'
 			;;
 		*) # Bash-like
-			printc '%{MAGENTA}LESSOPEN%{YELLOW}=%{CYAN}"|%s %%s"%{CLEAR};\n' "$SELF"
+			printc '%{MAGENTA}LESSOPEN%{CLEAR}=%{CYAN}"|%s %%s"%{CLEAR};\n' "$SELF"
 			printc '%{YELLOW}export%{CLEAR} LESSOPEN;\n' "$SELF"
 			printc '%{YELLOW}unset%{CLEAR} LESSCLOSE;\n'
+			;;
+	esac
+	
+	# Print the commands required to use color in `less` with `batpipe`.
+	if [[ -t 1 ]]; then
+		printc "\n%{DIM}# The following will enable colors when using batpipe with less:\n"
+	fi
+	
+	# shellcheck disable=SC2016
+	case "$(basename -- "${detected_shell:bash}")" in
+		fish) # Fish
+			printc '%{YELLOW}set -x %{CLEAR}LESS %{CYAN}"%{MAGENTA}$LESS%{CYAN} -R"%{CLEAR};\n' "$SELF"
+			printc '%{YELLOW}set -x %{CLEAR}BATPIPE %{CYAN}"color"%{CLEAR};\n'
+			;;
+		*) # Bash-like
+			printc '%{MAGENTA}LESS%{CLEAR}=%{CYAN}"%{MAGENTA}$LESS%{CYAN} -R"%{CLEAR};\n' "$SELF"
+			printc '%{MAGENTA}BATPIPE%{CLEAR}=%{CYAN}"color"%{CLEAR};\n' "$SELF"
+			printc '%{YELLOW}export%{CLEAR} LESS;\n' "$SELF"
+			printc '%{YELLOW}export%{CLEAR} BATPIPE;\n' "$SELF"
 			;;
 	esac
 	exit 0
