@@ -61,7 +61,11 @@ getargs() {
 			eval "$2=(\"\${$2[@]}\" $(printf '%q ' "${_ARGV[@]:$_ARGV_INDEX}"))"
 		fi
 	else
-		eval "$1=($(printf '%q ' "${_ARGV[@]:$_ARGV_INDEX}"))"
+		if [[ "${_ARGV_INDEX}" -ne "$((_ARGV_LAST+1))" ]]; then
+			eval "$1=($(printf '%q ' "${_ARGV[@]:$_ARGV_INDEX}"))"
+		else
+			eval "$1=()"
+		fi
 	fi
 }
 

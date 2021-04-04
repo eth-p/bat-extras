@@ -413,7 +413,13 @@ test:fn_getargs() {
 	
 	# Ensure getargs doesn't remove remaining arguments.
 	shiftopt
-	assert_opt_name "three" 
+	assert_opt_name "three"
+	
+	# Ensure it doesn't set an empty string.
+	args=(one two)
+	setargs
+	getargs args
+	assert_equal 0 "${#args[@]}"
 }
 
 test:fn_getargs_append() {
