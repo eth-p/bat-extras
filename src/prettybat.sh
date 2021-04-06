@@ -181,8 +181,10 @@ process_file() {
 	local formatter
 	
 	# Check that the file exists, and is a file.
-	check_exists  "$file" || return 1
-	check_is_file "$file" || return 1
+	if [[ "$file" != "-" ]]; then
+		check_exists  "$file" || return 1
+		check_is_file "$file" || return 1
+	fi
 
 	# Determine the formatter.
 	if [[ -n "$OPT_LANGUAGE" ]]; then
@@ -190,7 +192,9 @@ process_file() {
 		fext="$(map_language_to_extension "$lang")"
 	fi
 
-	formatter="$(map_extension_to_formatter "$fext")"
+	if [[ "$ext" != "-" ]]; then
+		formatter="$(map_extension_to_formatter "$fext")"
+	fi
 
 	# Debug: Print the name and formatter.
 	if "$DEBUG_PRINT_FORMATTER"; then
@@ -271,6 +275,9 @@ while shiftopt; do
 
 	# Debug options
 	--debug:formatter) DEBUG_PRINT_FORMATTER=true ;;
+
+	# Read from stdin
+	-) FILES+=("-") ;;
 
 	# bat options
 	-*) {
