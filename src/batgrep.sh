@@ -228,7 +228,6 @@ main() {
 			--vimgrep \
 			"${RG_ARGS[@]}" \
 			--context 0 \
-			--no-context-separator \
 			--sort path \
 			"$PATTERN" \
 			"${FILES[@]}" \
