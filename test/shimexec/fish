@@ -4,7 +4,7 @@ HERE="$(cd "$(dirname "$0")" && pwd)"
 while read -d ':' -r dir; do
 	if [[ "$dir" == "$HERE" || -z "$dir" ]]; then continue; fi
 	if [[ -f "${dir}/fish" ]]; then
-		TMPDIR= "${dir}/fish" "$@"
+		TMPDIR='' "${dir}/fish" "$@"
 		exit $?
 	fi
 done <<<"$PATH:"
