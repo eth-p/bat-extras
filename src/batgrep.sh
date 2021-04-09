@@ -38,7 +38,7 @@ OPT_SNIP=""
 OPT_HIGHLIGHT=true
 OPT_SEARCH_PATTERN=false
 OPT_FIXED_STRINGS=false
-BAT_STYLE="header,numbers"
+BAT_STYLE="${BAT_STYLE:-header,numbers}"
 
 # Set options based on the bat version.
 if version_compare "$(bat_version)" -gt "0.12"; then
