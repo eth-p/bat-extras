@@ -2,6 +2,8 @@ HAS_RIPGREP=false
 
 setup() {
 	use_shim 'batgrep'
+	
+	unset BAT_STYLE
 
 	if command -v rg &>/dev/null; then
 		HAS_RIPGREP=true
@@ -101,4 +103,14 @@ test:search_from_stdin() {
 	require_rg
 
 	cat file.txt | batgrep "^ca"
+}
+
+test:respects_bat_style() {
+	description "Should respect the BAT_STYLE variable."
+	snapshot stdout
+	snapshot stderr
+
+	require_rg
+
+	BAT_STYLE="grid" batgrep "ca" file.txt --color=always
 }

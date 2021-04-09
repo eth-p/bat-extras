@@ -38,7 +38,7 @@ OPT_SNIP=""
 OPT_HIGHLIGHT=true
 OPT_SEARCH_PATTERN=false
 OPT_FIXED_STRINGS=false
-BAT_STYLE="header,numbers"
+BAT_STYLE="${BAT_STYLE:-header,numbers}"
 
 # Set options based on the bat version.
 if version_compare "$(bat_version)" -gt "0.12"; then
@@ -246,7 +246,9 @@ main() {
 		[[ -z "$LAST_FILE" ]] && return 0
 
 		# Print the separator.
-		"$FIRST_PRINT" && echo "$SEP"
+		if ! [[ "$BAT_STYLE" = *grid* ]]; then
+			"$FIRST_PRINT" && echo "$SEP"
+		fi
 		FIRST_PRINT=false
 
 		# Print the file.
@@ -259,7 +261,9 @@ main() {
 			"$LAST_FILE"
 
 		# Print the separator.
-		echo "$SEP"
+		if ! [[ "$BAT_STYLE" = *grid* ]]; then
+			echo "$SEP"
+		fi
 	}
 	
 	do_print_from_file_or_stdin() {
