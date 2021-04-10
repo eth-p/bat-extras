@@ -12,6 +12,12 @@ is_pager_less() {
 	return $?
 }
 
+# Returns 0 (true) if the current pager is bat, otherwise 1 (false).
+is_pager_bat() {
+	[[ "$(pager_name)" = "bat" ]]
+	return $?
+}
+
 # Returns 0 (true) if the current pager is disabled, otherwise 1 (false).
 is_pager_disabled() {
 	[[ -z "$(pager_name)" ]]
@@ -86,9 +92,13 @@ _detect_pager() {
 	output1="$(head -n 1 <<<"$output")"
 
 	if [[ "$output1" =~ ^less[[:blank:]]([[:digit:]]+) ]]; then
-		# shellcheck disable=SC2001
 		_SCRIPT_PAGER_VERSION="${BASH_REMATCH[1]}"
 		_SCRIPT_PAGER_NAME="less"
+	elif [[ "$output1" =~ ^bat(cat)?[[:blank:]]([[:digit:]]+) ]]; then
+		# shellcheck disable=SC2034
+		__BAT_VERSION="${BASH_REMATCH[2]}"
+		_SCRIPT_PAGER_VERSION="${BASH_REMATCH[2]}"
+		_SCRIPT_PAGER_NAME="bat"
 	else
 		_SCRIPT_PAGER_VERSION=0
 		_SCRIPT_PAGER_NAME="$(basename "${SCRIPT_PAGER_CMD[0]}")"
@@ -113,6 +123,12 @@ _configure_pager() {
 		SCRIPT_PAGER_CMD=($BAT_PAGER)
 		SCRIPT_PAGER_ARGS=()
 		return
+	fi
+	
+	# If the pager is bat, use less instead.
+	if is_pager_bat; then
+		SCRIPT_PAGER_CMD=("less")
+		SCRIPT_PAGER_ARGS=()
 	fi
 
 	# Add arguments for the less pager.

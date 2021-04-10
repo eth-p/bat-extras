@@ -8,8 +8,11 @@
 
 # Gets the current bat version.
 bat_version() {
-	command "$EXECUTABLE_BAT" --version | cut -d ' ' -f 2
-	return
+	if [[ -z "${__BAT_VERSION}" ]]; then
+		__BAT_VERSION="$(command "$EXECUTABLE_BAT" --version | cut -d ' ' -f 2)"
+	fi
+	
+	echo "${__BAT_VERSION}"
 }
 
 # Compares two version strings.
