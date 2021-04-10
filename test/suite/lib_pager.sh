@@ -26,6 +26,12 @@ test:less_detection() {
 	(use_pager "stty"             && expect_equal "$(pager_name)" "stty")
 }
 
+test:bat_detection() {
+	description "Ensure bat is replaced with less as pager"
+
+	(use_pager "bat"              && expect_equal "$(pager_name)" "less")
+}
+
 test:less_version() {
 	description "Identify less version"
 
