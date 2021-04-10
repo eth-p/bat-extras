@@ -89,7 +89,7 @@ if [[ "$#" -eq 0 ]]; then
 	
 	# Print the commands required to use color in `less` with `batpipe`.
 	if [[ -t 1 ]]; then
-		printc "\n%{DIM}# The following will enable colors when using batpipe with less:\n"
+		printc "\n%{DIM}# The following will enable colors when using batpipe with less:%{CLEAR}\n"
 	fi
 	
 	# shellcheck disable=SC2016
