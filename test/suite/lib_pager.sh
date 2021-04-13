@@ -10,6 +10,14 @@ use_pager() {
 	_detect_pager
 }
 
+use_no_pager() {
+	unset BAT_PAGER
+	unset PAGER
+
+	_configure_pager
+	_detect_pager
+}
+
 use_bat_pager() {
 	unset PAGER
 	export BAT_PAGER="$1"
@@ -29,7 +37,9 @@ test:less_detection() {
 test:bat_detection() {
 	description "Ensure bat is replaced with less as pager"
 
-	(use_pager "bat"              && expect_equal "$(pager_name)" "less")
+	use_pager "bat"
+	expect_equal "$(pager_name)" "less"
+	expect array_contains "-R" in "${SCRIPT_PAGER_CMD[@]}"
 }
 
 test:less_version() {
@@ -86,6 +96,14 @@ test:env_bat_pager() {
 	expect_equal "${SCRIPT_PAGER_CMD[0]}" "not_less"
 	expect_equal "${SCRIPT_PAGER_CMD[1]}" "but"
 	expect_equal "${SCRIPT_PAGER_CMD[2]}" "not_more"
+}
+
+test:env_no_pager() {
+	description "Check that no PAGER or BAT_PAGER defaults to less"
+	
+	use_no_pager
+	expect_equal "${SCRIPT_PAGER_CMD[0]}" "less"
+	expect array_contains "-R" in "${SCRIPT_PAGER_CMD[@]}"
 }
 
 test:args_copied_from_pager() {

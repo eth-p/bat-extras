@@ -113,10 +113,14 @@ _detect_pager() {
 # 3. Use PAGER
 _configure_pager() {
 	# shellcheck disable=SC2206
-	SCRIPT_PAGER_CMD=($PAGER)
 	SCRIPT_PAGER_ARGS=()
+	if [[ -n "${PAGER+x}" ]]; then
+		SCRIPT_PAGER_CMD=($PAGER)
+	else
+		SCRIPT_PAGER_CMD=("less")
+	fi
 
-	# Prefer the bat pager.
+	# Prefer the BAT_PAGER environment variable.
 	if [[ -n "${BAT_PAGER+x}" ]]; then
 		# [note]: This is intentional.
 		# shellcheck disable=SC2206
