@@ -284,9 +284,22 @@ else
 	fi
 
 	main() {
+		local last_rendered
+		local rendered
+		local term_width="$(term_width)"
+		BAT_ARGS+=("--terminal-width=$term_width")
+
 		while true; do
-			clear
-			"${FILES[@]}" 2>&1 | "$EXECUTABLE_BAT" "${BAT_ARGS[@]}"
+			IFS='' rendered="$("${FILES[@]}" 2>&1 | "$EXECUTABLE_BAT" "${BAT_ARGS[@]}")"
+			if [ "$rendered" != "$last_rendered" ]; then
+				# Only clear and redraw if there's a change.
+				# This reduces excessive flickering.
+				last_rendered="$rendered"
+				clear
+				printf "%s\n" "$rendered"
+				rendered=''
+			fi
+
 			sleep "${OPT_INTERVAL}" || exit 1
 		done
 	}
