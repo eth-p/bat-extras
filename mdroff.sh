@@ -117,6 +117,11 @@ mdroff:emit:table_row() {
 
 mdroff:emit:text() {
 	local text="$1"
+	
+	text="${text//<br>/ }"
+	text="${text//<br\/>/ }"
+	text="${text//<br \/>/ }"
+	
 	printf "%s" "$text"
 }
 
