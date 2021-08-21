@@ -130,6 +130,9 @@ while shiftopt; do
 		fi
 	} ;;
 
+	# --
+	--) getargs -a FILES; break ;;
+
 	# ???
 	-*) {
 		printc "%{RED}%s: unknown option '%s'%{CLEAR}\n" "$PROGRAM" "$OPT" 1>&2
@@ -137,16 +140,14 @@ while shiftopt; do
 	} ;;
 
 	# Search
-	*) {
-		if [ -z "$PATTERN" ]; then
-			PATTERN="$OPT"
-		else
-			FILES+=("$OPT")
-		fi
-	} ;;
+	*) FILES+=("$OPT") ;;
 
 	esac
 done
+
+# Use the first file as a pattern.
+PATTERN="${FILES[0]}"
+FILES=("${FILES[@]:1}")
 
 if [[ -z "$PATTERN" ]]; then
 	print_error "no pattern provided"
@@ -229,6 +230,7 @@ main() {
 			"${RG_ARGS[@]}" \
 			--context 0 \
 			--sort path \
+			-- \
 			"$PATTERN" \
 			"${FILES[@]}" \
 		)
