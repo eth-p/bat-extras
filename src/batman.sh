@@ -34,8 +34,12 @@ else
 	BAT_ARGS+=("--color=never" "--decorations=never")
 fi
 
+if [[ -z "${BAT_STYLE+x}" ]]; then
+	export BAT_STYLE="grid"
+fi
+
 # -----------------------------------------------------------------------------
-export MANPAGER='sh -c "col -bx | '"$(printf "%q" "$EXECUTABLE_BAT")"' --language=man --style=grid '$(printf "%q " "${BAT_ARGS[@]}")'"'
+export MANPAGER='sh -c "col -bx | '"$(printf "%q" "$EXECUTABLE_BAT")"' --language=man '$(printf "%q " "${BAT_ARGS[@]}")'"'
 export MANROFFOPT='-c'
 
 command man "${MAN_ARGS[@]}"
