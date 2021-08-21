@@ -115,7 +115,7 @@ BATPIPE_INSIDE_LESS=false
 BATPIPE_INSIDE_BAT=false
 TERM_WIDTH="$(term_width)"
 
-if [[ "$(basename -- "$(parent_executable "$(parent_executable_pid)" | cut -f1 -d' ')")" == less ]]; then
+if [[ "$(basename -- "$(parent_executable | cut -f1 -d' ')")" == less ]]; then
 	BATPIPE_INSIDE_LESS=true
 elif [[ "$(basename -- "$(parent_executable | cut -f1 -d' ')")" == "$(basename -- "$EXECUTABLE_BAT")" ]]; then
 	BATPIPE_INSIDE_BAT=true
