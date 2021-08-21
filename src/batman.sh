@@ -42,5 +42,30 @@ fi
 export MANPAGER='sh -c "col -bx | '"$(printf "%q" "$EXECUTABLE_BAT")"' --language=man '$(printf "%q " "${BAT_ARGS[@]}")'"'
 export MANROFFOPT='-c'
 
+# If no argument is provided and fzf is installed, use fzf to search for man pages.
+if [[ "${#MAN_ARGS[@]}" -eq 0 ]] && [[ -z "$BATMAN_LEVEL" ]] && command -v "$EXECUTABLE_FZF" &>/dev/null; then
+	export BATMAN_LEVEL=1
+	
+	selected_page="$(man -k . | "$EXECUTABLE_FZF" --delimiter=" - " --reverse -e --preview="
+		echo {1} \
+		| sed 's/, /\n/g;' \
+		| sed 's/\([^(]*\)(\([0-9]\))/\2\t\1/' \
+		| BAT_STYLE=plain xargs batman --color=always --paging=never
+		" | sed 's/^\(.*\) - .*$/\1/; s/, /\n/g'
+	)"
+	
+	if [[ -z "$selected_page" ]]; then
+		exit 0
+	fi
+	
+	# Convert the page(section) format to something that can be fed to the man command.
+	while read -r line; do
+		if [[ "$line" =~ ^(.*)\(([0-9]+)\)$ ]]; then
+			MAN_ARGS+=("${BASH_REMATCH[2]}" "${BASH_REMATCH[1]}")
+		fi
+	done <<< "$selected_page"	
+fi
+
+# Run man.
 command man "${MAN_ARGS[@]}"
 exit $?

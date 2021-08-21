@@ -4,6 +4,7 @@ Read system manual pages (`man`) using `bat` as the manual page formatter.
 
 Gone are the days of losing your place while reading through monotone manual pages. With `bat` and `batman`, you can read `man ifconfig` with beautiful 24-bit color and syntax higlighting.
 
+If you have `fzf` installed, you can even use `batman` to search through manual pages!
 
 
 ## Usage

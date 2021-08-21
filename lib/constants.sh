@@ -13,6 +13,7 @@ EXECUTABLE_BAT="$(command -v bat 2>/dev/null || command -v batcat 2>/dev/null ||
 EXECUTABLE_GIT="git"
 EXECUTABLE_DELTA="delta"
 EXECUTABLE_RIPGREP="rg"
+EXECUTABLE_FZF="fzf"
 
 # Constants: Program
 PROGRAM="$(basename "$0" .sh)"
