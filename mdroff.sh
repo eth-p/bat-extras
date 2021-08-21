@@ -115,6 +115,11 @@ mdroff:emit:table_row() {
 	printf "%s\n" "${row:1}"
 }
 
+mdroff:emit:text() {
+	local text="$1"
+	printf "%s" "$text"
+}
+
 mdroff:emit() {
 	local type="$1"
 	local data="$2"
@@ -129,6 +134,11 @@ mdroff:emit() {
 	fi
 	
 	"mdroff:emit:${type}" "$data" "${@:3}"
+}
+
+mdroff:trim_right() {
+	# shellcheck disable=SC2001
+	sed 's/[[:space:]]*$//' <<< "$1"
 }
 
 mdroff:trim() {
@@ -147,7 +157,8 @@ mdroff:parseln() {
 	
 	while [[ "${#buffer}" -gt 0 ]]; do
 		[[ "$buffer" =~ \*{1,3}|\`|\[([^\]]+)\]\(([^\)]+)\) ]] || {
-			printf "%s\n" "$(mdroff:trim "$buffer")"
+			mdroff:emit text "$(mdroff:trim_right "$buffer")"
+			mdroff:emit text $'\n'
 			return
 		}
 		
@@ -157,7 +168,7 @@ mdroff:parseln() {
 		before="${buffer:0:$pos}"
 		buffer="${buffer:$(($pos + ${#found}))}"
 		
-		printf "%s" "$before"
+		mdroff:emit text "$before"
 		case "$found" in
 			'***')
 				if "$MDROFF_ATTR_STRONG" && "$MDROFF_ATTR_EMPHASIS"; then
