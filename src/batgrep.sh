@@ -38,6 +38,7 @@ OPT_SNIP=""
 OPT_HIGHLIGHT=true
 OPT_SEARCH_PATTERN=false
 OPT_FIXED_STRINGS=false
+OPT_NO_SEPARATOR=false
 BAT_STYLE="${BAT_STYLE:-header,numbers}"
 
 # Set options based on the bat version.
@@ -117,6 +118,7 @@ while shiftopt; do
 	--no-highlight)        OPT_HIGHLIGHT=false ;;
 	-p | --search-pattern) OPT_SEARCH_PATTERN=true ;;
 	--no-search-pattern)   OPT_SEARCH_PATTERN=false ;;
+	--no-separator)        OPT_NO_SEPARATOR=true ;;
 
 	# Option forwarding
 	--rg:*) {
@@ -214,6 +216,12 @@ main() {
 	LAST_LH=()
 	LAST_FILE=''
 	READ_FROM_STDIN=false
+	NO_SEPARATOR="$OPT_NO_SEPARATOR"
+
+	if [[ "$BAT_STYLE" = *grid* ]]; then
+		NO_SEPARATOR=true
+	fi
+
 	
 	# If we found no files being provided and STDIN to not be attached to a tty,
 	# we capture STDIN to a variable. This variable will later be written to
@@ -248,7 +256,7 @@ main() {
 		[[ -z "$LAST_FILE" ]] && return 0
 
 		# Print the separator.
-		if ! [[ "$BAT_STYLE" = *grid* ]]; then
+		if ! "$NO_SEPARATOR"; then
 			"$FIRST_PRINT" && echo "$SEP"
 		fi
 		FIRST_PRINT=false
@@ -263,7 +271,7 @@ main() {
 			"$LAST_FILE"
 
 		# Print the separator.
-		if ! [[ "$BAT_STYLE" = *grid* ]]; then
+		if ! "$NO_SEPARATOR"; then
 			echo "$SEP"
 		fi
 	}

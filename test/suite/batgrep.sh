@@ -114,3 +114,13 @@ test:respects_bat_style() {
 
 	BAT_STYLE="grid" batgrep "ca" file.txt --color=always
 }
+
+test:output_without_separator() {
+	description "Snapshot test for output without separator"
+	snapshot stdout
+	snapshot stderr
+
+	require_rg
+
+	batgrep "ca" file.txt --no-separator --color=always
+}
