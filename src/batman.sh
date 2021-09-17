@@ -61,7 +61,7 @@ if [[ "${#MAN_ARGS[@]}" -eq 0 ]] && [[ -z "$BATMAN_LEVEL" ]] && command -v "$EXE
 	# Convert the page(section) format to something that can be fed to the man command.
 	while read -r line; do
 		if [[ "$line" =~ ^(.*)\(([0-9]+)\)$ ]]; then
-			MAN_ARGS+=("${BASH_REMATCH[2]}" "${BASH_REMATCH[1]}")
+			MAN_ARGS+=("${BASH_REMATCH[2]}" "$(echo ${BASH_REMATCH[1]} | xargs)")
 		fi
 	done <<< "$selected_page"	
 fi
