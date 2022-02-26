@@ -77,7 +77,7 @@ done
 
 # Append arguments for delta/bat.
 BAT_ARGS+=("--terminal-width=${OPT_TERMINAL_WIDTH}" "--paging=never")
-DELTA_ARGS+=("--width=${OPT_TERMINAL_WIDTH}" "--paging=never" "--hunk-style=plain")
+DELTA_ARGS+=("--width=${OPT_TERMINAL_WIDTH}" "--paging=never" "--hunk-header-decoration-style=plain")
 
 if "$OPT_COLOR"; then
 	BAT_ARGS+=("--color=always")
