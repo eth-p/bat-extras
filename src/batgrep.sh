@@ -64,11 +64,29 @@ if [[ -n "$RIPGREP_CONFIG_PATH" && -e "$RIPGREP_CONFIG_PATH" ]]; then
 fi
 
 # Parse arguments.
+shopt -s extglob   # Needed to handle -u
+
+# First handle -u specially - it can be repeated multiple times in a single
+# short argument, and repeating it 1, 2, or 3 times causes different effects.
 resetargs
+SHIFTOPT_SHORT_OPTIONS="PASS"
+while shiftopt; do
+	case "$OPT" in
+		[-]+(u) )
+			RG_ARGS+=("$OPT")
+			;;
+	esac
+done
+resetargs
+SHIFTOPT_SHORT_OPTIONS="VALUE"
 while shiftopt; do
 	case "$OPT" in
 
 	# ripgrep options
+	[-]+([u]) ) ;;   # Ignore - handled in first loop.
+	--unrestricted)
+		RG_ARGS+=("$OPT")
+		;;
 	-i | --ignore-case)              OPT_CASE_SENSITIVITY="--ignore-case" ;;
 	-s | --case-sensitive)           OPT_CASE_SENSITIVITY="--case-sensitive" ;;
 	-S | --smart-case)               OPT_CASE_SENSITIVITY="--smart-case" ;;
