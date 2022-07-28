@@ -53,6 +53,17 @@ All of the `bat-extras` scripts can be installed with `brew install eth-p/softwa
 If you would only like to install one of the scripts, you can use `brew install eth-p/software/bat-extras-[SCRIPT]` to install it.
 
 
+### Pacman 
+
+`bat-extras` is [officially available](https://archlinux.org/packages/community/any/bat-extras/) on the Arch community repository!
+
+If you have the community repository enabled, you can install `bat-extras` by running:
+
+```bash
+pacman -S bat-extras
+```
+
+
 &nbsp;
 
 ## Installation (![CircleCI](https://circleci.com/gh/eth-p/bat-extras.svg?style=svg))
