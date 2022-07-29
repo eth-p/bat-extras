@@ -1,0 +1,33 @@
+name: 'Test'
+description: 'Tests bat-extras'
+inputs:
+  strict:
+    description: 'Tests should be run under strict mode'
+    required: false
+    default:  false
+  compiled:
+    description: 'Test scripts that have been built'
+    required: false
+    default:  false
+
+runs:
+  using: composite
+  steps:
+  
+    - name: Run tests
+      shell: bash
+      run: |
+        args=()
+
+        if "${{ inputs.compiled }}"; then
+          args+=(--compiled)
+        fi
+
+        if "${{ inputs.strict }}"; then
+          args+=(--strict)
+        fi
+
+        cd "${{ github.workspace }}"
+        PATH="${{ runner.temp }}/bin:${PATH}"
+        bash "${{ github.workspace }}/test.sh" "${args[@]}" \
+          --verbose --snapshot:show

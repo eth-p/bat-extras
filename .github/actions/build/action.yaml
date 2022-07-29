@@ -1,0 +1,54 @@
+name: 'Build'
+description: 'Builds bat-extras'
+inputs:
+  manuals:
+    description: 'Builds manuals'
+    required: false
+    default: true
+  inline:
+    description: 'Inlines executable names in script'
+    required: false
+    default: true
+  verify:
+    description: 'Verifies after building'
+    required: false
+    default: false
+  minify:
+    description: 'Minification mode (none, all, lib)'
+    required: false
+    default: 'none'
+
+runs:
+  using: composite
+  steps:
+  
+    - name: Run build script
+      shell: bash
+      run: |
+        args=(
+          --banner
+          --minify="${{ inputs.minify }}"
+        )
+
+        if "${{ inputs.manuals }}"; then
+          args+=(--manuals)
+        else
+          args+=(--no-manuals)
+        fi
+
+        if "${{ inputs.verify }}"; then
+          args+=(--verify)
+        else
+          args+=(--no-verify)
+        fi
+
+        if "${{ inputs.inline }}"; then
+          args+=(--inline)
+        else
+          args+=(--no-inline)
+        fi
+
+        # Run the build script.
+        cd "${{ github.workspace }}"
+        PATH="${{ runner.temp }}/bin:${PATH}"
+        bash "${{ github.workspace }}/build.sh" "${args[@]}"

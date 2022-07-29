@@ -1,0 +1,96 @@
+name: Test
+on:
+  push: {}
+  pull_request:
+    types: [opened, synchronize]
+
+jobs:
+  "Build":
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out sources
+        uses: actions/checkout@v3
+      - name: Install build dependencies
+        uses: ./.github/actions/install-dependencies
+        with:
+          build: true
+          test:  false
+      - name: Build artifacts
+        uses: ./.github/actions/build
+        with:
+          minify: lib
+          manuals: true
+          verify: false
+          inline: false
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v3
+        if:   ${{ !env.ACT && !failure() }}
+        with:
+          path: |
+            ${{ github.workspace }}/bin/
+            ${{ github.workspace }}/doc/
+
+  "Test":
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out sources
+        uses: actions/checkout@v3
+      - name: Install test dependencies
+        uses: ./.github/actions/install-dependencies
+        with:
+          build: false
+          test:  true
+      - name: Test scripts
+        uses: ./.github/actions/test
+
+  "Test_Consistency":
+    runs-on: ubuntu-latest
+    needs: "Test"
+    steps:
+      - name: Check out sources
+        uses: actions/checkout@v3
+      - name: Install dependencies
+        uses: ./.github/actions/install-dependencies
+        with:
+          build: true
+          test:  true
+      - name: Build scripts
+        uses: ./.github/actions/build
+        with:
+          minify: lib
+          manuals: false
+          verify: false
+          inline: false
+      - name: Test built scripts
+        uses: ./.github/actions/test
+        with:
+          compiled: true
+
+  "Test_Symlinks":
+    runs-on: ubuntu-latest
+    needs: "Test"
+    env:
+      BAT_PAGER: 'cat'
+    steps:
+      - name: Check out sources
+        uses: actions/checkout@v3
+      - name: Install dependencies
+        uses: ./.github/actions/install-dependencies
+        with:
+          build: false
+          test:  true
+      - name: Prepare symlinks
+        run: |
+          chmod +x "${{ github.workspace }}/src/batgrep.sh"
+          ln -s "${{ github.workspace }}/src/batgrep.sh" "${{ runner.temp }}/absolute-batgrep"
+          (cd "${{ github.workspace }}" && ln -s "src/batgrep.sh" relative-batgrep)
+      - name: Test absolute symlink
+        run: |
+          PATH="${{ runner.temp }}/bin:${PATH}"
+          "${{ runner.temp }}/absolute-batgrep" 'a' <<< 'abc'
+      - name: Test relative symlink
+        run: |
+          PATH="${{ runner.temp }}/bin:${PATH}"
+          "${{ github.workspace }}/relative-batgrep" 'a' <<< 'abc'
+
+
