@@ -382,8 +382,11 @@ while shiftopt; do
 	--compress)                       OPT_COMPRESS=true ;;
 	--manuals)                        OPT_MANUALS="${OPT_VAL:-true}" ;;
 	--no-manuals)                     OPT_MANUALS=false ;;
+	--verify)                         OPT_VERIFY=true ;;
 	--no-verify)                      OPT_VERIFY=false ;;
+	--banner)                         OPT_BANNER=true ;;
 	--no-banner)                      OPT_BANNER=false ;;
+	--inline)                         OPT_INLINE=true ;;
 	--no-inline)                      OPT_INLINE=false ;;
 	--prefix)               shiftval; OPT_PREFIX="$OPT_VAL" ;;
 	--alternate-executable) shiftval; OPT_BAT="$OPT_VAL" ;;
