@@ -4,6 +4,7 @@
 
 # Developer
 .idea
+.vscode
 *.iml
 
 # Project
