@@ -66,7 +66,9 @@ pacman -S bat-extras
 
 &nbsp;
 
-## Installation (![CircleCI](https://circleci.com/gh/eth-p/bat-extras.svg?style=svg))
+## Installation
+
+[![Test](https://github.com/eth-p/bat-extras/actions/workflows/test.yaml/badge.svg)](https://github.com/eth-p/bat-extras/actions/workflows/test.yaml)
 
 The scripts in this repository are designed to run as-is, provided that they aren't moved around.
 This means that you're free to just symlink `src/[script].sh` to your local bin folder.
