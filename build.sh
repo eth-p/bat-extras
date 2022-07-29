@@ -14,6 +14,7 @@ LIB="$HERE/lib"
 source "${LIB}/print.sh"
 source "${LIB}/opt.sh"
 source "${LIB}/constants.sh"
+source "${HERE}/mdroff.sh"
 # -----------------------------------------------------------------------------
 set -eo pipefail
 exec 3>&1
@@ -120,12 +121,18 @@ generate_banner() {
 #
 # Arguments:
 #     1  -- The source file.
+#     2  -- A description of what is being read.
 #
 # Output:
 #     The file contents.
 step_read() {
+	local what=""
+	if [[ -n "${2:-}" ]]; then
+		what=" $2"
+	fi
+	
 	cat "$1"
-	smsg "Reading"
+	smsg "Reading${what}"
 }
 
 # Build step: preprocess
@@ -218,7 +225,7 @@ step_write() {
 	smsg "Building"
 }
 
-# Build step: write
+# Build step: write_install
 # Optionally writes the output script to a file.
 #
 # Arguments:
@@ -239,6 +246,47 @@ step_write_install() {
 	tee "$1"
 	chmod +x "$1"
 	smsg "Installing"
+}
+
+# Build step: manpage_install
+# Optionally writes the manpage to a gzipped file.
+#
+# Arguments:
+#     1  -- The file to write to.
+#
+# Input:
+#     The file contents.
+#
+# Output:
+#     The file contents.
+step_manpage_install() {
+	if [[ "$OPT_INSTALL" != true ]]; then
+		cat
+		smsg "Installing manual" "SKIP"
+		return 0
+	fi
+
+	gzip | tee "$1"
+	smsg "Installing manual"
+}
+
+# Build step: manpage_generate
+# Generates a manpage document from a markdown document.
+#
+# Input:
+#     The markdown doc contents.
+#
+# Output:
+#     The roff manpage contents.
+step_manpage_generate() {
+	if [[ "$OPT_MANUALS" != true ]]; then
+		cat
+		smsg "Generating manual" "SKIP"
+		return 0
+	fi
+
+	(mdroff)
+	smsg "Generating manual"
 }
 
 # -----------------------------------------------------------------------------
@@ -444,6 +492,12 @@ fi
 
 if "$OPT_INSTALL"; then
 	[[ -d "${OPT_PREFIX}/bin" ]] || mkdir -p "${OPT_PREFIX}/bin"
+	[[ "$OPT_MANUALS" = "true" && ! -d "${OPT_PREFIX}/share/man/man1" ]] \
+		&& mkdir -p "${OPT_PREFIX}/share/man/man1"
+fi
+
+if [[ "$OPT_MANUALS" = "true" ]]; then
+	[[ -d "$MAN" ]] || mkdir -p "$MAN"
 fi
 
 # -----------------------------------------------------------------------------
@@ -479,29 +533,6 @@ if [[ "${#BUILD_FILTER[@]}" -gt 0 ]]; then
 	printf "\n"	
 fi
 
-# -----------------------------------------------------------------------------
-# Build manuals.
-
-if [[ "$OPT_MANUALS" = "true" ]]; then
-	source "${HERE}/mdroff.sh"
-	if ! [[ -d "$MAN" ]]; then
-		mkdir -p "$MAN"
-	fi
-	
-	printc_msg "%{YELLOW}Building manuals...%{CLEAR}\n"
-	for source in "${SOURCES[@]}"; do
-		name="$(basename "$source" .sh)"
-		doc="${MAN_SRC}/${name}.md"
-		docout="${MAN}/${name}.1"
-		if ! [[ -f "$doc" ]]; then
-			continue
-		fi
-		
-		printc_msg "    %{YELLOW}      %{MAGENTA}%s%{CLEAR}\n" "$(basename "$docout")"
-		(mdroff < "$doc" > "${MAN}/${name}.1")
-	done
-	printc_msg "\n"
-fi
 
 # -----------------------------------------------------------------------------
 # Build files.
@@ -524,6 +555,15 @@ for file in "${SOURCES[@]}"; do
 		next step_write "${BIN}/${filename}" |
 		next step_write_install "${OPT_PREFIX}/bin/${filename}" |
 		cat >/dev/null
+
+	# Build manuals.
+	if [[ -f "${HERE}/doc/${filename}.md" && "$OPT_MANUALS" = "true" ]]; then
+		step_read "${HERE}/doc/${filename}.md" "manual" |
+			next step_manpage_generate |
+			next step_write "${MAN}/${filename}.1" |
+			next step_manpage_install "${OPT_PREFIX}/share/man/man1/${filename}.1.gz" |
+			cat >/dev/null
+	fi
 done
 
 # -----------------------------------------------------------------------------
