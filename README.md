@@ -63,6 +63,15 @@ If you have the community repository enabled, you can install `bat-extras` by ru
 pacman -S bat-extras
 ```
 
+### Gentoo
+`bat-extras` is available on **Gentoo's Guru Overlay** as `sys-apps/bat-extras`.
+
+To install, first make sure you've added the [Gentoo Guru Overlay](https://wiki.gentoo.org/wiki/Project:GURU) to your local repositories, then emerge accordingly...
+
+```bash
+emerge sys-apps/bat-extras
+```
+
 
 &nbsp;
 
