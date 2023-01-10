@@ -34,7 +34,7 @@ All remaining options are passed through to bat.
 Batwatch uses external programs to watch for file changes.
 Currently, the following programs are supported:
 
-- [entr](http://entrproject.org/)
+- [entr](https://eradman.com/entrproject/)
 
 There is also a fallback `poll` watcher available.
 
