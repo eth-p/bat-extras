@@ -72,6 +72,20 @@ To install, first make sure you've added the [Gentoo Guru Overlay](https://wiki.
 emerge sys-apps/bat-extras
 ```
 
+### Fedora (Unofficial)
+`bat-extras` is available in an unofficial Fedora Copr
+[repository](https://copr.fedorainfracloud.org/coprs/awood/bat-extras/).
+**Note**: this package does not contain `prettybat` since `prettier` is not yet
+packaged for Fedora.
+
+Install the Copr plugin, enable the repository, and then install the package
+by running:
+
+```bash
+dnf install dnf-plugins-core 
+dnf copr enable awood/bat-extras
+dnf install bat-extras
+```
 
 &nbsp;
 
