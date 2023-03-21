@@ -124,3 +124,13 @@ test:output_without_separator() {
 
 	batgrep "ca" file.txt --no-separator --color=always
 }
+
+test:sanity_rg_works() {
+	description "Ensure the ripgrep executable works"
+
+	require_rg
+
+	rg --version
+	rg "ca" file.txt | grep "ca" || fail "Ripgrep executable not working."
+}
+
