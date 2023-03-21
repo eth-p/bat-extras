@@ -85,3 +85,9 @@ runs:
           -type f -iname "rg" \
           -exec mv {} "${{ runner.temp }}/bin/" \;
 
+    - name: Set executable permissions
+      shell: bash
+      run: |
+        chmod -R +x "${{ runner.temp }}/bin"
+        tree "${{ runner.temp }}/bin"
+
