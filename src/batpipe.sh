@@ -115,10 +115,27 @@ BATPIPE_INSIDE_LESS=false
 BATPIPE_INSIDE_BAT=false
 TERM_WIDTH="$(term_width)"
 
-if [[ "$(basename -- "$(parent_executable | cut -f1 -d' ')")" == less ]]; then
-	BATPIPE_INSIDE_LESS=true
-elif [[ "$(basename -- "$(parent_executable | cut -f1 -d' ')")" == "$(basename -- "$EXECUTABLE_BAT")" ]]; then
-	BATPIPE_INSIDE_BAT=true
+BATPIPE_PARENT_EXECUTABLE_PID="$PPID"
+for i in 1 2 3; do
+	BATPIPE_PARENT_EXECUTABLE="$(parent_executable "$BATPIPE_PARENT_EXECUTABLE_PID")"
+	BATPIPE_PARENT_EXECUTABLE_BASENAME="$(basename -- "${BATPIPE_PARENT_EXECUTABLE}" | cut -d' ' -f1)"
+	BATPIPE_PARENT_EXECUTABLE_PID="$(parent_executable_pid "$BATPIPE_PARENT_EXECUTABLE_PID")"
+
+	if [[ "${BATPIPE_PARENT_EXECUTABLE_BASENAME}" = "less" ]]; then
+		BATPIPE_INSIDE_LESS=true
+		break
+	elif [[ "${BATPIPE_PARENT_EXECUTABLE_BASENAME}" == "$(basename -- "$EXECUTABLE_BAT")" ]]; then
+		BATPIPE_INSIDE_BAT=true
+		break
+	fi
+done
+
+if [[ -n "${BATPIPE_DEBUG:-}" ]]; then
+	printf "batpipe debug:\n"
+	printf "  %s: %s\n" \
+		"BATPIPE_INSIDE_LESS" "${BATPIPE_INSIDE_LESS}" \
+		"BATPIPE_INSIDE_BAT" "${BATPIPE_INSIDE_BAT}"
+	printf "\n"
 fi
 
 # -----------------------------------------------------------------------------
