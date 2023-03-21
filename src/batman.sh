@@ -49,10 +49,9 @@ if [[ "${#MAN_ARGS[@]}" -eq 0 ]] && [[ -z "$BATMAN_LEVEL" ]] && command -v "$EXE
 	selected_page="$(man -k . | "$EXECUTABLE_FZF" --delimiter=" - " --reverse -e --preview="
 		echo {1} \
 		| sed 's/, /\n/g;' \
-		| sed 's/\([^(]*\)(\([0-9]\))/\2\t\1/' \
-		| BAT_STYLE=plain xargs batman --color=always --paging=never
-		" | sed 's/^\(.*\) - .*$/\1/; s/, /\n/g'
-	)"
+		| sed 's/\([^(]*\)(\([0-9A-Za-z]\))/\2\t\1/g' \
+		| BAT_STYLE=plain xargs -n2 batman --color=always --paging=never
+	")"
 	
 	if [[ -z "$selected_page" ]]; then
 		exit 0
