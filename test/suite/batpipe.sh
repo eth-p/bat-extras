@@ -25,3 +25,14 @@ test:viewer_gzip() {
 	
 	assert_equal "$(batpipe compressed.txt.gz)" "OK"
 }
+
+test:batpipe_term_width() {
+	description "Test support for BATPIPE_TERM_WIDTH"
+	snapshot STDOUT
+
+	export BATPIPE=color
+	export BATPIPE_DEBUG_PARENT_EXECUTABLE=less
+
+	BATPIPE_TERM_WIDTH=40 batpipe file.txt
+	BATPIPE_TERM_WIDTH=-20 batpipe file.txt
+}

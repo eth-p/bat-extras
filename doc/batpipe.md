@@ -17,6 +17,14 @@ Like [lesspipe](https://github.com/wofr06/lesspipe), `batpipe` is designed to wo
 
 
 
+## Environment
+
+| Variable             | Description                                                  |
+| -------------------- | ------------------------------------------------------------ |
+| `BATPIPE_TERM_WIDTH` | Sets the terminal width provided to `bat`. If this variable starts with a hyphen (`-`), the number provided will be relative to the detected terminal size. |
+
+
+
 ## Built-in Viewers
 
 | Files                | Program                     |
@@ -51,7 +59,7 @@ The `viewer_${viewer}_supports` function is called to determine if the external 
     
     batpipe_header [pattern] [...]    -- Print a viewer header line.
     batpipe_subheader [pattern] [...] -- Print a viewer subheader line.
-
+    
     strip_trailing_slashes [path]     -- Strips trailing slashes from a path.
 
 
