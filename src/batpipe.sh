@@ -37,8 +37,9 @@
 #
 # -----------------------------------------------------------------------------
 # shellcheck disable=SC1090 disable=SC2155
-SELF="$(cd "$(dirname "${BASH_SOURCE[0]}")" && cd "$(dirname "$(readlink "${BASH_SOURCE[0]}" || echo ".")")" && pwd)/$(basename "${BASH_SOURCE[0]}")"
-LIB="$(cd "$(dirname "${BASH_SOURCE[0]}")" && cd "$(dirname "$(readlink "${BASH_SOURCE[0]}" || echo ".")")/../lib" && pwd)"
+SELF_NC="${BASH_SOURCE:-$0}"
+SELF="$(cd "$(dirname "${SELF_NC}")" && cd "$(dirname "$(readlink "${SELF_NC}" || echo ".")")" && pwd)/$(basename "${SELF_NC}")"
+LIB="$(cd "$(dirname "${SELF_NC}")" && cd "$(dirname "$(readlink "${SELF_NC}" || echo ".")")/../lib" && pwd)"
 source "${LIB}/constants.sh"
 source "${LIB}/dirs.sh"
 source "${LIB}/str.sh"
