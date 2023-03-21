@@ -82,7 +82,7 @@ runs:
           "${{ runner.temp }}/dl/"
 
         find "${{ runner.temp }}/dl" \
-          -type f -iname "rg" \
+          -type f -path "*/bin/rg" \
           -exec mv {} "${{ runner.temp }}/bin/" \;
 
     - name: Set executable permissions
