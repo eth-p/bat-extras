@@ -49,7 +49,7 @@ if [[ "${#MAN_ARGS[@]}" -eq 0 ]] && [[ -z "$BATMAN_LEVEL" ]] && command -v "$EXE
 	selected_page="$(man -k . | "$EXECUTABLE_FZF" --delimiter=" - " --reverse -e --preview="
 		echo {1} \
 		| sed 's/, /\n/g;' \
-		| sed 's/\([^(]*\)(\([0-9A-Za-z]\))/\2\t\1/g' \
+		| sed 's/\([^(]*\)(\([0-9A-Za-z ]\))/\2\t\1/g' \
 		| BAT_STYLE=plain xargs -n2 batman --color=always --paging=never
 	")"
 	
@@ -59,7 +59,7 @@ if [[ "${#MAN_ARGS[@]}" -eq 0 ]] && [[ -z "$BATMAN_LEVEL" ]] && command -v "$EXE
 	
 	# Convert the page(section) format to something that can be fed to the man command.
 	while read -r line; do
-		if [[ "$line" =~ ^(.*)\(([0-9a-zA-Z]+)\) ]]; then
+		if [[ "$line" =~ ^(.*)\(([0-9a-zA-Z ]+)\) ]]; then
 			MAN_ARGS+=("${BASH_REMATCH[2]}" "$(echo ${BASH_REMATCH[1]} | xargs)")
 		fi
 	done <<< "$selected_page"	
