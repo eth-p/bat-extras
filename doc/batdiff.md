@@ -12,7 +12,11 @@ This script supports using [delta](https://github.com/dandavison/delta) as an al
     batdiff [OPTIONS] FILE
     batdiff [OPTIONS] FILE OTHER_FILE
 
+## Environment
 
+| Variable                 | Description                                      |
+| ------------------------ | ------------------------------------------------ |
+| `BATDIFF_USE_DELTA=true` | If `delta` is installed, use `delta` by default. |
 
 ## Options
 
