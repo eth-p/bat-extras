@@ -289,7 +289,9 @@ while shiftopt; do
 
 	# bat options
 	-*) {
-		BAT_ARGS+=("$OPT=$OPT_VAL")
+		if [[ -n "$OPT_VAL" ]]; then BAT_ARGS+=("$OPT=$OPT_VAL");
+		else                         BAT_ARGS+=("$OPT");
+		fi
 	} ;;
 
 	# Files
