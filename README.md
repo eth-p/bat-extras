@@ -15,7 +15,7 @@ Quickly search through and highlight files using [ripgrep](https://github.com/bu
 ### [`batman`](doc/batman.md)
 
 Read system manual pages (`man`) using `bat` as the manual page formatter.
-
+<u>Requirements:</u> `man-db`
 
 
 ### [`batpipe`](doc/batpipe.md)
