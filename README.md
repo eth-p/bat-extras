@@ -145,6 +145,7 @@ This is a beta feature that uses a non-compliant Markdown "parser" written in Ba
 Depending on the distribution, bat may have been renamed to avoid package conflicts.
 If you wish to use these scripts on a distribution where this is the case, there is an `--alternate-executable=NAME` option which will build the scripts to use an alternate executable name.
 
+You may also specify alternate executables for `ripgrep`, `delta`, `fzf`, or `git` with `--alternate-executable:PROGRAM NAME` where `PROGRAM` is one the aforementioned programs. Note that doing so may cause verification to fail.
 
 
 **Verification:**

@@ -417,7 +417,8 @@ OPT_MANUALS=true
 OPT_INLINE=true
 OPT_MINIFY="lib"
 OPT_PREFIX="/usr/local"
-OPT_BAT="$(basename "$EXECUTABLE_BAT")"
+EXECUTABLE_BAT="$(basename -- "$EXECUTABLE_BAT")"
+ALT_EXECS=()
 BUILD_FILTER=()
 
 DOCS_URL="https://github.com/eth-p/bat-extras/blob/master/doc"
@@ -437,7 +438,12 @@ while shiftopt; do
 	--inline)                         OPT_INLINE=true ;;
 	--no-inline)                      OPT_INLINE=false ;;
 	--prefix)               shiftval; OPT_PREFIX="$OPT_VAL" ;;
-	--alternate-executable) shiftval; OPT_BAT="$OPT_VAL" ;;
+	--alternate-executable)         shiftval; ALT_EXECS+=("bat");     EXECUTABLE_BAT="$OPT_VAL" ;;
+	--alternate-executable:bat)     shiftval; ALT_EXECS+=("bat");     EXECUTABLE_BAT="$OPT_VAL" ;;
+	--alternate-executable:ripgrep) shiftval; ALT_EXECS+=("ripgrep"); EXECUTABLE_RIPGREP="$OPT_VAL" ;;
+	--alternate-executable:delta)   shiftval; ALT_EXECS+=("delta");   EXECUTABLE_DELTA="$OPT_VAL" ;;
+	--alternate-executable:fzf)     shiftval; ALT_EXECS+=("fzf");     EXECUTABLE_FZF="$OPT_VAL" ;;
+	--alternate-executable:git)     shiftval; ALT_EXECS+=("git");     EXECUTABLE_GIT="$OPT_VAL" ;;
 	--minify)		        shiftval; OPT_MINIFY="$OPT_VAL" ;;
 
 	*)
@@ -451,15 +457,17 @@ while shiftopt; do
 	esac
 done
 
-if [[ "$OPT_BAT" != "bat" ]]; then
-	printc_msg "%{YELLOW}Building executable scripts with an alternate bat executable %{CLEAR}%s%{YELLOW}.%{CLEAR}\n" "$OPT_BAT"
-	if ! command -v "$OPT_BAT" &>/dev/null; then
-		printc_err "%{YELLOW}WARNING: Bash cannot execute the specified file.\n"
+if [[ "${#ALT_EXECS[@]}" -gt 0 ]]; then
+	printc_msg "%{YELLOW}Building executable scripts with alternate executables for:%{CLEAR}\n"
+	printc_msg "%{YELLOW} - %{CLEAR}%s\n" "${ALT_EXECS[@]}"
+	printc_msg "\n"
+
+	if ! command -v "$EXECUTABLE_BAT" &>/dev/null; then
+		printc_err "%{YELLOW}WARNING: Bash cannot execute bat's executable file.\n"
 		printc_err "%{YELLOW}         The finished scripts may not run properly.%{CLEAR}\n"
 	fi
 
 	# shellcheck disable=SC2034
-	EXECUTABLE_BAT="$OPT_BAT"
 	printc_msg "\n"
 fi
 
