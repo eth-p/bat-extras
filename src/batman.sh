@@ -6,7 +6,9 @@
 # Issues:     https://github.com/eth-p/bat-extras/issues
 # -----------------------------------------------------------------------------
 # shellcheck disable=SC1090 disable=SC2155
-LIB="$(cd "$(dirname "${BASH_SOURCE[0]}")" && cd "$(dirname "$(readlink "${BASH_SOURCE[0]}" || echo ".")")/../lib" && pwd)"
+SELF_NC="${BASH_SOURCE:-$0}"
+SELF="$(cd "$(dirname "${SELF_NC}")" && cd "$(dirname "$(readlink "${SELF_NC}" || echo ".")")" && pwd)/$(basename "$(readlink "${SELF_NC}" || echo "${SELF_NC}")")"
+LIB="$(cd "$(dirname "${SELF_NC}")" && cd "$(dirname "$(readlink "${SELF_NC}" || echo ".")")/../lib" && pwd)"
 if [[ -n "${MANPAGER}" ]]; then BAT_PAGER="$MANPAGER"; fi
 source "${LIB}/constants.sh"
 source "${LIB}/pager.sh"
@@ -18,12 +20,14 @@ source "${LIB}/opt_hook_version.sh"
 hook_color
 hook_version
 # -----------------------------------------------------------------------------
+FORWARDED_ARGS=()
 MAN_ARGS=()
 BAT_ARGS=()
 
 while shiftopt; do
 	case "$OPT" in
-		--paging|--pager) shiftval; BAT_ARGS+=("${OPT}=${OPT_VAL}") ;;
+		--paging|--pager) shiftval; FORWARDED_ARGS+=("${OPT}=${OPT_VAL}");
+		                            BAT_ARGS+=("${OPT}=${OPT_VAL}") ;;
 		*)                          MAN_ARGS+=("$OPT") ;;
 	esac
 done
@@ -39,7 +43,27 @@ if [[ -z "${BAT_STYLE+x}" ]]; then
 fi
 
 # -----------------------------------------------------------------------------
-export MANPAGER='sh -c "col -bx | '"$(printf "%q" "$EXECUTABLE_BAT")"' --language=man '$(printf "%q " "${BAT_ARGS[@]}")'"'
+# When called as the manpager, do some preprocessing and feed everything to bat.
+
+if [[ "${BATMAN_IS_BEING_MANPAGER:-}" = "yes" ]]; then
+	print_manpage() {
+		col -bx | "$EXECUTABLE_BAT" --language=man "${BAT_ARGS[@]}"
+		exit $?
+	}
+
+	if [[ "${#MAN_ARGS[@]}" -eq 1 ]]; then
+		# The input was passed as a file.
+		cat "${MAN_ARGS[0]}" | print_manpage
+	else
+		# The input was passed via stdin.
+		cat | print_manpage
+	fi
+
+	exit
+fi
+
+# -----------------------------------------------------------------------------
+export MANPAGER="env BATMAN_IS_BEING_MANPAGER=yes bash $(printf "%q " "$SELF" "${FORWARDED_ARGS[@]}")"
 export MANROFFOPT='-c'
 
 # If no argument is provided and fzf is installed, use fzf to search for man pages.
