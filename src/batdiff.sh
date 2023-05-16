@@ -34,10 +34,12 @@ SUPPORTS_DELTA=false
 BAT_VERSION="$(bat_version)"
 BAT_ARGS=()
 DELTA_ARGS=()
+GIT_ARGS=()
 
 FILES=()
 OPT_TABS=
 OPT_CONTEXT=2
+OPT_STAGED=false
 OPT_ALL_CHANGES=false
 
 # Set options based on bat version.
@@ -61,6 +63,7 @@ while shiftopt; do
 
 	# Script options
 	--all)                      OPT_ALL_CHANGES=true ;;
+	--staged)                   OPT_STAGED=true; GIT_ARGS+=("--staged") ;;
 	--delta)                    BATDIFF_USE_DELTA=true ;;
 
 	# ???
@@ -95,6 +98,9 @@ if [[ -n "$OPT_TABS" ]]; then
 	DELTA_ARGS+=("--tabs=${OPT_TABS}")
 fi
 
+# Append arguments for git.
+GIT_ARGS+=(-U"$OPT_CONTEXT")
+
 # -----------------------------------------------------------------------------
 # Printing:
 # -----------------------------------------------------------------------------
@@ -107,11 +113,26 @@ print_bat_diff() {
 		return $?
 	fi
 
+	# Diff staged git file.
+	if "$OPT_STAGED"; then
+		if false && "$SUPPORTS_DELTA"; then
+			# bat doesn't support diffing staged changes against the HEAD.
+			# Delta is better suited for printing diffs in this case.
+			print_delta_diff "$@"
+		else
+			difftext="$("$EXECUTABLE_GIT" diff "${GIT_ARGS[@]}" "${files[0]}")"
+			if [[ "${#difftext}" -gt 0 ]]; then
+				"$EXECUTABLE_BAT" --language=diff --file-name="${files[0]}" - "${BAT_ARGS[@]}" <<< "$difftext"
+			fi
+		fi
+		return $?
+	fi
+
 	# Diff git file.
 	if "$SUPPORTS_BAT_DIFF"; then
 		"$EXECUTABLE_BAT" --diff --diff-context="$OPT_CONTEXT" "${files[0]}" "${BAT_ARGS[@]}"
 	else
-		"$EXECUTABLE_GIT" diff -U"$OPT_CONTEXT" "${files[0]}" | "$EXECUTABLE_BAT" --language=diff - "${BAT_ARGS[@]}"
+		"$EXECUTABLE_GIT" diff "${GIT_ARGS[@]}" "${files[0]}" | "$EXECUTABLE_BAT" --language=diff - "${BAT_ARGS[@]}"
 	fi
 }
 
@@ -125,7 +146,7 @@ print_delta_diff() {
 	fi
 
 	# Diff git file.
-	"$EXECUTABLE_GIT" diff -U"$OPT_CONTEXT" "${files[0]}" | "$EXECUTABLE_DELTA" "${DELTA_ARGS[@]}"
+	"$EXECUTABLE_GIT" diff "${GIT_ARGS[@]}" "${files[0]}" | "$EXECUTABLE_DELTA" "${DELTA_ARGS[@]}"
 }
 
 if [[ "$BATDIFF_USE_DELTA" = "true" && "$SUPPORTS_DELTA" = "true" ]]; then
@@ -167,7 +188,7 @@ main() {
 			if [[ -f "$file" ]]; then
 				print_diff "$file"
 			fi
-		done < <("${EXECUTABLE_GIT}" diff --name-only --diff-filter=d)
+		done < <("${EXECUTABLE_GIT}" diff "${GIT_ARGS[@]}" --name-only --diff-filter=d)
 		return
 	fi
 

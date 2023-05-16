@@ -11,6 +11,7 @@ This script supports using [delta](https://github.com/dandavison/delta) as an al
 
     batdiff [OPTIONS] FILE
     batdiff [OPTIONS] FILE OTHER_FILE
+    batdiff --staged
 
 ## Environment
 
@@ -29,6 +30,7 @@ This script supports using [delta](https://github.com/dandavison/delta) as an al
 |       | `--paging=["never"/"always"]` | Enable/disable paging.                                       |
 |       | `--pager=[PAGER]`             | Specify the pager to use.                                    |
 |       | `--terminal-width=[COLS]`     | Generate output for the specified terminal width.            |
+|       | `--staged`                    | Show staged changes.                                         |
 
 
 
