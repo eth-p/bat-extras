@@ -523,6 +523,18 @@ BUILD_FILTER=()
 DOCS_URL="https://github.com/eth-p/bat-extras/blob/master/doc"
 DOCS_MAINTAINER="eth-p <eth-p@hidden.email>"
 
+# -----------------------------------------------------------------------------
+# Use a different default prefix when running on Termux.
+
+if [[ "$(uname -o)" = "Android" ]] && [[ -n "${TERMUX_VERSION:-}" ]]; then
+     OPT_PREFIX="/data/data/com.termux/files/usr/"
+else
+     OPT_PREFIX="/usr/local"
+fi
+
+# -----------------------------------------------------------------------------
+# Parse arguments.
+
 while shiftopt; do
 	# shellcheck disable=SC2034
 	case "$OPT" in
