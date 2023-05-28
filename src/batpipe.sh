@@ -69,7 +69,7 @@ if [[ "$#" -eq 0 ]]; then
 	#
 	# This will directly check if the parent is fish, since there's a
 	# good chance that `bash` or `sh` will be invoking fish.
-	if [[ "$(basename -- "$(parent_executable | cut -f1 -d' ')")" == "fish" ]]; then
+	if [[ "$(basename -- "$(parent_executable)")" == "fish" ]]; then
 		detected_shell="fish"
 	else
 		detected_shell="$(parent_shell)"
@@ -127,7 +127,7 @@ fi
 BATPIPE_PARENT_EXECUTABLE_PID="$PPID"
 for i in 1 2 3; do
 	BATPIPE_PARENT_EXECUTABLE="${BATPIPE_DEBUG_PARENT_EXECUTABLE:-$(parent_executable "$BATPIPE_PARENT_EXECUTABLE_PID")}"
-	BATPIPE_PARENT_EXECUTABLE_BASENAME="$(basename -- "${BATPIPE_PARENT_EXECUTABLE}" | cut -d' ' -f1)"
+	BATPIPE_PARENT_EXECUTABLE_BASENAME="$(basename -- "${BATPIPE_PARENT_EXECUTABLE}")"
 	BATPIPE_PARENT_EXECUTABLE_PID="$(parent_executable_pid "$BATPIPE_PARENT_EXECUTABLE_PID")"
 
 	if [[ "${BATPIPE_PARENT_EXECUTABLE_BASENAME}" = "less" ]]; then

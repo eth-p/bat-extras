@@ -11,7 +11,10 @@
 #     1   -- The target pid. If not provided, the script's parent is used.
 parent_executable() {
 	local target_pid="${1:-$PPID}"
-	ps -f -p "$target_pid" | tail -n 1 | awk '{for(i=8;i<=NF;i++) printf $i" "; printf "\n"}'
+	ps -f -p "$target_pid" \
+		| tail -n 1 \
+		| awk '{for(i=8;i<=NF;i++) printf $i" "; printf "\n"}' \
+		| cut -d' ' -f1
 }
 
 # Gets the PID of the parent executable file.
