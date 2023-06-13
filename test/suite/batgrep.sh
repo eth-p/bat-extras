@@ -16,6 +16,15 @@ require_rg() {
 	fi
 }
 
+test:help() {
+    description "Test 'batgrep --help'"
+    snapshot stdout
+    batgrep --help
+
+    assert batgrep --help
+    batgrep --help | grep -q 'Usage'
+}
+
 test:version() {
 	description "Test 'batgrep --version'"
 	snapshot stdout
