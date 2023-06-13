@@ -6,7 +6,31 @@
 # Issues:     https://github.com/eth-p/bat-extras/issues
 # -----------------------------------------------------------------------------
 
-usage() {
+
+# shellcheck disable=SC1090
+LIB="$(cd "$(dirname "${BASH_SOURCE[0]}")" && cd "$(dirname "$(readlink "${BASH_SOURCE[0]}" || echo ".")")/../lib" && pwd)"
+source "${LIB}/constants.sh"
+source "${LIB}/print.sh"
+source "${LIB}/pager.sh"
+source "${LIB}/opt.sh"
+source "${LIB}/opt_hook_color.sh"
+source "${LIB}/opt_hook_help.sh"
+source "${LIB}/opt_hook_pager.sh"
+source "${LIB}/opt_hook_version.sh"
+source "${LIB}/opt_hook_width.sh"
+source "${LIB}/version.sh"
+# -----------------------------------------------------------------------------
+# Init:
+# -----------------------------------------------------------------------------
+hook_color
+hook_help
+hook_pager
+hook_version
+hook_width
+# -----------------------------------------------------------------------------
+# Help:
+# -----------------------------------------------------------------------------
+show_help() {
     cat <<-'EOF'
 Quickly search through and highlight files using ripgrep.
 
@@ -113,27 +137,7 @@ Options passed directly to ripgrep:
 
       --ignore-file
 EOF
-    exit 1
 }
-
-# shellcheck disable=SC1090
-LIB="$(cd "$(dirname "${BASH_SOURCE[0]}")" && cd "$(dirname "$(readlink "${BASH_SOURCE[0]}" || echo ".")")/../lib" && pwd)"
-source "${LIB}/constants.sh"
-source "${LIB}/print.sh"
-source "${LIB}/pager.sh"
-source "${LIB}/opt.sh"
-source "${LIB}/opt_hook_color.sh"
-source "${LIB}/opt_hook_pager.sh"
-source "${LIB}/opt_hook_version.sh"
-source "${LIB}/opt_hook_width.sh"
-source "${LIB}/version.sh"
-# -----------------------------------------------------------------------------
-# Init:
-# -----------------------------------------------------------------------------
-hook_color
-hook_pager
-hook_version
-hook_width
 # -----------------------------------------------------------------------------
 # Options:
 # -----------------------------------------------------------------------------
@@ -192,9 +196,6 @@ resetargs
 SHIFTOPT_SHORT_OPTIONS="VALUE"
 while shiftopt; do
 	case "$OPT" in
-
-    # display help and quit
-    -h | --help) usage;;
 
 	# ripgrep options
 	[-]+([u]) ) ;;   # Ignore - handled in first loop.
