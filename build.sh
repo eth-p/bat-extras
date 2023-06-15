@@ -5,12 +5,111 @@
 # Repository: https://github.com/eth-p/bat-extras
 # Issues:     https://github.com/eth-p/bat-extras/issues
 # -----------------------------------------------------------------------------
-HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-BIN="$HERE/bin"
-SRC="$HERE/src"
-MAN="$HERE/man"
-MAN_SRC="$HERE/doc"
+
+# -----------------------------------------------------------------------------
+# Build-as-a-Library Functions:
+# -----------------------------------------------------------------------------
+
+# Redefines a function to print a constant string whenever called.
+# This is used for lazy-loading of some getter functions.
+#
+# Arguments:
+#     1  -- The function name.
+#     2  -- The constant string to print.
+#
+# Output:
+#     The constant string.
+batextras:lazy_done() {
+	eval "$(printf "%s() { printf \"%%s\n\" %q; }" "$1" "$2")"
+	"$1"
+}
+
+# Checks to see if a function is defined.
+# Arguments:
+#     1  -- The function name.
+#           If prefixed with "::", it will use "batextras:" as a namespace.
+batextras:is_function_defined() {
+	local name="$1"
+	if [[ "${name:0:2}" = "::" ]]; then name="batextras:${name:2}"; fi
+	[[ "$(type -t "$name" || echo 'undefined')" = "function" ]]
+	return $?
+}
+
+# Prints the path to the project directory.
+if ! batextras:is_function_defined ::get_project_directory; then
+	batextras:get_project_directory() {
+		batextras:lazy_done "${FUNCNAME[0]}" \
+			"$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+	}
+fi
+
+# Prints the path to the project source directory.
+if ! batextras:is_function_defined ::get_source_directory; then
+	batextras:get_source_directory() {
+		batextras:lazy_done "${FUNCNAME[0]}" \
+			"$(batextras:get_project_directory)/src"
+	}
+fi
+
+# Prints the path to the project output directory for executables.
+if ! batextras:is_function_defined ::get_output_bin_directory; then
+	batextras:get_output_bin_directory() {
+		batextras:lazy_done "${FUNCNAME[0]}" \
+			"$(batextras:get_project_directory)/bin"
+	}
+fi
+
+# Prints the path to the project output directory for manuals.
+if ! batextras:is_function_defined ::get_output_man_directory; then
+	batextras:get_output_man_directory() {
+		batextras:lazy_done "${FUNCNAME[0]}" \
+			"$(batextras:get_project_directory)/man"
+	}
+fi
+
+# Prints the path to the project directory for documentation.
+if ! batextras:is_function_defined ::get_docs_directory; then
+	batextras:get_docs_directory() {
+		batextras:lazy_done "${FUNCNAME[0]}" \
+			"$(batextras:get_project_directory)/doc"
+	}
+fi
+
+# Prints the declared version (in version.txt).
+if ! batextras:is_function_defined ::get_version; then
+	batextras:get_version() {
+		batextras:lazy_done "${FUNCNAME[0]}" \
+			"$(cat "$(batextras:get_project_directory)/version.txt")"
+	}
+fi
+
+# Prints the paths for all source scripts in this project.
+#
+# Output:
+#     One line for each script with the full path to the script.
+if ! batextras:is_function_defined ::get_source_paths; then
+	batextras:get_source_paths() {
+		for file in "$(batextras:get_source_directory)"/*.sh; do
+			printf "%s\n" "$file"
+			file_bin="$(basename -- "$file" ".sh")"
+		done
+	}
+fi
+
+
+# -----------------------------------------------------------------------------
+# Main:
+# Only run everything past this point if the script is not sourced.
+# -----------------------------------------------------------------------------
+(return 0 2>/dev/null) && return 0
+
+HERE="$(batextras:get_project_directory)"
+SRC="$(batextras:get_source_directory)"
+BIN="$(batextras:get_output_bin_directory)"
+MAN="$(batextras:get_output_man_directory)"
+MAN_SRC="$(batextras:get_docs_directory)"
 LIB="$HERE/lib"
+
 source "${LIB}/print.sh"
 source "${LIB}/opt.sh"
 source "${LIB}/constants.sh"
@@ -539,7 +638,7 @@ while read -r file; do
 	else
 		printc_msg "          %{YELLOW}Skipping %{MAGENTA}%s%{CLEAR}\n" "$(basename "$file_bin")"
 	fi
-done < <(get_source_paths)
+done < <(batextras:get_source_paths)
 
 if [[ "${#BUILD_FILTER[@]}" -gt 0 ]]; then
 	printf "\n"	
