@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # -----------------------------------------------------------------------------
-# bat-extras | Copyright (C) 2019 eth-p | MIT License
+# bat-extras | Copyright (C) 2019-2023 eth-p | MIT License
 #
 # Repository: https://github.com/eth-p/bat-extras
 # Issues:     https://github.com/eth-p/bat-extras/issues
@@ -446,12 +446,16 @@ while shiftopt; do
 	--alternate-executable:git)     shiftval; ALT_EXECS+=("git");     EXECUTABLE_GIT="$OPT_VAL" ;;
 	--minify)		        shiftval; OPT_MINIFY="$OPT_VAL" ;;
 
+	# Print scripts.
+	--show:source-paths) get_source_paths; exit 0 ;;
+
+	# Unknown options.
 	*)
 		if ! [[ -f "${SRC}/${OPT}.sh" ]]; then
 			printc_err "%{RED}%s: unknown option '%s'%{CLEAR}" "$PROGRAM" "$OPT"
 			exit 1
 		fi
-		
+
 		BUILD_FILTER+=("$OPT")
 		;;
 	esac
@@ -514,7 +518,7 @@ fi
 SOURCES=()
 
 printc_msg "%{YELLOW}Preparing scripts...%{CLEAR}\n"
-for file in "$SRC"/*.sh; do
+while read -r file; do
 	file_bin="$(basename -- "$file" ".sh")"
 	buildable=false
 	
@@ -535,7 +539,7 @@ for file in "$SRC"/*.sh; do
 	else
 		printc_msg "          %{YELLOW}Skipping %{MAGENTA}%s%{CLEAR}\n" "$(basename "$file_bin")"
 	fi
-done
+done < <(get_source_paths)
 
 if [[ "${#BUILD_FILTER[@]}" -gt 0 ]]; then
 	printf "\n"	
