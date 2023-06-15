@@ -17,20 +17,42 @@ jobs:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
           wait-interval: 10
 
-  "Changelog":
+  "Release":
     runs-on: ubuntu-latest
     needs: ["Wait"]
     steps:
       - name: Check out sources
         uses: actions/checkout@v3
-      - name: Generate changelog
-        run:  bash "${{ github.workspace }}/.github/actions/build/create-changelog.sh"
+      - name: Install build dependencies
+        uses: ./.github/actions/install-dependencies
+        with:
+          build: true
+          test:  false
 
-  "Package":
-    runs-on: ubuntu-latest
-    needs: ["Wait"]
-    steps:
-      - name: Check out sources
-        uses: actions/checkout@v3
+      - name: Build
+        uses: ./.github/actions/build
+        with:
+          minify: lib
+          manuals: true
+          verify: false
+          inline: false
+
+      - name: Create zipball
+        run:  bash "${{ github.workspace }}/.github/actions/build/create-zipball.sh"
+
       - name: Generate changelog
-        run:  bash "${{ github.workspace }}/.github/actions/build/create-changelog.sh"
+        id:   changelog
+        run: |
+          output_file="release-notes.md"
+          output_title="Release: $(date '+%Y-%m-%d')"
+
+          bash "${{ github.workspace }}/.github/actions/build/create-release-notes.sh" | tee "${output_file}"
+          echo "::set-output name=file::${output_file}"
+          echo "::set-output name=title::${output_title}"
+
+      - name: Create release
+        uses: ncipollo/release-action@v1
+        with:
+          artifacts: "bat-extras-*.zip"
+          bodyFile: "${{steps.changelog.outputs.file}}"
+          name: "${{steps.changelog.outputs.title}}"

@@ -24,8 +24,8 @@ batextras:get_current_commit() {
 # Generate changelog:
 # -----------------------------------------------------------------------------
 set -euo pipefail
-source "${PROJECT_DIR}/release.sh"
 
-zipball_name="bat-extras-$(batextras:get_version | sed 's/\.//')"
-zipball="${PROJECT_DIR}/${zipball_name}.zip"
-batextras:create_package "$zipball"
+source "${PROJECT_DIR}/release.sh"
+batextras:generate_release_notes \
+	"$(batextras:get_previous_tag_commit)" \
+	"$(batextras:get_current_commit)"

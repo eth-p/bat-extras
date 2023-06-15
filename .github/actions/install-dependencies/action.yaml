@@ -23,7 +23,7 @@ inputs:
 runs:
   using: "composite"
   steps:
-  
+
     - name: Create directories
       shell: bash
       run: |
@@ -40,7 +40,7 @@ runs:
           --output "${RUNNER_TEMP}/bin/shfmt" \
           "https://github.com/patrickvane/shfmt/releases/download/master/shfmt_linux_amd64"
         chmod +x "${RUNNER_TEMP}/bin/shfmt"
-        
+
     - name: Download bat (test dependency)
       uses: dsaltares/fetch-gh-release-asset@master
       if:   ${{ env.ACT || inputs.test == 'true' }}
@@ -89,5 +89,4 @@ runs:
       shell: bash
       run: |
         chmod -R +x "${{ runner.temp }}/bin"
-        tree "${{ runner.temp }}/bin"
 

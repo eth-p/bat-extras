@@ -21,7 +21,7 @@ inputs:
 runs:
   using: composite
   steps:
-  
+
     - name: Run build script
       shell: bash
       run: |
