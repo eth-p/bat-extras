@@ -229,7 +229,7 @@ step_read() {
 	if [[ -n "${2:-}" ]]; then
 		what=" $2"
 	fi
-	
+
 	cat "$1"
 	smsg "Reading${what}"
 }
@@ -620,18 +620,18 @@ printc_msg "%{YELLOW}Preparing scripts...%{CLEAR}\n"
 while read -r file; do
 	file_bin="$(basename -- "$file" ".sh")"
 	buildable=false
-	
+
 	if ! "$buildable" && [[ "${#BUILD_FILTER[@]}" -eq 0 ]]; then
 		buildable=true
 	elif ! "$buildable"; then
 		for buildable_file in "${BUILD_FILTER[@]}"; do
 			if [[ "$buildable_file" = "$file_bin" ]]; then
 				buildable=true
-				break	
+				break
 			fi
 		done
 	fi
-	
+
 	# If that one is allowed to build, add it to the sources list.
 	if "$buildable"; then
 		SOURCES+=("$file")
@@ -641,7 +641,7 @@ while read -r file; do
 done < <(batextras:get_source_paths)
 
 if [[ "${#BUILD_FILTER[@]}" -gt 0 ]]; then
-	printf "\n"	
+	printf "\n"
 fi
 
 
