@@ -5,21 +5,8 @@ on:
     tags: ['*']
 
 jobs:
-  "Wait":
-    runs-on: ubuntu-latest
-    steps:
-      - name: Wait for tests to succeed
-        uses: lewagon/wait-on-check-action@v1.0.0
-        if:   ${{ !env.ACT }}
-        with:
-          ref: ${{ github.ref }}
-          running-workflow-name: 'Test'
-          repo-token: ${{ secrets.GITHUB_TOKEN }}
-          wait-interval: 10
-
   "Release":
     runs-on: ubuntu-latest
-    needs: ["Wait"]
     steps:
       - name: Check out sources
         uses: actions/checkout@v3
@@ -27,14 +14,14 @@ jobs:
         uses: ./.github/actions/install-dependencies
         with:
           build: true
-          test:  false
+          test:  true
 
       - name: Build
         uses: ./.github/actions/build
         with:
           minify: lib
           manuals: true
-          verify: false
+          verify: true
           inline: false
 
       - name: Create zipball
