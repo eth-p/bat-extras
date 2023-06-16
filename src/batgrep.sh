@@ -47,7 +47,7 @@ Arguments:
           Path(s) to search
 
 Options:
-  -i, --ingore-case:
+  -i, --ignore-case:
           Use case insensitive searching.
 
   -s, --case-sensitive:
@@ -93,10 +93,10 @@ Options:
       --pager=[PAGER]:
           Specify the pager to use.
 
-      --terminal-wdith=[COLS]:
+      --terminal-width=[COLS]:
           Generate output for the specified terminal width.
 
-      --no-seperator:
+      --no-separator:
           Disable printing separator between files
 
 Options passed directly to ripgrep:
