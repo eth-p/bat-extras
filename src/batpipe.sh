@@ -202,8 +202,7 @@ viewer_tar_process() {
 	if [[ -n "$2" ]]; then
 		tar -xf "$1" -O "$2" | bat --file-name="$1/$2"
 	else
-		batpipe_header    "Viewing contents of archive: %{PATH}%s" "$1"
-		batpipe_subheader "To view files within the archive, add the file path after the archive."
+		batpipe_archive_header
 		tar -tvf "$1"
 		return $?
 	fi
@@ -225,8 +224,7 @@ viewer_unzip_process() {
 	if [[ -n "$2" ]]; then
 		unzip -p "$1" "$2" | bat --file-name="$1/$2"
 	else
-		batpipe_header    "Viewing contents of archive: %{PATH}%s" "$1"
-		batpipe_subheader "To view files within the archive, add the file path after the archive."
+		batpipe_archive_header
 		unzip -l "$1"
 		return $?
 	fi
@@ -288,6 +286,11 @@ batpipe_header() {
 batpipe_subheader() {
 	local pattern="${1//%{C\}/%{C\}%{SUBHEADER\}}"
 	printc "%{SUBHEADER}==> $pattern%{C}\n" "${@:2}"
+}
+
+batpipe_archive_header() {
+	batpipe_header    "Viewing contents of archive: %{PATH}%s" "$1"
+	batpipe_subheader "To view files within the archive, add the file path after the archive."
 }
 
 # Executes `bat` (or `cat`, if already running from within `bat`).
