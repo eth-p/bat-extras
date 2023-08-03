@@ -151,7 +151,7 @@ fi
 # Viewers:
 # -----------------------------------------------------------------------------
 
-BATPIPE_VIEWERS=("exa" "ls" "tar" "unzip" "gunzip" "xz")
+BATPIPE_VIEWERS=("exa" "ls" "tar" "tar_gz" "tar_bz2" "unzip" "gunzip" "xz")
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -200,12 +200,46 @@ viewer_tar_supports() {
 
 viewer_tar_process() {
 	if [[ -n "$2" ]]; then
-		tar -xf "$1" -O "$2" | bat --file-name="$1/$2"
+		tar $3 -xf "$1" -O "$2" | bat --file-name="$1/$2"
 	else
 		batpipe_archive_header
-		tar -tvf "$1"
+		tar $3 -tvf "$1"
 		return $?
 	fi
+}
+
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+viewer_tar_gz_supports() {
+	command -v "tar" &> /dev/null || return 1
+	command -v "gzip" &> /dev/null || return 1
+
+	case "$1" in
+		*.tar.gz | *.tgz) return 0 ;;
+	esac
+
+	return 1
+}
+
+viewer_tar_gz_process() {
+	viewer_tar_process "$1" "$2" -z
+}
+
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+viewer_tar_bz2_supports() {
+	command -v "tar" &> /dev/null || return 1
+	command -v "bzip2" &> /dev/null || return 1
+
+	case "$1" in
+		*.tar.bz2 | *.tbz) return 0 ;;
+	esac
+
+	return 1
+}
+
+viewer_tar_bz2_process() {
+	viewer_tar_process "$1" "$2" -j
 }
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
