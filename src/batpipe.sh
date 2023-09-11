@@ -151,9 +151,20 @@ fi
 # Viewers:
 # -----------------------------------------------------------------------------
 
-BATPIPE_VIEWERS=("eza" "ls" "tar" "unzip" "gunzip" "xz")
+if ! command -v eza &> /dev/null
+then
+	BATPIPE_VIEWERS=("eza" "ls" "tar" "unzip" "gunzip" "xz")
+else
+	BATPIPE_VIEWERS=("exa" "ls" "tar" "unzip" "gunzip" "xz")
+fi
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+viewer_exa_supports() {
+	[[ -d "$2" ]] || return 1
+	command -v "exa" &> /dev/null || return 1
+	return 0
+}
 
 viewer_eza_supports() {
 	[[ -d "$2" ]] || return 1
@@ -161,6 +172,16 @@ viewer_eza_supports() {
 	return 0
 }
 
+viewer_exa_process() {
+	local dir="$(strip_trailing_slashes "$1")"
+	batpipe_header "Viewing contents of directory: %{PATH}%s" "$dir"
+	if "$BATPIPE_ENABLE_COLOR"; then
+		exa -la --color=always "$1" 2>&1
+	else
+		exa -la --color=never "$1" 2>&1
+	fi
+	return $?
+}
 viewer_eza_process() {
 	local dir="$(strip_trailing_slashes "$1")"
 	batpipe_header "Viewing contents of directory: %{PATH}%s" "$dir"
