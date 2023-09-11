@@ -29,7 +29,7 @@ Like [lesspipe](https://github.com/wofr06/lesspipe), `batpipe` is designed to wo
 
 | Files                | Program                     |
 | -------------------- | --------------------------- |
-| Directories          | `exa`, `ls`                 |
+| Directories          | `eza`, `ls`                 |
 | `*.tar`, `*.tar.gz`  | `tar`                       |
 | `*.zip`, `*.jar`     | `unzip`                     |
 | `*.gz`               | `gunzip`                    |
