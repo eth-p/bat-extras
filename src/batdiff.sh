@@ -111,8 +111,23 @@ fi
 GIT_ARGS+=(-U"$OPT_CONTEXT")
 
 # -----------------------------------------------------------------------------
+# Functions:
+# -----------------------------------------------------------------------------
+
+ensure_git_directory() {
+	if ! "$EXECUTABLE_GIT" rev-parse --show-toplevel &>/dev/null; then
+		print_error "Not a git repository."
+		printc "\n%s\nTo view a diff between two files, use %{CYAN}%s [file] [file]%{CLEAR}." \
+			"To view a diff between staged files and the working directory, enter a git repository." \
+			"$PROGRAM"
+		exit 1
+	fi
+}
+
+# -----------------------------------------------------------------------------
 # Printing:
 # -----------------------------------------------------------------------------
+
 print_bat_diff() {
 	local files=("$@")
 
@@ -123,6 +138,7 @@ print_bat_diff() {
 	fi
 
 	# Diff staged git file.
+	ensure_git_directory
 	if "$OPT_STAGED"; then
 		if false && "$SUPPORTS_DELTA"; then
 			# bat doesn't support diffing staged changes against the HEAD.
@@ -156,6 +172,7 @@ print_delta_diff() {
 	fi
 
 	# Diff git file.
+	ensure_git_directory
 	"$EXECUTABLE_GIT" diff "${GIT_ARGS[@]}" "${files[0]}" | "$EXECUTABLE_DELTA" "${DELTA_ARGS[@]}"
 }
 
@@ -193,6 +210,7 @@ fi
 # -----------------------------------------------------------------------------
 main() {
 	if [[ "${#FILES[@]}" -eq 0 ]] || "$OPT_ALL_CHANGES"; then
+		ensure_git_directory
 		local file
 		while read -r file; do
 			if [[ -f "$file" ]]; then
