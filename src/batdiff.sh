@@ -34,6 +34,7 @@ SUPPORTS_DELTA=false
 BAT_VERSION="$(bat_version)"
 BAT_ARGS=()
 DELTA_ARGS=()
+DELTA_VERSION='unsupported'
 GIT_ARGS=()
 
 FILES=()
@@ -50,6 +51,15 @@ fi
 # Set options based on delta availability.
 if command -v "$EXECUTABLE_DELTA" &>/dev/null; then
 	SUPPORTS_DELTA=true
+	DELTA_VERSION="$("$EXECUTABLE_DELTA" --version | cut -d' ' -f2)"
+fi
+
+# Set options based on delta version.
+#  - 0.12  -- Renamed `--hunk-style` to `--hunk-header-decoration-style`.
+if version_compare "$DELTA_VERSION" -ge "0.12"; then
+	DELTA_ARGS+=("--hunk-header-decoration-style=plain")
+else
+	DELTA_ARGS+=("--hunk-style=plain")
 fi
 
 # Parse arguments.
@@ -82,8 +92,7 @@ done
 BAT_ARGS+=("--terminal-width=${OPT_TERMINAL_WIDTH}" "--paging=never")
 DELTA_ARGS+=(
 	"--width=${OPT_TERMINAL_WIDTH}" 
-	"--paging=never" 
-	"--hunk-header-decoration-style=plain"
+	"--paging=never"
 )
 
 if "$OPT_COLOR"; then
