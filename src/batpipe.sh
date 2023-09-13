@@ -153,9 +153,9 @@ fi
 
 if ! command -v eza &> /dev/null
 then
-	BATPIPE_VIEWERS=("eza" "ls" "tar" "unzip" "gunzip" "xz")
+	BATPIPE_VIEWERS=("eza" "ls" "tar" "tar_gz" "unzip" "gunzip" "xz")
 else
-	BATPIPE_VIEWERS=("exa" "ls" "tar" "unzip" "gunzip" "xz")
+	BATPIPE_VIEWERS=("exa" "ls" "tar" "tar_bz2" "unzip" "gunzip" "xz")
 fi
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -221,13 +221,46 @@ viewer_tar_supports() {
 
 viewer_tar_process() {
 	if [[ -n "$2" ]]; then
-		tar -xf "$1" -O "$2" | bat --file-name="$1/$2"
+		tar $3 -xf "$1" -O "$2" | bat --file-name="$1/$2"
 	else
-		batpipe_header    "Viewing contents of archive: %{PATH}%s" "$1"
-		batpipe_subheader "To view files within the archive, add the file path after the archive."
-		tar -tvf "$1"
+		batpipe_archive_header
+		tar $3 -tvf "$1"
 		return $?
 	fi
+}
+
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+viewer_tar_gz_supports() {
+	command -v "tar" &> /dev/null || return 1
+	command -v "gzip" &> /dev/null || return 1
+
+	case "$1" in
+		*.tar.gz | *.tgz) return 0 ;;
+	esac
+
+	return 1
+}
+
+viewer_tar_gz_process() {
+	viewer_tar_process "$1" "$2" -z
+}
+
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+viewer_tar_bz2_supports() {
+	command -v "tar" &> /dev/null || return 1
+	command -v "bzip2" &> /dev/null || return 1
+
+	case "$1" in
+		*.tar.bz2 | *.tbz) return 0 ;;
+	esac
+
+	return 1
+}
+
+viewer_tar_bz2_process() {
+	viewer_tar_process "$1" "$2" -j
 }
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -246,8 +279,7 @@ viewer_unzip_process() {
 	if [[ -n "$2" ]]; then
 		unzip -p "$1" "$2" | bat --file-name="$1/$2"
 	else
-		batpipe_header    "Viewing contents of archive: %{PATH}%s" "$1"
-		batpipe_subheader "To view files within the archive, add the file path after the archive."
+		batpipe_archive_header
 		unzip -l "$1"
 		return $?
 	fi
@@ -309,6 +341,11 @@ batpipe_header() {
 batpipe_subheader() {
 	local pattern="${1//%{C\}/%{C\}%{SUBHEADER\}}"
 	printc "%{SUBHEADER}==> $pattern%{C}\n" "${@:2}"
+}
+
+batpipe_archive_header() {
+	batpipe_header    "Viewing contents of archive: %{PATH}%s" "$1"
+	batpipe_subheader "To view files within the archive, add the file path after the archive."
 }
 
 # Executes `bat` (or `cat`, if already running from within `bat`).
