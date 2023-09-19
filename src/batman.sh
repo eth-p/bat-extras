@@ -24,6 +24,7 @@ FORWARDED_ARGS=()
 MAN_ARGS=()
 BAT_ARGS=()
 
+SHIFTOPT_SHORT_OPTIONS="SPLIT"
 while shiftopt; do
 	case "$OPT" in
 		--paging|--pager) shiftval; FORWARDED_ARGS+=("${OPT}=${OPT_VAL}");
