@@ -34,8 +34,8 @@ jobs:
           output_title="Release: $(date '+%Y-%m-%d')"
 
           bash "${{ github.workspace }}/.github/actions/build/create-release-notes.sh" | tee "${output_file}"
-          echo "::set-output name=file::${output_file}"
-          echo "::set-output name=title::${output_title}"
+          echo "file=${output_file}"   >> "$GITHUB_OUTPUT"
+          echo "title=${output_title}" >> "$GITHUB_OUTPUT"
 
       - name: Create release
         uses: ncipollo/release-action@v1
