@@ -1,6 +1,5 @@
 name: Release
 on:
-  release: {}
   push:
     tags: ['*']
 
@@ -38,6 +37,7 @@ jobs:
           echo "title=${output_title}" >> "$GITHUB_OUTPUT"
 
       - name: Create release
+        if: ${{ !env.ACT }}
         uses: ncipollo/release-action@v1
         with:
           artifacts: "bat-extras-*.zip"
