@@ -53,6 +53,16 @@ All of the `bat-extras` scripts can be installed with `brew install bat-extras`.
 If you would prefer to only install the specific scripts you need, you can use the `eth-p/software` tap to install individual scripts: `brew install eth-p/software/bat-extras-[SCRIPT]`
 
 
+### MacPorts
+
+The `bat-extras` scripts can also be installed via [MacPorts](https://www.macports.org) on macOS:
+
+```bash
+sudo port install bat-extras
+```
+
+Port info [here](https://ports.macports.org/port/bat-extras/).
+
 ### Pacman 
 
 `bat-extras` is [officially available](https://archlinux.org/packages/community/any/bat-extras/) on the Arch community repository!
