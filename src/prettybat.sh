@@ -22,7 +22,7 @@ hook_version
 # Formatters:
 # -----------------------------------------------------------------------------
 
-FORMATTERS=("prettier" "rustfmt" "shfmt" "clangformat" "black")
+FORMATTERS=("prettier" "rustfmt" "shfmt" "clangformat" "black", "mix_format")
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -118,6 +118,26 @@ formatter_black_process() {
 	return $?
 }
 
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+formatter_mix_format_supports() {
+	case "$1" in
+		.ex | \
+		.exs | \
+		.eex | \
+		.heex)
+		return 0
+		;;
+	esac
+
+	return 1
+}
+
+formatter_mix_format_process() {
+	mix format
+	return $?
+}
+
 # -----------------------------------------------------------------------------
 # Functions:
 # -----------------------------------------------------------------------------
@@ -145,6 +165,8 @@ map_language_to_extension() {
 	rust | rs)                  ext=".rs" ;;
 	graphql | gql)              ext=".graphql" ;;
 	python | py)                ext=".py" ;;
+	elixir | ex)                ext=".ex" ;;
+	exs)                        ext=".exs" ;;
 	esac
 
 	echo "$ext"
