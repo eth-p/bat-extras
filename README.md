@@ -65,9 +65,9 @@ Port info [here](https://ports.macports.org/port/bat-extras/).
 
 ### Pacman 
 
-`bat-extras` is [officially available](https://archlinux.org/packages/community/any/bat-extras/) on the Arch community repository!
+`bat-extras` is [officially available](https://archlinux.org/packages/extra/any/bat-extras/) on the Arch extra repository!
 
-If you have the community repository enabled, you can install `bat-extras` by running:
+If you have the extra repository enabled, you can install `bat-extras` by running:
 
 ```bash
 pacman -S bat-extras
