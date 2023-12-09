@@ -75,7 +75,7 @@ if [[ "${#MAN_ARGS[@]}" -eq 0 ]] && [[ -z "$BATMAN_LEVEL" ]] && command -v "$EXE
 		echo {1} \
 		| sed 's/, /\n/g;' \
 		| sed 's/\([^(]*\)(\([0-9A-Za-z ]\))/\2\t\1/g' \
-		| BAT_STYLE=plain xargs -n2 batman --color=always --paging=never
+		| BAT_STYLE=plain xargs -n2 batman --color=always --paging=never 2> /dev/null
 	")"
 	
 	if [[ -z "$selected_page" ]]; then
