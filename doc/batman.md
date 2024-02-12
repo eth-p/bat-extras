@@ -11,6 +11,14 @@ If you have `fzf` installed, you can even use `batman` to search through manual 
 
     batman [SECTION] [ENTRY]
 
+### As a Replacement for Man
+
+Please do not use `batman` as the `MANPAGER`.  
+If you want to use `batman` instead of `man`, you should set a shell alias:
+
+```bash
+alias man='batman'  # bash
+```
 
 
 ## Environment
