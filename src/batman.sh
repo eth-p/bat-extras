@@ -48,7 +48,7 @@ fi
 
 if [[ "${BATMAN_IS_BEING_MANPAGER:-}" = "yes" ]]; then
 	print_manpage() {
-		sed -u -e 's/\x1B\[[0-9;]*m//g; s/.\x08//g' \
+		sed -e 's/\x1B\[[0-9;]*m//g; s/.\x08//g' \
 			| "$EXECUTABLE_BAT" --language=man "${BAT_ARGS[@]}"
 		exit $?
 	}
