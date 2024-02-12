@@ -97,7 +97,10 @@ Options:
           Generate output for the specified terminal width.
 
       --no-separator:
-          Disable printing separator between files
+          Disable printing separator between files.
+
+      --rga:
+          Use ripgrep-all instead of ripgrep.
 
 Options passed directly to ripgrep:
   -F, --fixed-strings
@@ -141,6 +144,7 @@ EOF
 # -----------------------------------------------------------------------------
 # Options:
 # -----------------------------------------------------------------------------
+RIPGREP="$EXECUTABLE_RIPGREP"
 RG_ARGS=()
 BAT_ARGS=()
 PATTERN=""
@@ -252,6 +256,14 @@ while shiftopt; do
 	-p | --search-pattern) OPT_SEARCH_PATTERN=true ;;
 	--no-search-pattern)   OPT_SEARCH_PATTERN=false ;;
 	--no-separator)        OPT_NO_SEPARATOR=true ;;
+	--rga) {
+		if ! rga --version | grep 'ripgrep-all' &>/dev/null; then
+			printc "%{RED}%s: option '--rga' requires ripgrep-all to be installed%{CLEAR}\n" "$PROGRAM" 1>&2
+			exit 1
+		fi
+
+		RIPGREP='rga'
+	};;
 
 	# Option forwarding
 	--rg:*) {
@@ -377,10 +389,10 @@ main() {
 		)
 		
 		if "$READ_FROM_STDIN"; then
-			"$EXECUTABLE_RIPGREP" "${COMMON_RG_ARGS[@]}" <<< "$STDIN_DATA"
+			"$RIPGREP" "${COMMON_RG_ARGS[@]}" <<< "$STDIN_DATA"
 			return $?
 		else
-			"$EXECUTABLE_RIPGREP" "${COMMON_RG_ARGS[@]}"
+			"$RIPGREP" "${COMMON_RG_ARGS[@]}"
 			return $?
 		fi
 	}

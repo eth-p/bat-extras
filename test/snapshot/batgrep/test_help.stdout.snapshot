@@ -63,7 +63,10 @@ Options:
           Generate output for the specified terminal width.
 
       --no-separator:
-          Disable printing separator between files
+          Disable printing separator between files.
+
+      --rga:
+          Use ripgrep-all instead of ripgrep.
 
 Options passed directly to ripgrep:
   -F, --fixed-strings

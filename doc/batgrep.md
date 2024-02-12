@@ -31,7 +31,8 @@ Search through files or directories looking for matching regular expressions (or
 |       | `--paging=["never"/"always"]`| Enable/disable paging.                                     |
 |       | `--pager=[PAGER]`            | Specify the pager to use.                                    |
 |       | `--terminal-width=[COLS]`    | Generate output for the specified terminal width.            |
-|       | `--no-separator`             | Disable printing separator between files                     |
+|       | `--no-separator`             | Disable printing separator between files.                    |
+|       | `--rga`                      | Use `ripgrep-all` instead of `ripgrep`.                      |
 
 The following options are passed directly to ripgrep, and are not handled by this script.
 
