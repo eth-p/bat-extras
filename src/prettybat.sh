@@ -22,7 +22,7 @@ hook_version
 # Formatters:
 # -----------------------------------------------------------------------------
 
-FORMATTERS=("prettier" "rustfmt" "shfmt" "clangformat" "black", "mix_format")
+FORMATTERS=("prettier" "rustfmt" "shfmt" "clangformat" "black" "mix_format")
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
