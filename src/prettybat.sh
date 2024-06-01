@@ -14,6 +14,7 @@ source "${LIB}/str.sh"
 source "${LIB}/print.sh"
 source "${LIB}/version.sh"
 source "${LIB}/check.sh"
+source "${LIB}/term.sh"
 # -----------------------------------------------------------------------------
 # Init:
 # -----------------------------------------------------------------------------
@@ -22,7 +23,10 @@ hook_version
 # Formatters:
 # -----------------------------------------------------------------------------
 
-FORMATTERS=("prettier" "rustfmt" "shfmt" "clangformat" "black" "mix_format")
+FORMATTERS=(
+	"prettier" "rustfmt" "shfmt" "clangformat"
+	"black" "mix_format" "column"
+)
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -138,6 +142,33 @@ formatter_mix_format_process() {
 	return $?
 }
 
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+formatter_column_supports() {
+	case "$1" in
+		.tsv)
+		return 0
+		;;
+	esac
+
+	return 1
+}
+
+formatter_column_process() {
+	local args=(
+		-t
+		-s $'\t'
+		-c "$TERMINAL_WIDTH"
+	)
+
+	if column --help &>/dev/null; then
+		# GNU `column`
+		args+=(--keep-empty-lines)
+	fi
+
+	sed 's/$/\n/' | column "${args[@]}"
+}
+
 # -----------------------------------------------------------------------------
 # Functions:
 # -----------------------------------------------------------------------------
@@ -167,6 +198,7 @@ map_language_to_extension() {
 	python | py)                ext=".py" ;;
 	elixir | ex)                ext=".ex" ;;
 	exs)                        ext=".exs" ;;
+	tsv)                        ext=".tsv" ;;
 	esac
 
 	echo "$ext"
@@ -293,6 +325,8 @@ BAT_ARGS=()
 OPT_LANGUAGE=
 FILES=()
 DEBUG_PRINT_FORMATTER=false
+
+TERMINAL_WIDTH="$(term_width)"
 
 # Parse arguments.
 while shiftopt; do
