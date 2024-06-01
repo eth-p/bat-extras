@@ -155,6 +155,7 @@ formatter_column_supports() {
 }
 
 formatter_column_process() {
+	local needs_newline=true
 	local args=(
 		-t
 		-s $'\t'
@@ -164,9 +165,10 @@ formatter_column_process() {
 	if column --help &>/dev/null; then
 		# GNU `column`
 		args+=(--keep-empty-lines)
+		needs_newline=false
 	fi
 
-	sed 's/$/\n/' | column "${args[@]}"
+	{ { "$needs_newline" && sed 's/$/\n/'; } || cat; } | column "${args[@]}"
 }
 
 # -----------------------------------------------------------------------------
