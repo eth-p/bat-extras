@@ -68,6 +68,7 @@ fi
 # -----------------------------------------------------------------------------
 if [[ -n "${MANPAGER}" ]]; then BAT_PAGER="$MANPAGER"; fi
 export MANPAGER="env BATMAN_IS_BEING_MANPAGER=yes bash $(printf "%q " "$SELF" "${FORWARDED_ARGS[@]}")"
+export MANPAGER="${MANPAGER%"${MANPAGER##*[![:space:]]}"}"
 export MANROFFOPT='-c'
 
 # If `--export-env`, print exports to use batman as the manpager directly.
@@ -81,14 +82,14 @@ fi
 # If no argument is provided and fzf is installed, use fzf to search for man pages.
 if [[ "${#MAN_ARGS[@]}" -eq 0 ]] && [[ -z "$BATMAN_LEVEL" ]] && command -v "$EXECUTABLE_FZF" &>/dev/null; then
 	export BATMAN_LEVEL=1
-	
+
 	selected_page="$(man -k . | "$EXECUTABLE_FZF" --delimiter=" - " --reverse -e --preview="
 		echo {1} \
 		| sed 's/, /\n/g;' \
 		| sed 's/\([^(]*\)(\([0-9A-Za-z ]\))/\2\t\1/g' \
 		| BAT_STYLE=plain xargs -n2 batman --color=always --paging=never
 	")"
-	
+
 	if [[ -z "$selected_page" ]]; then
 		exit 0
 	fi
@@ -100,7 +101,7 @@ if [[ "${#MAN_ARGS[@]}" -eq 0 ]] && [[ -z "$BATMAN_LEVEL" ]] && command -v "$EXE
 	#
 	# `man` only needs one name/title, so we're taking the first one here.
 	selected_page_unaliased="$(echo "$selected_page" | cut -d, -f1)"
-	
+
 	# Convert the page(section) format to something that can be fed to the man command.
 	while read -r line; do
 		if [[ "$line" =~ ^(.*)\(([0-9a-zA-Z ]+)\) ]]; then
