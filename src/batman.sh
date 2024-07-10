@@ -28,7 +28,7 @@ SHIFTOPT_SHORT_OPTIONS="SPLIT"
 while shiftopt; do
 	case "$OPT" in
 		--export-env) OPT_EXPORT_ENV=true ;;
-		--paging|--pager) shiftval; FORWARDED_ARGS+=("${OPT}=${OPT_VAL}");
+		--paging|--pager|--wrap) shiftval; FORWARDED_ARGS+=("${OPT}=${OPT_VAL}");
 		                            BAT_ARGS+=("${OPT}=${OPT_VAL}") ;;
 		*)                          MAN_ARGS+=("$OPT") ;;
 	esac
