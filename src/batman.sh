@@ -92,13 +92,21 @@ if [[ "${#MAN_ARGS[@]}" -eq 0 ]] && [[ -z "$BATMAN_LEVEL" ]] && command -v "$EXE
 	if [[ -z "$selected_page" ]]; then
 		exit 0
 	fi
+
+	# Some entries from `man -k .` may include "synonyms" of a man page's title.
+	# For example, the manual for kubectl-edit will appear as:
+	#
+	#   kubectl-edit(1), kubectl edit(1) - Edit a resource on the server
+	#
+	# `man` only needs one name/title, so we're taking the first one here.
+	selected_page_unaliased="$(echo "$selected_page" | cut -d, -f1)"
 	
 	# Convert the page(section) format to something that can be fed to the man command.
 	while read -r line; do
 		if [[ "$line" =~ ^(.*)\(([0-9a-zA-Z ]+)\) ]]; then
 			MAN_ARGS+=("${BASH_REMATCH[2]}" "$(echo ${BASH_REMATCH[1]} | xargs)")
 		fi
-	done <<< "$selected_page"	
+	done <<< "$selected_page_unaliased"
 fi
 
 # Run man.
