@@ -153,9 +153,9 @@ fi
 
 if ! command -v eza &> /dev/null
 then
-	BATPIPE_VIEWERS=("eza" "ls" "tar" "tar_gz" "unzip" "gunzip" "xz")
+	BATPIPE_VIEWERS=("eza" "ls" "tar" "tar_gz" "tar_bz2" "tar_xz" "tar_zst" "unzip" "7z" "gunzip" "bzip2" "xz" "lz4" "lzip" "lzop" "zstd")
 else
-	BATPIPE_VIEWERS=("exa" "ls" "tar" "tar_bz2" "unzip" "gunzip" "xz")
+	BATPIPE_VIEWERS=("exa" "ls" "tar" "tar_gz" "tar_bz2" "tar_xz" "tar_zst" "unzip" "7z" "gunzip" "bzip2" "xz" "lz4" "lzip" "lzop" "zstd")
 fi
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -265,6 +265,40 @@ viewer_tar_bz2_process() {
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
+viewer_tar_xz_supports() {
+	command -v "tar" &> /dev/null || return 1
+	command -v "xz" &> /dev/null || return 1
+
+	case "$1" in
+		*.tar.xz | *.txz) return 0 ;;
+	esac
+
+	return 1
+}
+
+viewer_tar_xz_process() {
+	viewer_tar_process "$1" "$2" -J
+}
+
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+viewer_tar_zst_supports() {
+	command -v "tar" &> /dev/null || return 1
+	command -v "zstd" &> /dev/null || return 1
+
+	case "$1" in
+		*.tar.zst | *.tzst) return 0 ;;
+	esac
+
+	return 1
+}
+
+viewer_tar_zst_process() {
+	viewer_tar_process "$1" "$2" --zstd
+}
+
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
 viewer_unzip_supports() {
 	command -v "unzip" &> /dev/null || return 1
 
@@ -281,6 +315,28 @@ viewer_unzip_process() {
 	else
 		batpipe_archive_header
 		unzip -l "$1"
+		return $?
+	fi
+}
+
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+viewer_7z_supports() {
+	command -v "7z" &> /dev/null || return 1
+
+	case "$1" in
+		*.7z) return 0 ;;
+	esac
+
+	return 1
+}
+
+viewer_7z_process() {
+	if [[ -n "$2" ]]; then
+		7z x -so "$1" "$2" | bat --file-name="$1/$2"
+	else
+		batpipe_archive_header
+		7z l "$1"
 		return $?
 	fi
 }
@@ -305,6 +361,24 @@ viewer_gunzip_process() {
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
+viewer_bzip2_supports() {
+	command -v "bzip2" &> /dev/null || return 1
+	[[ -z "$3" ]] || return 1
+
+	case "$2" in
+		*.bz2) return 0 ;;
+	esac
+
+	return 1
+}
+
+viewer_bzip2_process() {
+	bzip2 -d -c "$1" | bat --file-name="$1"
+	return $?
+}
+
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
 viewer_xz_supports() {
 	command -v "xz" &> /dev/null || return 1
 	[[ -z "$3" ]] || return 1
@@ -318,6 +392,78 @@ viewer_xz_supports() {
 
 viewer_xz_process() {
 	xz --decompress -k -c "$1" | bat --file-name="$1"
+	return $?
+}
+
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+viewer_lz4_supports() {
+	command -v "lz4" &> /dev/null || return 1
+	[[ -z "$3" ]] || return 1
+
+	case "$2" in
+		*.lz4) return 0 ;;
+	esac
+
+	return 1
+}
+
+viewer_lz4_process() {
+	lz4 -d -c "$1" | bat --file-name="$1"
+	return $?
+}
+
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+viewer_lzip_supports() {
+	command -v "lzip" &> /dev/null || return 1
+	[[ -z "$3" ]] || return 1
+
+	case "$2" in
+		*.lz) return 0 ;;
+	esac
+
+	return 1
+}
+
+viewer_lzip_process() {
+	lzip -d -c "$1" | bat --file-name="$1"
+	return $?
+}
+
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+viewer_lzop_supports() {
+	command -v "lzop" &> /dev/null || return 1
+	[[ -z "$3" ]] || return 1
+
+	case "$2" in
+		*.lzo) return 0 ;;
+	esac
+
+	return 1
+}
+
+viewer_lzop_process() {
+	lzop -d -c "$1" | bat --file-name="$1"
+	return $?
+}
+
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+viewer_zstd_supports() {
+	command -v "zstd" &> /dev/null || return 1
+	[[ -z "$3" ]] || return 1
+
+	case "$2" in
+		*.zst) return 0 ;;
+	esac
+
+	return 1
+}
+
+viewer_zstd_process() {
+	zstd -d -c "$1" | bat --file-name="$1"
 	return $?
 }
 
