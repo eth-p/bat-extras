@@ -9,7 +9,6 @@
 SELF_NC="${BASH_SOURCE:-$0}"
 SELF="$(cd "$(dirname "${SELF_NC}")" && cd "$(dirname "$(readlink "${SELF_NC}" || echo ".")")" && pwd)/$(basename "$(readlink "${SELF_NC}" || echo "${SELF_NC}")")"
 LIB="$(cd "$(dirname "${SELF_NC}")" && cd "$(dirname "$(readlink "${SELF_NC}" || echo ".")")/../lib" && pwd)"
-if [[ -n "${MANPAGER}" ]]; then BAT_PAGER="$MANPAGER"; fi
 source "${LIB}/constants.sh"
 source "${LIB}/pager.sh"
 source "${LIB}/print.sh"
@@ -23,10 +22,12 @@ hook_version
 FORWARDED_ARGS=()
 MAN_ARGS=()
 BAT_ARGS=()
+OPT_EXPORT_ENV=false
 
 SHIFTOPT_SHORT_OPTIONS="SPLIT"
 while shiftopt; do
 	case "$OPT" in
+		--export-env) OPT_EXPORT_ENV=true ;;
 		--paging|--pager) shiftval; FORWARDED_ARGS+=("${OPT}=${OPT_VAL}");
 		                            BAT_ARGS+=("${OPT}=${OPT_VAL}") ;;
 		*)                          MAN_ARGS+=("$OPT") ;;
@@ -48,7 +49,8 @@ fi
 
 if [[ "${BATMAN_IS_BEING_MANPAGER:-}" = "yes" ]]; then
 	print_manpage() {
-		col -bx | "$EXECUTABLE_BAT" --language=man "${BAT_ARGS[@]}"
+		sed -e 's/\x1B\[[0-9;]*m//g; s/.\x08//g' \
+			| "$EXECUTABLE_BAT" --language=man "${BAT_ARGS[@]}"
 		exit $?
 	}
 
@@ -64,8 +66,17 @@ if [[ "${BATMAN_IS_BEING_MANPAGER:-}" = "yes" ]]; then
 fi
 
 # -----------------------------------------------------------------------------
+if [[ -n "${MANPAGER}" ]]; then BAT_PAGER="$MANPAGER"; fi
 export MANPAGER="env BATMAN_IS_BEING_MANPAGER=yes bash $(printf "%q " "$SELF" "${FORWARDED_ARGS[@]}")"
 export MANROFFOPT='-c'
+
+# If `--export-env`, print exports to use batman as the manpager directly.
+if "$OPT_EXPORT_ENV"; then
+	printf "export %s=%q\n" \
+		"MANPAGER" "$MANPAGER" \
+		"MANROFFOPT" "$MANROFFOPT"
+	exit 0
+fi
 
 # If no argument is provided and fzf is installed, use fzf to search for man pages.
 if [[ "${#MAN_ARGS[@]}" -eq 0 ]] && [[ -z "$BATMAN_LEVEL" ]] && command -v "$EXECUTABLE_FZF" &>/dev/null; then

@@ -1,5 +1,5 @@
 # -----------------------------------------------------------------------------
-# bat-extras | Copyright (C) 2020 eth-p and contributors | MIT License
+# bat-extras | Copyright (C) 2020-2024 eth-p and contributors | MIT License
 #
 # Repository: https://github.com/eth-p/bat-extras
 # Issues:     https://github.com/eth-p/bat-extras/issues

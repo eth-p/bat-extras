@@ -14,6 +14,7 @@ source "${LIB}/str.sh"
 source "${LIB}/print.sh"
 source "${LIB}/version.sh"
 source "${LIB}/check.sh"
+source "${LIB}/term.sh"
 # -----------------------------------------------------------------------------
 # Init:
 # -----------------------------------------------------------------------------
@@ -22,7 +23,10 @@ hook_version
 # Formatters:
 # -----------------------------------------------------------------------------
 
-FORMATTERS=("prettier" "rustfmt" "shfmt" "clangformat" "black")
+FORMATTERS=(
+	"prettier" "rustfmt" "shfmt" "clangformat"
+	"black" "mix_format" "column"
+)
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -118,6 +122,55 @@ formatter_black_process() {
 	return $?
 }
 
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+formatter_mix_format_supports() {
+	case "$1" in
+		.ex | \
+		.exs | \
+		.eex | \
+		.heex)
+		return 0
+		;;
+	esac
+
+	return 1
+}
+
+formatter_mix_format_process() {
+	mix format
+	return $?
+}
+
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+formatter_column_supports() {
+	case "$1" in
+		.tsv)
+		return 0
+		;;
+	esac
+
+	return 1
+}
+
+formatter_column_process() {
+	local needs_newline=true
+	local args=(
+		-t
+		-s $'\t'
+		-c "$TERMINAL_WIDTH"
+	)
+
+	if column --help &>/dev/null; then
+		# GNU `column`
+		args+=(--keep-empty-lines)
+		needs_newline=false
+	fi
+
+	{ { "$needs_newline" && sed 's/$/\n/'; } || cat; } | column "${args[@]}"
+}
+
 # -----------------------------------------------------------------------------
 # Functions:
 # -----------------------------------------------------------------------------
@@ -145,6 +198,9 @@ map_language_to_extension() {
 	rust | rs)                  ext=".rs" ;;
 	graphql | gql)              ext=".graphql" ;;
 	python | py)                ext=".py" ;;
+	elixir | ex)                ext=".ex" ;;
+	exs)                        ext=".exs" ;;
+	tsv)                        ext=".tsv" ;;
 	esac
 
 	echo "$ext"
@@ -271,6 +327,8 @@ BAT_ARGS=()
 OPT_LANGUAGE=
 FILES=()
 DEBUG_PRINT_FORMATTER=false
+
+TERMINAL_WIDTH="$(term_width)"
 
 # Parse arguments.
 while shiftopt; do

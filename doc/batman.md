@@ -11,7 +11,19 @@ If you have `fzf` installed, you can even use `batman` to search through manual 
 
     batman [SECTION] [ENTRY]
 
+### As a Replacement for Man
 
+With bash:
+
+```bash
+eval "$(batman --export-env)"
+```
+
+With fish:
+
+```fish
+batman --export-env | source
+```
 
 ## Environment
 
