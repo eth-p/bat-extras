@@ -155,8 +155,8 @@ print_bat_diff() {
 
 	# Diff git file.
 	if "$SUPPORTS_BAT_DIFF"; then
-		"$EXECUTABLE_GIT" diff "${GIT_ARGS[@]}" --name-only "${files[0]}" \
-			| xargs "$EXECUTABLE_BAT" --diff --diff-context="$OPT_CONTEXT" "${BAT_ARGS[@]}"
+		"$EXECUTABLE_GIT" diff "${GIT_ARGS[@]}" --name-only -z "${files[0]}" \
+			| xargs --null "$EXECUTABLE_BAT" --diff --diff-context="$OPT_CONTEXT" "${BAT_ARGS[@]}"
 	else
 		"$EXECUTABLE_GIT" diff "${GIT_ARGS[@]}" "${files[0]}" | "$EXECUTABLE_BAT" --language=diff - "${BAT_ARGS[@]}"
 	fi
