@@ -21,23 +21,23 @@ See `man bat` for more information.
 
 ## Languages
 
-| Language             | Formatter                                                       |
-| -------------------- | --------------------------------------------------------------- |
-| JavaScript (JS, JSX) | [prettier](https://prettier.io/)                                |
-| TypeScript (TS, TSX) | [prettier](https://prettier.io/)                                |
-| CSS, SCSS, SASS      | [prettier](https://prettier.io/)                                |
-| Markdown             | [prettier](https://prettier.io/)                                |
-| JSON                 | [prettier](https://prettier.io/)                                |
-| YAML                 | [prettier](https://prettier.io/)                                |
-| HTML                 | [prettier](https://prettier.io/)                                |
-| SVG                  | [prettier](https://prettier.io/)                                |
-| Rust                 | [rustfmt](https://github.com/rust-lang/rustfmt)                 |
-| Bash                 | [shfmt](https://github.com/mvdan/sh)                            |
-| C                    | [ClangFormat](https://clang.llvm.org/docs/ClangFormat.html)     |
-| C++                  | [ClangFormat](https://clang.llvm.org/docs/ClangFormat.html)     |
-| Objective-C          | [ClangFormat](https://clang.llvm.org/docs/ClangFormat.html)     |
-| Python               | [black](https://black.readthedocs.io/)                          |
-| Elixir               | [mix format](https://hexdocs.pm/mix/main/Mix.Tasks.Format.html) |
+| Language             | Formatter                                                                                              |
+| -------------------- | ------------------------------------------------------------------------------------------------------ |
+| JavaScript (JS, JSX) | [prettier](https://prettier.io/)                                                                       |
+| TypeScript (TS, TSX) | [prettier](https://prettier.io/)                                                                       |
+| CSS, SCSS, SASS      | [prettier](https://prettier.io/)                                                                       |
+| Markdown             | [prettier](https://prettier.io/)                                                                       |
+| JSON                 | [yq](https://mikefarah.gitbook.io/yq), [prettier](https://prettier.io/)                                |
+| YAML                 | [yq](https://mikefarah.gitbook.io/yq), [prettier](https://prettier.io/)                                |
+| HTML                 | [prettier](https://prettier.io/)                                                                       |
+| SVG                  | [prettier](https://prettier.io/)                                                                       |
+| Rust                 | [rustfmt](https://github.com/rust-lang/rustfmt)                                                        |
+| Bash                 | [shfmt](https://github.com/mvdan/sh)                                                                   |
+| C                    | [ClangFormat](https://clang.llvm.org/docs/ClangFormat.html)                                            |
+| C++                  | [ClangFormat](https://clang.llvm.org/docs/ClangFormat.html)                                            |
+| Objective-C          | [ClangFormat](https://clang.llvm.org/docs/ClangFormat.html)                                            |
+| Python               | [black](https://black.readthedocs.io/)                                                                 |
+| Elixir               | [mix format](https://hexdocs.pm/mix/main/Mix.Tasks.Format.html)                                        |
 
 
 
