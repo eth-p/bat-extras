@@ -12,4 +12,10 @@ EOF
 exit 0
 fi
 
-cat "$1"
+FILES=()
+while [[ $# -gt 0 ]]; do
+    -*) : ;;
+    *)  FILES+=("$1")
+done
+
+cat "${FILES[@]}"
