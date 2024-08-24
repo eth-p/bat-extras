@@ -207,7 +207,8 @@ formatter_yq_process() {
 		*.json) args+=(--output-format json) ;;
 	esac
 
-	yq --prettyPrint --indent 2 "${args[@]}"
+	yq --prettyPrint --indent 4 "${args[@]}" \
+		| sed -e ':l' -e 's/^\(\t*\)    /\1\t/g; t l'
 	return $?
 }
 
