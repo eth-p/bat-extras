@@ -24,7 +24,7 @@ hook_version
 # -----------------------------------------------------------------------------
 
 FORMATTERS=(
-	"prettier" "rustfmt" "shfmt" "clangformat"
+	"yq" "prettier" "rustfmt" "shfmt" "clangformat"
 	"black" "mix_format" "column"
 )
 
@@ -169,6 +169,46 @@ formatter_column_process() {
 	fi
 
 	{ { "$needs_newline" && sed 's/$/\n/'; } || cat; } | column "${args[@]}"
+}
+
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+formatter_yq_supports__version_ok() {
+	local yq_version
+	yq_version=$(yq --version | sed 's/^.* version v//')
+
+	# If it's older than yq version 4, replace the functions to save processing.
+	if version_compare "$yq_version" -lt 4.0; then
+		formatter_yq_supports() { return 1; }
+		formatter_yq_supports__version_ok() { return 1; }
+		return 1
+	fi
+
+	# It's supported.
+	formatter_yq_supports__version_ok() { return 0; }
+	return 0
+}
+
+formatter_yq_supports() {
+	case "$1" in
+		.yaml | yml | \
+		.json)
+		formatter_yq_supports__version_ok
+		return $?
+		;;
+	esac
+
+	return 1
+}
+
+formatter_yq_process() {
+	local args=()
+	case "$1" in
+		*.json) args+=(--output-format json) ;;
+	esac
+
+	yq --prettyPrint --indent 2 "${args[@]}"
+	return $?
 }
 
 # -----------------------------------------------------------------------------
