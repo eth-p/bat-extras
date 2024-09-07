@@ -32,8 +32,14 @@ Like [lesspipe](https://github.com/wofr06/lesspipe), `batpipe` is designed to wo
 | Directories          | `eza`, `ls`                 |
 | `*.tar`, `*.tar.gz`  | `tar`                       |
 | `*.zip`, `*.jar`     | `unzip`                     |
+| `*.7z`               | `7z`                        |
 | `*.gz`               | `gunzip`                    |
+| `*.bz2`              | `bzip2`                     |
 | `*.xz`               | `xz`                        |
+| `*.lz4`              | `lz4`                       |
+| `*.lz`               | `lzip`                      |
+| `*.lzo`              | `lzop`                      |
+| `*.zst`              | `zstd`                      |
 
 
 ## External Viewers
