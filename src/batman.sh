@@ -19,7 +19,6 @@ source "${LIB}/opt_hook_version.sh"
 hook_color
 hook_version
 # -----------------------------------------------------------------------------
-FORWARDED_ARGS=()
 MAN_ARGS=()
 BAT_ARGS=()
 OPT_EXPORT_ENV=false
@@ -28,8 +27,7 @@ SHIFTOPT_SHORT_OPTIONS="SPLIT"
 while shiftopt; do
 	case "$OPT" in
 		--export-env) OPT_EXPORT_ENV=true ;;
-		--paging|--pager|--wrap) shiftval; FORWARDED_ARGS+=("${OPT}=${OPT_VAL}");
-		                            BAT_ARGS+=("${OPT}=${OPT_VAL}") ;;
+		--paging|--pager|--wrap|--decorations) shiftval; BAT_ARGS+=("${OPT}=${OPT_VAL}") ;;
 		*)                          MAN_ARGS+=("$OPT") ;;
 	esac
 done
@@ -67,7 +65,7 @@ fi
 
 # -----------------------------------------------------------------------------
 if [[ -n "${MANPAGER}" ]]; then BAT_PAGER="$MANPAGER"; fi
-export MANPAGER="env BATMAN_IS_BEING_MANPAGER=yes bash $(printf "%q " "$SELF" "${FORWARDED_ARGS[@]}")"
+export MANPAGER="env BATMAN_IS_BEING_MANPAGER=yes bash $(printf "%q " "$SELF" "${BAT_ARGS[@]}")"
 export MANPAGER="${MANPAGER%"${MANPAGER##*[![:space:]]}"}"
 export MANROFFOPT='-c'
 
