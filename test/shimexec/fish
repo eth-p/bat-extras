@@ -1,14 +1,4 @@
 #!/usr/bin/env bash
-# Find the real fish.
-HERE="$(cd "$(dirname "$0")" && pwd)"
-while read -d ':' -r dir; do
-	if [[ "$dir" == "$HERE" || -z "$dir" ]]; then continue; fi
-	if [[ -f "${dir}/fish" ]]; then
-		TMPDIR='' "${dir}/fish" "$@"
-		exit $?
-	fi
-done <<<"$PATH:"
-
-# Print error and exit.
-echo "fish was not found on \$PATH" 1>&2
-exit 127
+# Run bash, but with executable name as `fish`.
+exec -a "${SHIM_ARGV0:-fish}" bash "$@"
+exit $?

@@ -11,9 +11,7 @@ test:detected_bash_shell() {
 }
 
 test:detected_fish_shell() {
-	description "Test it can detect a bash shell."
-	command -v "fish" &>/dev/null || skip "Test requires fish shell."
-	fish -c 'exit 0' &>/dev/null || skip "Test requires fish shell." # This is in case it finds "fish" in shimexec dir.
+	description "Test it can detect a fish shell."
 	
 	output="$(SHELL="fish" fish --login -c "$(batpipe_path)")"
 	grep '^set -x' <<< "$output" >/dev/null || fail "Detected the wrong shell for fish."
