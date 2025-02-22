@@ -26,6 +26,22 @@ test:detected_fish_shell() {
 	grep '^set -x' <<< "$output" >/dev/null || fail 'Detected wrong shell when checking parent process.'
 }
 
+test:detected_nu_shell() {
+	description "Test it can detect a nushell shell."
+
+	# Note: We don't use bash's `-c` option when testing with a fake nu shell.
+	# Bash `-c` will automatically exec() into the last process, which loses the
+	# argv0 we intentionally named after a different shell.
+
+	# Test detection via `*sh -l` parent process.
+	output="$(printf "%q" "$(batpipe_path)" | nu -l)"
+	grep '^\$env' <<< "$output" >/dev/null || fail 'Detected wrong shell when checking parent process args.'
+
+	# Test detection via hypen-prefixed parent process.
+	output="$(printf "%q" "$(batpipe_path)" | SHIM_ARGV0='-nu' nu -l)"
+	grep '^\$env' <<< "$output" >/dev/null || fail 'Detected wrong shell when checking parent process.'
+}
+
 test:viewer_gzip() {
 	description "Test it can view .gz files."
 	command -v "gunzip" &>/dev/null || skip "Test requires gunzip."

@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+# Run bash, but with executable name as `nu`.
+#
+# Spawn the process in the background and wait on it to ensure we keep
+# the fake shell as a parent process.
+exec -a "${SHIM_ARGV0:-nu}" bash "$@"
+exit $?
