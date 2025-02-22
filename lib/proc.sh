@@ -39,8 +39,11 @@ parent_shell() {
 				break
 			fi
 			
-			# If the parent process has "*sh " followed by "-l", it's probably a login shell.
-			if [[ "$target_name" =~ sh\ .*-l ]]; then
+			# If the parent process is one of:
+			#  - `*sh`; or
+			#  - `nu`
+			# Followed by "-l", it's probably a login shell.
+			if [[ "$target_name" =~ ^(.*sh|nu)\ .*-l ]]; then
 				target_name="$(cut -f1 -d' ' <<< "${target_name}")"
 				break
 			fi

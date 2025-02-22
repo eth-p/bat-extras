@@ -67,19 +67,25 @@ if [[ "$#" -eq 0 ]]; then
 
 	# Detect the shell.
 	#
-	# This will directly check if the parent is fish, since there's a
-	# good chance that `bash` or `sh` will be invoking fish.
-	if [[ "$(basename -- "$(parent_executable | cut -f1 -d' ')")" == "fish" ]]; then
-		detected_shell="fish"
-	else
-		detected_shell="$(parent_shell)"
-	fi
+	# This will directly check if the parent is a non-sh/bash shell, since
+	# there's a good chance that `bash` or `sh` will be invoking it.
+	case "$(basename -- "$(parent_executable | cut -f1 -d' ')")" in
+		fish) detected_shell="fish" ;;
+		nu)   detected_shell="nu" ;;
+		*)    detected_shell="$(parent_shell)" ;;
+	esac
 
 	# Print the commands required to add `batpipe` to the environment variables.
 	case "$(basename -- "${detected_shell:bash}")" in
 		fish) # Fish
 			printc '%{YELLOW}set -x %{CLEAR}LESSOPEN %{CYAN}"|%q %%s"%{CLEAR};\n' "$SELF"
 			printc '%{YELLOW}set -e %{CLEAR}LESSCLOSE;\n'
+			;;
+		nu) # Nushell
+			printc '%{BLUE}$env%{CLEAR}.LESSOPEN = %{CYAN}"|%q %%s"%{CLEAR}\n' "$SELF"
+			if [[ "${LESSCLOSE:-}" != "" ]]; then
+				printc '%{BLUE}hide-env%{CLEAR} LESSCLOSE\n' "$SELF"
+			fi
 			;;
 		*) # Bash-like
 			printc '%{MAGENTA}LESSOPEN%{CLEAR}=%{CYAN}"|%s %%s"%{CLEAR};\n' "$SELF"
@@ -98,6 +104,10 @@ if [[ "$#" -eq 0 ]]; then
 		fish) # Fish
 			printc '%{YELLOW}set -x %{CLEAR}LESS %{CYAN}"%{MAGENTA}$LESS%{CYAN} -R"%{CLEAR};\n' "$SELF"
 			printc '%{YELLOW}set -x %{CLEAR}BATPIPE %{CYAN}"color"%{CLEAR};\n'
+			;;
+		nu) # Nushell
+			printc '%{BLUE}$env%{CLEAR}.LESS = %{CYAN}$"%{MAGENTA}($env.LESS)%{CYAN} -R"%{CLEAR}\n' "$SELF"
+			printc '%{BLUE}$env%{CLEAR}.BATPIPE = %{CYAN}"color"%{CLEAR}\n' "$SELF"
 			;;
 		*) # Bash-like
 			printc '%{MAGENTA}LESS%{CLEAR}=%{CYAN}"%{MAGENTA}$LESS%{CYAN} -R"%{CLEAR};\n' "$SELF"
