@@ -62,7 +62,7 @@ This script is a part of the `bat-extras` suite of scripts. You can find install
 - This happens when you change `bat`'s theme through `bat`'s config file or the `BAT_THEME` environment variable. Not all themes provide colours for flags, and [it's a known issue](https://github.com/sharkdp/bat/issues/2115).
 - You can overriding the theme for `batman` by wrapping it in a function that sets `BAT_THEME`.
 - The following themes support manpage highlighting:
-  - `Monokai Extended` / ``Monokai Extended Light`
+  - `Monokai Extended` / `Monokai Extended Light`
   - `Solarized (dark)` / `Solarized (light)`
 
 
