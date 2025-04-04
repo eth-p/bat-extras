@@ -181,7 +181,7 @@ shiftval() {
 	fi
 
 	# Error if no value is provided.
-	if [[ "$OPT_VAL" =~ -.* ]]; then
+	if [[ "$OPT_VAL" =~ ^-.* ]]; then
 		printc "%{RED}%s: '%s' requires a value%{CLEAR}\n" "$PROGRAM" "$ARG"
 		exit 1
 	fi
