@@ -2,7 +2,7 @@
 
 Read system manual pages (`man`) using `bat` as the manual page formatter.
 
-Gone are the days of losing your place while reading through monotone manual pages. With `bat` and `batman`, you can read `man ifconfig` with beautiful 24-bit color and syntax higlighting.
+Gone are the days of losing your place while reading through monotone manual pages. With `bat` and `batman`, you can read take boring old `man ifconfig` into glorious `batman ifconfig` with beautiful 24-bit color and syntax higlighting.
 
 If you have `fzf` installed, you can even use `batman` to search through manual pages!
 
@@ -11,16 +11,16 @@ If you have `fzf` installed, you can even use `batman` to search through manual 
 
     batman [SECTION] [ENTRY]
 
-### As a Replacement for Man
+### Replacing `man`
 
-With bash:
+If you want to replace `man` with `batman`, just use `alias man=batman`.
 
+Alternatively, you can add this to `~/.bashrc` or `~/.zshrc`:
 ```bash
 eval "$(batman --export-env)"
 ```
 
-With fish:
-
+With fish, add this to `~/.config/fish/config.fish`:
 ```fish
 batman --export-env | source
 ```
