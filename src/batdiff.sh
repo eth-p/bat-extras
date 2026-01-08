@@ -211,6 +211,7 @@ fi
 main() {
 	if [[ "${#FILES[@]}" -eq 0 ]] || "$OPT_ALL_CHANGES"; then
 		ensure_git_directory
+		cd "$("${EXECUTABLE_GIT}" rev-parse --show-toplevel)" || exit 1
 		local file
 		while read -r file; do
 			if [[ -f "$file" ]]; then
