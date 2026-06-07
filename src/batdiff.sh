@@ -216,7 +216,7 @@ main() {
 			if [[ -f "$file" ]]; then
 				print_diff "$file"
 			fi
-		done < <("${EXECUTABLE_GIT}" diff "${GIT_ARGS[@]}" --name-only --diff-filter=d)
+		done < <("${EXECUTABLE_GIT}" diff "${GIT_ARGS[@]}" --name-only --diff-filter=d  --relative)
 		return
 	fi
 
