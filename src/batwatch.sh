@@ -290,7 +290,7 @@ else
 		BAT_ARGS+=("--terminal-width=$term_width")
 
 		while true; do
-			IFS='' rendered="$("${FILES[@]}" 2>&1 | "$EXECUTABLE_BAT" "${BAT_ARGS[@]}")"
+			IFS='' rendered="$("${FILES[@]}" 2>&1 | "$EXECUTABLE_BAT" "${BAT_ARGS[@]}" | sed -e '1,5 s/\(\x1b\[0m\)\( *\)File:/\1\2Command:/' -e '1,5 s/\(│\)\( *\)File:/\1\2Command:/' -e '1,5 s/\(|\)\( *\)File:/\1\2Command:/' -e '1,5 s/^\( *\)File:/\1Command:/')"
 			if [ "$rendered" != "$last_rendered" ]; then
 				# Only clear and redraw if there's a change.
 				# This reduces excessive flickering.
