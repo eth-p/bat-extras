@@ -29,3 +29,12 @@ test:displayed() {
 	batwatch --no-clear --watcher poll file.sh <<< "q"
 	batwatch --watcher poll file.sh <<< "q" | grep -q "Hello"
 }
+
+test:command_header() {
+	description "Test 'batwatch --command': header should show 'Command:'"
+	local output
+	output="$(timeout 2s "${BIN_DIR}/batwatch${BIN_SUFFIX}" --command --style=header --color=always date)" || true
+	echo "$output" | grep -q "Command:.*date"
+	! echo "$output" | grep -q "File:.*date"
+}
+
