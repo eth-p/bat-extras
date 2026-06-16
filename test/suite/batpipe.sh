@@ -42,6 +42,23 @@ test:detected_nu_shell() {
 	grep '^\$env' <<< "$output" >/dev/null || fail 'Detected wrong shell when checking parent process.'
 }
 
+test:detected_less_with_path_argument() {
+	description "Test it detects less when less opens a file by an absolute path."
+
+	# Drive less, letting it invoke batpipe as its LESSOPEN preprocessor, with a
+	# file opened by an absolute path -- exactly how files are normally opened
+	# (`less /home/user/file.txt`). less's command line then ends in that path;
+	# batpipe must detect "less" from the executable name only. Taking the
+	# basename of the *whole* command line yields the file's basename instead,
+	# so batpipe wrongly concludes it is not inside less and disables color.
+	export BATPIPE_DEBUG=1
+	export LESSOPEN="|$(batpipe_path) %s"
+
+	output="$(less "${PWD}/file.txt" 2>&1)"
+	grep 'BATPIPE_INSIDE_LESS: true' <<< "$output" >/dev/null \
+		|| fail "Did not detect less as the parent when opening a file by an absolute path."
+}
+
 test:viewer_gzip() {
 	description "Test it can view .gz files."
 	command -v "gunzip" &>/dev/null || skip "Test requires gunzip."

@@ -12,10 +12,27 @@ EOF
 exit 0
 fi
 
-FILES=()
-while [[ $# -gt 0 ]]; do
-    -*) : ;;
-    *)  FILES+=("$1")
+# Re-exec with argv[0] set to `less` (like the fish/nu shims) so this process
+# is reported as `less` by `ps`. batpipe identifies its parent process by name;
+# a plain script would show up as `bash .../less` and hide us.
+if [[ -z "${_LESS_SHIM_REEXEC:-}" ]]; then
+	export _LESS_SHIM_REEXEC=1
+	exec -a "${SHIM_ARGV0:-less}" bash "$0" "$@"
+fi
+
+# Collect file operands, ignoring options -- like the real less CLI.
+files=()
+for arg; do
+	[[ "$arg" == -* ]] || files+=("$arg")
 done
 
-cat "${FILES[@]}"
+# Honor an input-pipe LESSOPEN preprocessor (`|command %s`) the way real less
+# does: feed each file through it. Otherwise just print the file.
+for file in "${files[@]}"; do
+	if [[ "${LESSOPEN-}" == "|"* ]]; then
+		command="${LESSOPEN#|}"
+		eval "${command//%s/$file}"
+	else
+		cat "$file"
+	fi
+done
