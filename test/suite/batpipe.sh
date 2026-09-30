@@ -49,6 +49,43 @@ test:viewer_gzip() {
 	assert_equal "$(batpipe compressed.txt.gz)" "OK"
 }
 
+test:viewer_tar_gz() {
+	description "Test it can view files inside .tgz archives, with and without eza."
+	command -v "tar" &>/dev/null || skip "Test requires tar."
+	command -v "gzip" &>/dev/null || skip "Test requires gzip."
+
+	assert_equal "$(batpipe archive.tgz/archive.txt)" "OK"
+	assert_equal "$(with_fake_eza batpipe archive.tgz/archive.txt)" "OK"
+}
+
+test:viewer_tar_bz2() {
+	description "Test it can view files inside .tbz archives, with and without eza."
+	command -v "tar" &>/dev/null || skip "Test requires tar."
+	command -v "bzip2" &>/dev/null || skip "Test requires bzip2."
+
+	assert_equal "$(batpipe archive.tbz/archive.txt)" "OK"
+	assert_equal "$(with_fake_eza batpipe archive.tbz/archive.txt)" "OK"
+}
+
+test:viewer_eza() {
+	description "Test it uses eza to view directories when eza is installed."
+
+	with_fake_eza batpipe . | grep '^fake eza' >/dev/null || fail "Did not use eza to view the directory."
+}
+
+# Runs a command with an eza stub first on the PATH.
+# The stub prints "fake eza" and its arguments.
+with_fake_eza() {
+	local dir status
+	dir="$(mktemp -d)"
+	printf '#!/usr/bin/env bash\necho "fake eza $*"\n' > "${dir}/eza"
+	chmod +x "${dir}/eza"
+	PATH="${dir}:${PATH}" "$@"
+	status=$?
+	rm -rf "$dir"
+	return $status
+}
+
 test:batpipe_term_width() {
 	description "Test support for BATPIPE_TERM_WIDTH"
 	snapshot STDOUT
