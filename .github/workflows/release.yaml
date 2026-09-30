@@ -8,7 +8,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check out sources
-        uses: actions/checkout@v3
+        uses: actions/checkout@v7
       - name: Install build dependencies
         uses: ./.github/actions/install-dependencies
         with:

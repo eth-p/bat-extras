@@ -9,7 +9,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check out sources
-        uses: actions/checkout@v3
+        uses: actions/checkout@v7
       - name: Install build dependencies
         uses: ./.github/actions/install-dependencies
         with:
@@ -23,7 +23,7 @@ jobs:
           verify: false
           inline: false
       - name: Upload artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v7
         if:   ${{ !env.ACT && !failure() }}
         with:
           path: |
@@ -34,7 +34,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check out sources
-        uses: actions/checkout@v3
+        uses: actions/checkout@v7
       - name: Install test dependencies
         uses: ./.github/actions/install-dependencies
         with:
@@ -48,7 +48,7 @@ jobs:
     needs: "Test"
     steps:
       - name: Check out sources
-        uses: actions/checkout@v3
+        uses: actions/checkout@v7
       - name: Install dependencies
         uses: ./.github/actions/install-dependencies
         with:
@@ -73,7 +73,7 @@ jobs:
       BAT_PAGER: 'cat'
     steps:
       - name: Check out sources
-        uses: actions/checkout@v3
+        uses: actions/checkout@v7
       - name: Install dependencies
         uses: ./.github/actions/install-dependencies
         with:
