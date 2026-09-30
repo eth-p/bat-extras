@@ -161,12 +161,7 @@ fi
 # Viewers:
 # -----------------------------------------------------------------------------
 
-if ! command -v eza &> /dev/null
-then
-	BATPIPE_VIEWERS=("eza" "ls" "tar" "tar_gz" "unzip" "gunzip" "xz")
-else
-	BATPIPE_VIEWERS=("exa" "ls" "tar" "tar_bz2" "unzip" "gunzip" "xz")
-fi
+BATPIPE_VIEWERS=("eza" "exa" "ls" "tar" "tar_gz" "tar_bz2" "unzip" "gunzip" "xz")
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
